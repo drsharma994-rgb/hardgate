@@ -129,6 +129,7 @@ table{width:100%;border-collapse:collapse}
   <button id="tabB_bias" class="on" onclick="showTab('bias')">BIAS</button>
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
   <button id="tabB_scalp" onclick="showTab('scalp')">SCALP SCAN</button>
+  <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
   <button id="tabB_trade" onclick="showTab('trade')">TRADE PLAN</button>
 </nav>
 <main>
@@ -179,6 +180,25 @@ table{width:100%;border-collapse:collapse}
   <div class="note" style="margin-bottom:10px">Gates: G1 1H EMA cascade sets direction · G2 15m EMA9/21 pullback-and-reclaim in that direction · G3 15m RSI in 40–65 band (long) / 35–60 (short), no chasing exhaustion · G4 funding clean · G5 ≥ 25 min to funding settlement (00:00/08:00/16:00 UTC = 5:30/13:30/21:30 IST) · G6 ATR-based 2R target inside recent range. Scalps are invalid if you can't be filled early — entry is the reclaim close, not a market chase.</div>
   <div class="cards" id="scalpCards"></div>
   <div class="empty" id="scalpEmpty" style="display:none">No CLEAN scalp triggers right now.</div>
+</section>
+
+<!-- ================= GOLD ================= -->
+<section id="tab_gold" class="tabpane">
+  <div class="panel">
+    <h2>Gold — XAUTUSD <span>session-aware · Asian range + PDH/PDL liquidity · sweep-and-reclaim scalps · Delta India perp</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn" id="goldRun" onclick="runGold()">EVALUATE GOLD</button>
+      <span class="statuschip" id="goldSess">session <b>—</b></span>
+      <span class="statuschip" id="goldLvl">PDH <b>—</b> · PDL <b>—</b> · Asia <b>—</b></span>
+      <span class="note" id="goldStat"></span>
+    </div>
+    <div class="note">Gold logic: swing side follows the 4H/1D hard gates (same discipline as crypto, no exceptions for the shiny metal). Scalps only fire inside London (12:30–15:30 IST) or NY (17:30–20:30 IST) kill zones, and only on a sweep of the Asian range or prior-day high/low followed by a closed-bar reclaim — the Judas pattern you already trade. Fear &amp; Greed is crypto sentiment and is deliberately NOT applied here. DXY, real yields and the event calendar are your manual homework — no API here will judge them honestly for you.</div>
+    <div class="prog" id="goldProg"><i></i></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>Swing Ledger <span>4H structure</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+    <div class="panel"><h2>Scalp Ledger <span>15m sweep-and-reclaim in kill zone</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+  </div>
 </section>
 
 <!-- ================= TRADE ================= -->
@@ -239,11 +259,30 @@ const S = {
   candleCache: {},        // key: ex|sym|res -> candles asc
   fng: null, dom: null,
   cdcxBlocked: false,
+  cdcxViaProxy: false,
 };
 
 const DELTA = 'https://api.india.delta.exchange';
 const CDCX_PUB = 'https://public.coindcx.com';
 const CDCX_API = 'https://api.coindcx.com';
+const CDCX_PROXY = 'https://hardgate-proxy.onrender.com'; // Render web service name must match; edit if renamed
+
+/* CoinDCX fetch: try direct (CORS may block), fall back to the Render proxy.
+   Free-tier proxy cold-starts in ~50s after idle — first call may be slow. */
+async function cdcxGet(url){
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    S.cdcxViaProxy = false;
+    return j;
+  }catch(e){
+    const r = await fetch(`${CDCX_PROXY}/proxy?url=${encodeURIComponent(url)}`);
+    if(!r.ok) throw new Error('proxy HTTP '+r.status);
+    S.cdcxViaProxy = true;
+    return r.json();
+  }
+}
 
 /* ---------------- utils ---------------- */
 const $ = id => document.getElementById(id);
@@ -303,8 +342,7 @@ async function candlesDelta(sym, res, count){
 async function loadTickersCdcx(){
   // Active USDT-margined futures instruments; ticker detail endpoints vary — we
   // rank by what candles give us and mark funding as unavailable rather than faking it.
-  const r = await fetch(`${CDCX_API}/exchange/v1/derivatives/futures/data/active_instruments?margin_currency_short_name[]=USDT`);
-  const j = await r.json();
+  const j = await cdcxGet(`${CDCX_API}/exchange/v1/derivatives/futures/data/active_instruments?margin_currency_short_name[]=USDT`);
   const list = Array.isArray(j) ? j : (j.instruments||[]);
   return list.map(s=>({ symbol: typeof s==='string'? s : s.symbol, mark: NaN, fundingPct: null, oiUsd: 0, turnoverUsd: 0, chg24: null }));
 }
@@ -312,8 +350,7 @@ const CDCX_RES = {'15m':'15','1h':'60','4h':'240','1d':'1D'};
 async function candlesCdcx(sym, res, count){
   const secPer = {'15m':900,'1h':3600,'4h':14400,'1d':86400}[res];
   const to = nowSec(), from = to - secPer*(count+3);
-  const r = await fetch(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${from}&to=${to}&resolution=${CDCX_RES[res]}&pcode=f`);
-  const j = await r.json();
+  const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${from}&to=${to}&resolution=${CDCX_RES[res]}&pcode=f`);
   const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)}));
   rows.sort((a,b)=>a.t-b.t);
   return rows;
@@ -324,11 +361,20 @@ async function getTickers(){
   try { const t = await loadTickersCdcx(); S.cdcxBlocked=false; return t; }
   catch(e){ S.cdcxBlocked=true; throw e; }
 }
+/* Drop the still-forming bar: gates must only ever see CLOSED candles.
+   Evaluating a partial bar repaints — a cascade that exists at 14:37 can
+   vanish by 16:00. Candle t = bar open time, so forming iff now-t < duration. */
+function dropForming(rows, res){
+  const sec = {'15m':900,'1h':3600,'4h':14400,'1d':86400}[res];
+  if (!rows.length || !sec) return rows;
+  return (nowSec() - rows[rows.length-1].t < sec) ? rows.slice(0,-1) : rows;
+}
 async function getCandles(sym, res, count){
   const key = `${S.exchange}|${sym}|${res}`;
   const hit = S.candleCache[key];
   if (hit && (nowSec()-hit.at) < 60) return hit.rows;
-  const rows = S.exchange==='delta' ? await candlesDelta(sym,res,count) : await candlesCdcx(sym,res,count);
+  let rows = S.exchange==='delta' ? await candlesDelta(sym,res,count) : await candlesCdcx(sym,res,count);
+  rows = dropForming(rows, res);
   S.candleCache[key] = {rows, at: nowSec()};
   return rows;
 }
@@ -405,16 +451,16 @@ async function setExchange(x){
     S.tickers = await getTickers();
     $('chipConn').classList.remove('warn');
     $('chipConn').innerHTML = `<b>${S.tickers.length}</b> ${x==='delta'?'Delta India':'CoinDCX'} perps`;
-    if (x==='coindcx') $('chipConn').innerHTML += ' <b style="color:var(--gold)">(no funding/turnover fields — gates degrade honestly)</b>';
+    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy?'via proxy · ':''}no funding/turnover fields — gates degrade honestly)</b>`;
   }catch(e){
     $('chipConn').classList.add('warn');
-    $('chipConn').innerHTML = `<b>API blocked</b> — ${x==='coindcx'?'CoinDCX public API refused the browser (CORS). Use Delta, or route via your Render proxy.':'Delta unreachable.'}`;
+    $('chipConn').innerHTML = `<b>API blocked</b> — ${x==='coindcx'?'CoinDCX direct + proxy both failed. If the proxy just woke from idle it needs ~50s — retry once. Otherwise check hardgate-proxy on Render.':'Delta unreachable.'}`;
     S.tickers = [];
   }
   renderBiasChips();
 }
 function showTab(t){
-  ['bias','swing','scalp','trade'].forEach(k=>{
+  ['bias','swing','scalp','gold','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
@@ -559,6 +605,8 @@ async function runScan(kind){
           let dir=null;
           if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short';
           if (!dir) continue;                                              // G1
+          const a4=last(atr(rows,14));                                     // G1b anti-chop:
+          if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)) continue;   // cascade must have spread, not just order
           if (dir==='long' ? !(p>e200) : !(p<e200)) continue;              // G2
           if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) continue;   // G3
           if (t.fundingPct!==null){                                        // G4
@@ -609,7 +657,12 @@ async function runScan(kind){
             if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) continue;
           }
           if (minsToFunding<25) continue;                                  // G5
-          const a=last(atr(m15,14)); const entry=c15[n-1];
+          const atrArr = atr(m15,14);
+          const a = last(atrArr);
+          const base = atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+          const aMed = base.length ? base[Math.floor(base.length/2)] : NaN;
+          if (!(isFinite(a) && isFinite(aMed) && a >= 0.8*aMed)) continue; // G5b vol alive: dead tape scalps just bleed fees
+          const entry=c15[n-1];
           const stop = dir==='long' ? Math.min(lastSwing(m15,dir,12), entry-a*1.1) : Math.max(lastSwing(m15,dir,12), entry+a*1.1);
           const risk=Math.abs(entry-stop);
           const t1=dir==='long'?entry+2*risk:entry-2*risk;
@@ -693,6 +746,151 @@ liq est   ${px(liq)}  (${fmt(clearance,2)}× stop clearance)`;
     <hr class="sep">
     <div class="ticket" id="ticketTxt">${ticket}</div>
     <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)">COPY TICKET</button>`;
+}
+
+/* =============================================================================
+   GOLD — XAUTUSD session + liquidity module.
+   Swing: same hard gates as crypto. Scalp: Judas sweep-and-reclaim of Asian
+   range / PDH/PDL inside London/NY kill zones only. Closed bars only.
+   F&G deliberately NOT applied — it measures crypto sentiment, not gold.
+   ============================================================================= */
+const GOLD_SYM = 'XAUTUSD';
+function goldSession(){
+  const d = new Date();
+  const h = d.getUTCHours() + d.getUTCMinutes()/60;
+  if (h>=7  && h<10) return {name:'LONDON KZ', kz:true};   // 12:30–15:30 IST
+  if (h>=12 && h<15) return {name:'NY KZ', kz:true};        // 17:30–20:30 IST
+  if (h>=0  && h<7)  return {name:'ASIA (range builds)', kz:false};
+  return {name:'OFF-SESSION', kz:false};
+}
+function utcDayStart(){ const d=new Date(); return Math.floor(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())/1000); }
+
+async function runGold(){
+  const btn=$('goldRun'); btn.disabled=true; setProg('goldProg',0.1);
+  $('goldStat').textContent='';
+  try{
+    if (S.exchange!=='delta'){ $('goldStat').textContent='XAUTUSD lives on Delta India — switch the exchange toggle.'; return; }
+    if (!S.tickers.length) S.tickers = await getTickers();
+    const tkr = S.tickers.find(t=>t.symbol===GOLD_SYM);
+    const d1 = await getCandles(GOLD_SYM,'1d',260);  setProg('goldProg',0.35);
+    const h4 = await getCandles(GOLD_SYM,'4h',300);  setProg('goldProg',0.6);
+    const h1 = await getCandles(GOLD_SYM,'1h',160);  setProg('goldProg',0.75);
+    const m15= await getCandles(GOLD_SYM,'15m',200); setProg('goldProg',0.9);
+    if (d1.length<60||h4.length<210||m15.length<40){ $('goldStat').textContent='not enough XAUTUSD history'; return; }
+
+    /* ---- levels: prior-day H/L from last CLOSED daily; Asian range 00:00–07:00 UTC today ---- */
+    const pdc = d1[d1.length-1];
+    const PDH = pdc.h, PDL = pdc.l;
+    const day0 = utcDayStart();
+    const asia = m15.filter(r=> r.t>=day0 && r.t<day0+7*3600);
+    const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
+    const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
+    const sess = goldSession();
+    $('goldSess').innerHTML = `session <b>${sess.name}</b>`;
+    $('goldLvl').innerHTML  = `PDH <b>${px(PDH)}</b> · PDL <b>${px(PDL)}</b> · Asia <b>${isFinite(asiaLo)?px(asiaLo):'—'}–${isFinite(asiaHi)?px(asiaHi):'—'}</b>`;
+
+    /* ---------------- SWING ledger ---------------- */
+    const c4=h4.map(r=>r.c), c1=d1.map(r=>r.c);
+    const e9=last(ema(c4,9)), e21=last(ema(c4,21)), e50=last(ema(c4,50));
+    const a4=last(atr(h4,14));
+    const e50d=last(ema(c1,50)), pd=last(c1);
+    const r4=last(rsi(c4,14));
+    const fr = tkr?.fundingPct ?? null;
+    const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+    const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
+    const dSide = pd>e50d ? 'long' : 'short';
+    const sg=[];
+    sg.push(['GS1','4H EMA cascade with real spread (anti-chop)', casc!=='mixed'&&spreadOk?'pass':'veto',
+      `9/21/50 → ${casc.toUpperCase()} · |21−50| ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'—'}×ATR (need ≥0.25)`]);
+    sg.push(['GS2','1D side agrees (close vs 1D EMA50)', casc!=='mixed'&&casc===dSide?'pass':'veto', `1D → ${dSide.toUpperCase()}`]);
+    const rsiVeto=(casc==='long'&&r4>70)||(casc==='short'&&r4<30);
+    sg.push(['GS3','4H RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r4,1)}`]);
+    let gs4='na', gs4d='funding n/a on this feed';
+    if (fr!==null){
+      const bad = Math.abs(fr)>0.05-1e-9 || (casc==='long'&&fr>=0.04) || (casc==='short'&&fr<=-0.04);
+      gs4 = bad?'veto':'pass'; gs4d = `${fmt(fr,4)}%/interval`;
+    }
+    sg.push(['GS4','Funding clean (crowding veto)', gs4, gs4d]);
+    let swingPlanHtml='', sVerdict='aside';
+    if (casc!=='mixed'){
+      const stop=lastSwing(h4,casc,30), entry=last(c4), risk=Math.abs(entry-stop);
+      const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
+      const rrOk = risk>0 && room/risk>=2;
+      sg.push(['GS5','Structural R:R ≥ 2 (30-bar swing stop vs 120-bar room)', rrOk?'pass':'veto',
+        risk>0?`${fmt(room/risk,2)}R room · stop ${px(stop)}`:'no structure']);
+      const vet = sg.some(x=>x[2]==='veto');
+      sVerdict = vet?'aside':casc;
+      if(!vet){
+        const t1=casc==='long'?entry+2*risk:entry-2*risk, t2=casc==='long'?entry+3*risk:entry-3*risk;
+        swingPlanHtml = `<div class="plan">${planBlock(casc,entry,stop,t1,t2)}</div>
+          <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${casc}',${entry},${stop})">SEND TO TRADE PLAN →</button>`;
+      }
+    } else {
+      sg.push(['GS5','Structural R:R ≥ 2','na','no direction to measure']);
+    }
+    $('goldSwingOut').innerHTML = `<div class="ledger">${sg.map(x=>gateRow(...x)).join('')}</div>
+      <div class="verdict ${sVerdict==='aside'?'aside':sVerdict}">
+        <div class="vword">${sVerdict==='aside'?'STAND ASIDE':sVerdict.toUpperCase()}</div>
+        <div class="vwhy">${sVerdict==='aside'
+          ?'Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event — those are your manual checks.'
+          :'All swing gates cleared. Verify DXY, real yields and the event calendar manually before sizing — this ledger cannot see them and will not pretend to.'}</div>
+      </div>${swingPlanHtml}`;
+
+    /* ---------------- SCALP ledgers: both scenarios, judged independently ---------------- */
+    const c15=m15.map(r=>r.c), n15=c15.length;
+    const lastClose=c15[n15-1];
+    const atr15arr=atr(m15,14), a15=last(atr15arr);
+    const vbase=atr15arr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+    const aMed=vbase.length?vbase[Math.floor(vbase.length/2)]:NaN;
+    const volAlive=isFinite(a15)&&isFinite(aMed)&&a15>=0.8*aMed;
+    const e21h1=last(ema(h1.map(r=>r.c),21));
+    const look=m15.slice(-12); // last ~3h of closed 15m bars
+
+    function scalpLedger(dir){
+      const lvls = dir==='long' ? [['Asia low',asiaLo],['PDL',PDL]] : [['Asia high',asiaHi],['PDH',PDH]];
+      let swept=null, sweptLvl=NaN, ext=NaN;
+      for (const [nm,lv] of lvls){
+        if (!isFinite(lv)) continue;
+        if (dir==='long'  && Math.min(...look.map(r=>r.l)) < lv){ swept=nm; sweptLvl=lv; ext=Math.min(...look.map(r=>r.l)); break; }
+        if (dir==='short' && Math.max(...look.map(r=>r.h)) > lv){ swept=nm; sweptLvl=lv; ext=Math.max(...look.map(r=>r.h)); break; }
+      }
+      const reclaimed = swept && (dir==='long' ? lastClose>sweptLvl : lastClose<sweptLvl);
+      const htfOk = dir==='long' ? lastClose>e21h1 : lastClose<e21h1;
+      const g=[];
+      g.push(['GC1','Kill zone active (London/NY)', sess.kz?'pass':'veto', sess.name]);
+      g.push(['GC2',`Liquidity sweep of ${dir==='long'?'Asia low / PDL':'Asia high / PDH'} (last 3h)`, swept?'pass':'veto',
+        swept?`swept ${swept} ${px(sweptLvl)} · extreme ${px(ext)}`:'no sweep']);
+      g.push(['GC3','Closed 15m bar reclaimed the level', reclaimed?'pass':'veto', swept?`close ${px(lastClose)} vs ${px(sweptLvl)}`:'—']);
+      g.push(['GC4','1H context not fighting you (close vs 1H EMA21)', htfOk?'pass':'veto', `1H EMA21 ${px(e21h1)}`]);
+      g.push(['GC5','Volatility alive (15m ATR ≥ 0.8× 24h median)', volAlive?'pass':'veto', `ATR ${px(a15)} · med ${px(aMed)}`]);
+      let planHtml='';
+      if (swept && reclaimed){
+        const stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;   // beyond the sweep extreme, ATR buffer
+        const risk = Math.abs(lastClose-stop);
+        const oppoCands = (dir==='long'?[asiaHi,PDH]:[asiaLo,PDL]).filter(isFinite);
+        const oppo = oppoCands.length ? (dir==='long'?Math.min(...oppoCands):Math.max(...oppoCands)) : NaN;
+        const room = dir==='long' ? oppo-lastClose : lastClose-oppo;
+        const rrOk = risk>0 && isFinite(room) && room>=2*risk;
+        g.push(['GC6','2R fits before the opposite liquidity pool', rrOk?'pass':'veto',
+          risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'—']);
+        if (!g.some(x=>x[2]==='veto')){
+          const t1=dir==='long'?lastClose+2*risk:lastClose-2*risk;
+          planHtml=`<div class="plan">${planBlock(dir,lastClose,stop,t1,oppo)}</div>
+            <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${dir}',${lastClose},${stop})">SEND TO TRADE PLAN →</button>`;
+        }
+      } else {
+        g.push(['GC6','2R fits before the opposite pool','na','needs a completed sweep + reclaim first']);
+      }
+      const vet=g.some(x=>x[2]==='veto');
+      return `<div style="margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--${dir==='long'?'long':'short'})">${dir.toUpperCase()} SCENARIO</div>
+        <div class="ledger" style="margin-bottom:10px">${g.map(x=>gateRow(...x)).join('')}</div>
+        <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}</div></div>${planHtml}`;
+    }
+    $('goldScalpOut').innerHTML = scalpLedger('long') + scalpLedger('short');
+    $('goldStat').textContent = `evaluated · closed bars only · ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
+  }catch(e){
+    $('goldStat').textContent = 'gold eval failed: '+e.message;
+  }finally{ setProg('goldProg',null); btn.disabled=false; }
 }
 
 /* ---------------- init ---------------- */
