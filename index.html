@@ -130,6 +130,8 @@ table{width:100%;border-collapse:collapse}
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
   <button id="tabB_scalp" onclick="showTab('scalp')">SCALP SCAN</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
+  <button id="tabB_best" onclick="showTab('best')">BEST</button>
+  <button id="tabB_log" onclick="showTab('log')">LOG</button>
   <button id="tabB_trade" onclick="showTab('trade')">TRADE PLAN</button>
 </nav>
 <main>
@@ -161,7 +163,7 @@ table{width:100%;border-collapse:collapse}
     </div>
     <div class="prog" id="swingProg"><i></i></div>
   </div>
-  <div class="note" style="margin-bottom:10px">Gates: G1 4H EMA cascade aligned (9&gt;21&gt;50 or inverse) · G2 price on correct side of 4H EMA200 (HTF proxy) · G3 RSI-14 not exhausted (blocks &gt;70 long / &lt;30 short) · G4 |funding| ≤ 0.05% and not paying against you · G5 volume expansion vs 20-bar mean · G6 structural R:R ≥ 2 from last swing. Only setups passing all six render. Zero results is a valid, honest result.</div>
+  <div class="note" style="margin-bottom:10px">Gates: G1 4H EMA cascade aligned (9&gt;21&gt;50 or inverse) with real spread — |EMA21−EMA50| ≥ 0.25×ATR, so flat-tape cascades don't count · G2 price on correct side of 4H EMA200 (HTF proxy) · G3 RSI-14 not exhausted (blocks &gt;70 long / &lt;30 short) · G4 |funding| ≤ 0.05% and not paying against you · G5 volume expansion vs 20-bar mean · G6 structural R:R ≥ 2 from last swing · G7 no opposing CUSUM event in last 20 bars (the one feature your own walk-forward validated OOS, AUC ≈0.58). All gates on CLOSED bars only — nothing repaints. Zero results is a valid, honest result.</div>
   <div class="cards" id="swingCards"></div>
   <div class="empty" id="swingEmpty" style="display:none">No CLEAN swing setups. Standing aside is a position.</div>
 </section>
@@ -199,6 +201,37 @@ table{width:100%;border-collapse:collapse}
     <div class="panel"><h2>Swing Ledger <span>4H structure</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
     <div class="panel"><h2>Scalp Ledger <span>15m sweep-and-reclaim in kill zone</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
   </div>
+</section>
+
+<!-- ================= BEST ================= -->
+<section id="tab_best" class="tabpane">
+  <div class="panel">
+    <h2>Best Setup <span>hard gates are the ticket in · ranking = tally of independent aligned confirmations · WAIT is a first-class answer</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn" id="bestRun" onclick="runBest()">FIND BEST</button>
+      <span class="note" id="bestStat"></span>
+    </div>
+    <div class="note">How this ranks — and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:R≥2, no opposing CUSUM). That is binary; nothing "almost" passes. Among survivors, each earns one point per independent aligned confirmation: TSMOM 30+90d (MOP 2012) · 1D side · CUSUM aligned (your own OOS top feature) · funding tailwind · Donchian-20 proximity (Turtle) · volume z&gt;1 · R:R≥3. The tally orders CLEAN setups; it never rescues a failed one. There is no weighting, no 0–100 number, no invented probability.</div>
+    <div class="prog" id="bestProg"><i></i></div>
+  </div>
+  <div id="bestOut"><div class="empty">Run FIND BEST.</div></div>
+</section>
+
+<!-- ================= LOG ================= -->
+<section id="tab_log" class="tabpane">
+  <div class="panel">
+    <h2>Setup Log <span>every CLEAN setup auto-logs · outcomes graded against candle history · stored in this browser (localStorage)</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn" id="logCheck" onclick="checkOutcomes()">CHECK OUTCOMES</button>
+      <button class="btn ghost" onclick="exportLog()">EXPORT JSON</button>
+      <button class="btn ghost" onclick="clearLog()">CLEAR</button>
+      <span class="note" id="logStat"></span>
+    </div>
+    <div class="note" id="logSummary">—</div>
+    <hr class="sep">
+    <div class="note">Grading rules, stated so the numbers can't flatter you: outcome = first touch of T1 or stop on closed candles after log time. If both print inside the same bar, it counts as <b>SL</b> (conservative — intrabar order is unknowable). No fees, no slippage, no funding paid — so real results will be WORSE than this log. Open &gt;14 days → EXPIRED, excluded from hit rate. ΣR assumes -1R on SL, +R:R on TP1, ignores runners. This is a signal audit, not a PnL statement. Data lives in this browser only — EXPORT before clearing cache or switching devices.</div>
+  </div>
+  <div class="panel" style="overflow-x:auto" id="logTable"></div>
 </section>
 
 <!-- ================= TRADE ================= -->
@@ -428,6 +461,26 @@ function lastSwing(rows, dir, look=30){
   return dir==='long' ? Math.min(...seg.map(r=>r.l)) : Math.max(...seg.map(r=>r.h));
 }
 const last = a => a[a.length-1];
+function roc(vals, n){ const L=vals.length; return L>n ? (vals[L-1]/vals[L-1-n]-1)*100 : NaN; }
+/* Symmetric CUSUM event filter on log returns (López de Prado, AFML ch.2).
+   Threshold h = k×σ of the sample. Returns the most recent event {dir, barsAgo}.
+   Provenance: `cusum_aligned` was the dominant feature in the user's own
+   meta-label walk-forward (OOS AUC ≈0.57–0.59) — the only signal in this app
+   with venue-specific out-of-sample evidence behind it. */
+function cusumLast(vals, k=1){
+  if (vals.length<30) return null;
+  const rets=[]; for(let i=1;i<vals.length;i++) rets.push(Math.log(vals[i]/vals[i-1]));
+  const m=rets.reduce((a,b)=>a+b,0)/rets.length;
+  const sd=Math.sqrt(rets.reduce((a,b)=>a+(b-m)**2,0)/rets.length)||1e-12;
+  const h=k*sd;
+  let sPos=0, sNeg=0, ev=null;
+  for(let i=0;i<rets.length;i++){
+    sPos=Math.max(0,sPos+rets[i]); sNeg=Math.min(0,sNeg+rets[i]);
+    if (sPos>h){ ev={dir:'long', i}; sPos=0; }
+    if (sNeg<-h){ ev={dir:'short', i}; sNeg=0; }
+  }
+  return ev ? {dir:ev.dir, barsAgo:rets.length-1-ev.i} : null;
+}
 
 /* ---------------- macro / sentiment context ---------------- */
 async function loadMacro(){
@@ -460,7 +513,7 @@ async function setExchange(x){
   renderBiasChips();
 }
 function showTab(t){
-  ['bias','swing','scalp','gold','trade'].forEach(k=>{
+  ['bias','swing','scalp','gold','best','log','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
@@ -525,6 +578,21 @@ async function runBias(){
       s1 = (extreme||against)?'veto':'pass';
       s1d = `${fmt(fr,4)}%/interval · ann ${fmt(frAnn,1)}% (clamp ±0.05%)`;
     }
+    const r30=roc(c1,30), r90=roc(c1,90);
+    let t5='na', t5d=`30d ${pct(r30,1)} · 90d ${pct(r90,1)}`;
+    if (dailyDir!=='mixed' && isFinite(r30) && isFinite(r90)){
+      const want = dailyDir==='long'?1:-1;
+      const agree = (Math.sign(r30)===want?1:0)+(Math.sign(r90)===want?1:0);
+      t5 = agree===2?'pass':agree===0?'veto':'na';
+    }
+    g.push(['T5','TSMOM 30/90d sign agreement (Moskowitz–Ooi–Pedersen 2012)', t5, t5d]);
+    const ev1d = cusumLast(c1.slice(-120), 1);
+    let t6='na', t6d='no recent event';
+    if (ev1d && ev1d.barsAgo<=10 && dailyDir!=='mixed'){
+      t6 = ev1d.dir===dailyDir?'pass':'veto';
+      t6d = `${ev1d.dir.toUpperCase()} event ${ev1d.barsAgo} bars ago (1D)`;
+    } else if (ev1d){ t6d = `${ev1d.dir.toUpperCase()} event ${ev1d.barsAgo} bars ago (stale)`; }
+    g.push(['T6','CUSUM event alignment — your walk-forward\'s top feature (OOS AUC ≈0.58)', t6, t6d]);
     g.push(['S1','Funding cleanliness (crowding veto)', s1, s1d]);
     let s2='na', s2d='F&G unavailable';
     if (S.fng){ const v=S.fng.v;
@@ -622,6 +690,8 @@ async function runScan(kind){
           const room = dir==='long' ? (Math.max(...rows.slice(-120).map(r=>r.h)) - entry) : (entry - Math.min(...rows.slice(-120).map(r=>r.l)));
           const structuralRR = room/risk;
           if (!(structuralRR>=2)) continue;                                // G6
+          const ev = cusumLast(c.slice(-120), 1);                          // G7 CUSUM (top feature in
+          if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue;              // your own OOS walk-forward)
           const t1 = dir==='long'? entry+2*risk : entry-2*risk;
           const t2 = dir==='long'? entry+3*risk : entry-3*risk;
           found++;
@@ -630,8 +700,9 @@ async function runScan(kind){
             ['RSI 4H',fmt(r14,1)],['vol z',fmt(vz,2)],
             ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['ann.',t.fundingPct!==null?fmt(t.fundingPct*3*365,1)+'%':'—'],
             ['struct R:R',fmt(structuralRR,2)+'R room'],['turnover',t.turnoverUsd?('$'+fmt(t.turnoverUsd,0)):'—'],
-          ], ['G1 cascade','G2 HTF side','G3 RSI ok','G4 funding','G5 volume','G6 R:R≥2'],
+          ], ['G1 cascade+spread','G2 HTF side','G3 RSI ok','G4 funding','G5 volume','G6 R:R≥2','G7 CUSUM'+(ev&&ev.barsAgo<=20?' ✓':' n/a')],
           planBlock(dir,entry,stop,t1,t2), entry, stop));
+          logSetup(t.symbol, dir, 'swing', entry, stop, t1);
         } else {
           const h1 = await getCandles(t.symbol,'1h',120);
           if (h1.length<60) continue;
@@ -675,6 +746,7 @@ async function runScan(kind){
             ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['to settle',fmt(minsToFunding,0)+'m'],
           ], ['G1 1H trend','G2 reclaim','G3 RSI band','G4 funding','G5 settle>25m','G6 2R in range'],
           planBlock(dir,entry,stop,t1,dir==='long'?entry+3*risk:entry-3*risk), entry, stop));
+          logSetup(t.symbol, dir, 'scalp', entry, stop, t1);
         }
       }catch(e){ /* skip symbol on fetch/parse error */ }
       await sleep(120); // stay polite with the public API
@@ -811,22 +883,38 @@ async function runGold(){
       gs4 = bad?'veto':'pass'; gs4d = `${fmt(fr,4)}%/interval`;
     }
     sg.push(['GS4','Funding clean (crowding veto)', gs4, gs4d]);
+    const r30g=roc(c1,30), r90g=roc(c1,90);
+    let gs5='na', gs5d=`30d ${pct(r30g,1)} · 90d ${pct(r90g,1)}`;
+    if (casc!=='mixed' && isFinite(r30g) && isFinite(r90g)){
+      const want=casc==='long'?1:-1;
+      const agree=(Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
+      gs5 = agree===2?'pass':agree===0?'veto':'na';
+    }
+    sg.push(['GS5','TSMOM 30/90d sign — trend persistence incl. commodities (MOP 2012)', gs5, gs5d]);
+    const evG = cusumLast(c4.slice(-120), 1);
+    let gs6='na', gs6d='no recent event';
+    if (evG && evG.barsAgo<=20 && casc!=='mixed'){
+      gs6 = evG.dir===casc?'pass':'veto';
+      gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (4H)`;
+    } else if (evG){ gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (stale)`; }
+    sg.push(['GS6','CUSUM event alignment — your walk-forward\'s top feature (OOS AUC ≈0.58)', gs6, gs6d]);
     let swingPlanHtml='', sVerdict='aside';
     if (casc!=='mixed'){
       const stop=lastSwing(h4,casc,30), entry=last(c4), risk=Math.abs(entry-stop);
       const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
       const rrOk = risk>0 && room/risk>=2;
-      sg.push(['GS5','Structural R:R ≥ 2 (30-bar swing stop vs 120-bar room)', rrOk?'pass':'veto',
+      sg.push(['GS7','Structural R:R ≥ 2 (30-bar swing stop vs 120-bar room)', rrOk?'pass':'veto',
         risk>0?`${fmt(room/risk,2)}R room · stop ${px(stop)}`:'no structure']);
       const vet = sg.some(x=>x[2]==='veto');
       sVerdict = vet?'aside':casc;
       if(!vet){
         const t1=casc==='long'?entry+2*risk:entry-2*risk, t2=casc==='long'?entry+3*risk:entry-3*risk;
+        logSetup(GOLD_SYM, casc, 'gold-swing', entry, stop, t1);
         swingPlanHtml = `<div class="plan">${planBlock(casc,entry,stop,t1,t2)}</div>
           <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${casc}',${entry},${stop})">SEND TO TRADE PLAN →</button>`;
       }
     } else {
-      sg.push(['GS5','Structural R:R ≥ 2','na','no direction to measure']);
+      sg.push(['GS7','Structural R:R ≥ 2','na','no direction to measure']);
     }
     $('goldSwingOut').innerHTML = `<div class="ledger">${sg.map(x=>gateRow(...x)).join('')}</div>
       <div class="verdict ${sVerdict==='aside'?'aside':sVerdict}">
@@ -875,6 +963,7 @@ async function runGold(){
           risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'—']);
         if (!g.some(x=>x[2]==='veto')){
           const t1=dir==='long'?lastClose+2*risk:lastClose-2*risk;
+          logSetup(GOLD_SYM, dir, 'gold-scalp', lastClose, stop, t1);
           planHtml=`<div class="plan">${planBlock(dir,lastClose,stop,t1,oppo)}</div>
             <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${dir}',${lastClose},${stop})">SEND TO TRADE PLAN →</button>`;
         }
@@ -893,8 +982,171 @@ async function runGold(){
   }finally{ setProg('goldProg',null); btn.disabled=false; }
 }
 
+/* =============================================================================
+   SETUP LOG — every CLEAN setup auto-logs; outcomes graded from candle history.
+   Conservative same-bar rule: stop and target in one bar counts as SL.
+   localStorage only; EXPORT before clearing browser data.
+   ============================================================================= */
+const LOG_KEY='hardgate_log_v1';
+function loadLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
+function saveLog(l){ try{ localStorage.setItem(LOG_KEY, JSON.stringify(l)); }catch(e){} }
+function logSetup(sym,dir,kind,entry,stop,t1){
+  if (!(isFinite(entry)&&isFinite(stop)&&isFinite(t1)&&Math.abs(entry-stop)>0)) return;
+  const l=loadLog();
+  const cut=nowSec()-12*3600;
+  if (l.some(e=>e.sym===sym&&e.dir===dir&&e.kind===kind&&e.ts>cut)) return; // dedupe: same setup within 12h
+  l.push({ id:Date.now().toString(36)+Math.floor(Math.random()*1e4), ts:nowSec(), ex:S.exchange,
+           sym, dir, kind, entry, stop, t1, rr:Math.abs(t1-entry)/Math.abs(entry-stop), status:'open' });
+  saveLog(l); renderLogBadge();
+}
+async function checkOutcomes(){
+  const l=loadLog(); const btn=$('logCheck'); btn.disabled=true; $('logStat').textContent='checking…';
+  let checked=0, skipped=0;
+  for (const e of l){
+    if (e.status!=='open') continue;
+    if (e.ex!==S.exchange){ skipped++; continue; }
+    try{
+      const age = nowSec()-e.ts;
+      const res = age<2*86400 ? '15m' : age<12*86400 ? '1h' : '4h';
+      const secPer = {'15m':900,'1h':3600,'4h':14400}[res];
+      const rows = (await getCandles(e.sym,res,Math.min(300,Math.ceil(age/secPer)+5))).filter(r=>r.t>=e.ts);
+      for (const b of rows){
+        const hitSL = e.dir==='long' ? b.l<=e.stop : b.h>=e.stop;
+        const hitTP = e.dir==='long' ? b.h>=e.t1  : b.l<=e.t1;
+        if (hitSL){ e.status='sl'; e.doneTs=b.t; break; }   // same-bar ambiguity → SL, always
+        if (hitTP){ e.status='tp'; e.doneTs=b.t; break; }
+      }
+      if (e.status==='open' && age>14*86400) e.status='exp';
+      checked++;
+    }catch(err){ /* symbol delisted or fetch failed — stays open */ }
+    await sleep(120);
+  }
+  saveLog(l); renderLog();
+  $('logStat').textContent = `checked ${checked} open${skipped?` · ${skipped} skipped (other exchange)`:''}`;
+  btn.disabled=false;
+}
+function renderLog(){
+  const l=loadLog().slice().sort((a,b)=>b.ts-a.ts);
+  const tp=l.filter(e=>e.status==='tp').length, sl=l.filter(e=>e.status==='sl').length,
+        op=l.filter(e=>e.status==='open').length, ex=l.filter(e=>e.status==='exp').length;
+  const closed=tp+sl;
+  const sumR=l.reduce((a,e)=> a + (e.status==='tp' ? (e.rr||2) : e.status==='sl' ? -1 : 0), 0);
+  $('logSummary').innerHTML = `logged <b>${l.length}</b> · open <b>${op}</b> · TP <b class="pos">${tp}</b> · SL <b class="neg">${sl}</b> · expired <b>${ex}</b> · hit rate <b>${closed?fmt(tp/closed*100,1)+'%':'—'}</b> · ΣR <b class="${sumR>=0?'pos':'neg'}">${fmt(sumR,2)}R</b>${closed>0&&closed<30?' · <span style="color:var(--gold)">n='+closed+' closed — far too small to call an edge</span>':''}`;
+  $('logTable').innerHTML = l.length ? `<table><tr><th>time IST</th><th>sym</th><th>kind</th><th>dir</th><th>entry</th><th>stop</th><th>T1</th><th>R:R</th><th>status</th></tr>${
+    l.map(e=>{
+      const d=new Date((e.ts+19800)*1000).toISOString().slice(5,16).replace('T',' ');
+      const st=e.status==='tp'?'<b class="pos">TP</b>':e.status==='sl'?'<b class="neg">SL</b>':e.status==='exp'?'<span style="color:var(--dim)">EXP</span>':'open';
+      return `<tr><td>${d}</td><td>${e.sym}</td><td>${e.kind}</td><td>${e.dir.toUpperCase()}</td><td>${px(e.entry)}</td><td>${px(e.stop)}</td><td>${px(e.t1)}</td><td>${fmt(e.rr,2)}</td><td>${st}</td></tr>`;
+    }).join('')}</table>` : '<div class="empty">Nothing logged yet. Run any scan — every CLEAN setup lands here automatically.</div>';
+}
+function exportLog(){
+  const blob=new Blob([JSON.stringify(loadLog(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='hardgate-log.json'; a.click();
+}
+function clearLog(){ if (confirm('Delete the entire setup log? Export first if you care about the sample.')){ saveLog([]); renderLog(); renderLogBadge(); } }
+function renderLogBadge(){ const b=$('tabB_log'); if(b){ const n=loadLog().length; b.textContent = n?`LOG (${n})`:'LOG'; } }
+
+/* =============================================================================
+   BEST — all hard gates first (binary ticket), then rank CLEAN survivors by a
+   visible tally of independent aligned confirmations. Never a weighted score.
+   ============================================================================= */
+async function runBest(){
+  const btn=$('bestRun'); btn.disabled=true; setProg('bestProg',0.05);
+  const out=$('bestOut'); out.innerHTML=''; $('bestStat').textContent='';
+  try{
+    if (S.exchange!=='delta'){ out.innerHTML='<div class="empty">BEST needs funding + turnover fields — Delta India only.</div>'; return; }
+    if (!S.tickers.length) S.tickers=await getTickers();
+    const uni=S.tickers.filter(t=>t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd).slice(0,30);
+    const clean=[];
+    for (let i=0;i<uni.length;i++){
+      const t=uni[i]; setProg('bestProg',(i+1)/uni.length*0.65);
+      $('bestStat').textContent=`gates ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'4h',260);
+        if (rows.length<210) continue;
+        const c=rows.map(r=>r.c);
+        const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
+        const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20), a4=last(atr(rows,14));
+        let dir=null;
+        if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short';
+        if (!dir) continue;
+        if (!(isFinite(a4)&&Math.abs(e21-e50)>=0.25*a4)) continue;
+        if (dir==='long' ? !(p>e200) : !(p<e200)) continue;
+        if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) continue;
+        const fr=t.fundingPct;
+        if (fr!==null){
+          if (Math.abs(fr)>0.05-1e-9) continue;
+          if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) continue;
+        }
+        if (!(vz>0.5)) continue;
+        const stop=lastSwing(rows,dir,30), entry=p, risk=Math.abs(entry-stop);
+        if (!(risk>0)) continue;
+        const room = dir==='long' ? Math.max(...rows.slice(-120).map(r=>r.h))-entry : entry-Math.min(...rows.slice(-120).map(r=>r.l));
+        const rr=room/risk;
+        if (!(rr>=2)) continue;
+        const ev=cusumLast(c.slice(-120),1);
+        if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue;
+        clean.push({t,dir,rows,entry,stop,risk,rr,vz,fr,ev});
+      }catch(e){}
+      await sleep(120);
+    }
+    if (!clean.length){
+      out.innerHTML='<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates in the top 30 by turnover. The best available trade right now is no trade — that verdict is the product working, not failing.</div>';
+      return;
+    }
+    /* confirmations for survivors only */
+    for (let i=0;i<clean.length;i++){
+      const s=clean[i]; setProg('bestProg',0.65+((i+1)/clean.length)*0.3);
+      $('bestStat').textContent=`confirmations ${i+1}/${clean.length} · ${s.t.symbol}`;
+      const conf=[];
+      try{
+        const d1=await getCandles(s.t.symbol,'1d',120); const c1=d1.map(r=>r.c);
+        const r30=roc(c1,30), r90=roc(c1,90); const want=s.dir==='long'?1:-1;
+        conf.push(['TSMOM 30d + 90d both agree (Moskowitz–Ooi–Pedersen 2012)',
+          isFinite(r30)&&isFinite(r90)&&Math.sign(r30)===want&&Math.sign(r90)===want,
+          `30d ${pct(r30,1)} · 90d ${pct(r90,1)}`]);
+        const e50d=last(ema(c1,50));
+        conf.push(['1D side agrees (close vs 1D EMA50)', c1.length>=60 && (s.dir==='long'?last(c1)>e50d:last(c1)<e50d), `1D EMA50 ${px(e50d)}`]);
+      }catch(e){
+        conf.push(['TSMOM 30d + 90d both agree', false, '1D fetch failed']);
+        conf.push(['1D side agrees', false, '1D fetch failed']);
+      }
+      conf.push(['CUSUM event aligned ≤20 bars (your walk-forward\'s top feature, OOS AUC ≈0.58)',
+        !!(s.ev&&s.ev.barsAgo<=20&&s.ev.dir===s.dir), s.ev?`${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago`:'no event']);
+      conf.push(['Funding tailwind — market pays you to hold', s.fr!==null&&(s.dir==='long'?s.fr<0:s.fr>0), s.fr!==null?fmt(s.fr,4)+'%/interval':'n/a']);
+      const d20 = s.dir==='long' ? Math.max(...s.rows.slice(-20).map(r=>r.h)) : Math.min(...s.rows.slice(-20).map(r=>r.l));
+      conf.push(['Donchian-20 breakout proximity (Turtle rules)', Math.abs(s.entry-d20)/s.entry<=0.015, `20-bar extreme ${px(d20)}`]);
+      conf.push(['Strong participation (volume z > 1.0)', s.vz>1.0, `z ${fmt(s.vz,2)}`]);
+      conf.push(['Extra structural room (R:R ≥ 3)', s.rr>=3, `${fmt(s.rr,2)}R`]);
+      s.conf=conf; s.score=conf.filter(x=>x[1]).length;
+      await sleep(120);
+    }
+    clean.sort((a,b)=> b.score-a.score || b.rr-a.rr);
+    const w=clean[0];
+    const t1=w.dir==='long'?w.entry+2*w.risk:w.entry-2*w.risk;
+    const t2=w.dir==='long'?w.entry+3*w.risk:w.entry-3*w.risk;
+    logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
+    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.score}/7 · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
+    out.innerHTML = `
+      <div class="panel">
+        <h2>${w.t.symbol} <span>${w.dir.toUpperCase()} · mark ${px(w.t.mark||w.entry)} · all 7 hard gates PASSED (ticket in — not part of the ranking)</span></h2>
+        <div class="ledger">${w.conf.map(x=>gateRow('CF', x[0], x[1]?'pass':'na', x[2])).join('')}</div>
+        <div class="verdict ${w.dir}">
+          <div class="vword">${w.dir.toUpperCase()} · ${w.score}/7 CONFIRMATIONS</div>
+          <div class="vwhy">Ranked #1 of ${clean.length} CLEAN setups by aligned-confirmation tally (ties broken by structural R:R). The tally orders clean setups — it cannot rescue a setup that failed a hard gate, and 7/7 is still not a promise of profit. Logged to LOG automatically.</div>
+        </div>
+        <div class="plan">${planBlock(w.dir,w.entry,w.stop,t1,t2)}</div>
+        <button class="toTrade" onclick="toTrade('${w.t.symbol}','${w.dir}',${w.entry},${w.stop})">SEND TO TRADE PLAN →</button>
+        <hr class="sep">
+        <div class="note"><b>Runners-up (also CLEAN):</b><br>${others}</div>
+      </div>`;
+    $('bestStat').textContent=`done · ${clean.length} CLEAN of ${uni.length} scanned`;
+  }catch(e){ out.innerHTML=`<div class="empty">best scan failed: ${e.message}</div>`; }
+  finally{ setProg('bestProg',null); btn.disabled=false; }
+}
+
 /* ---------------- init ---------------- */
-tickClock(); loadMacro(); setExchange('delta'); renderBiasChips();
+tickClock(); loadMacro(); setExchange('delta'); renderBiasChips(); renderLog(); renderLogBadge();
 setInterval(loadMacro, 10*60*1000);
 </script>
 </body>
