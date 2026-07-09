@@ -211,7 +211,7 @@ table{width:100%;border-collapse:collapse}
       <button class="btn" id="bestRun" onclick="runBest()">FIND BEST</button>
       <span class="note" id="bestStat"></span>
     </div>
-    <div class="note">How this ranks — and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:R≥2, no opposing CUSUM). That is binary; nothing "almost" passes. Among survivors, each earns one point per independent aligned confirmation: TSMOM 30+90d (MOP 2012) · 1D side · CUSUM aligned (your own OOS top feature) · funding tailwind · Donchian-20 proximity (Turtle) · volume z&gt;1 · R:R≥3. The tally orders CLEAN setups; it never rescues a failed one. There is no weighting, no 0–100 number, no invented probability.</div>
+    <div class="note">How this ranks — and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:R≥2, no opposing CUSUM). That is binary; nothing "almost" passes. Survivors are then ranked by <b>independent evidence families</b>, not indicator count — because correlated indicators inflate confidence without adding information (your own factor sweeps proved this: zero factors survived deflated Sharpe). F1 TREND needs a 2-of-3 internal majority (TSMOM · 1D side · CUSUM) and yields ONE point total no matter how many trend indicators agree · F2 POSITIONING (funding tailwind) · F3 PARTICIPATION (volume z&gt;1) · F4 STRUCTURE (Donchian-20 zone or R:R≥3). Ties broken by two robustness tests: the cascade must also hold on 2H (a signal living at exactly one timeframe is curve-fit), and must be ≥3 closed bars old (not a flicker). No weighting, no 0–100, no invented probability — and WAIT is a first-class answer.</div>
     <div class="prog" id="bestProg"><i></i></div>
   </div>
   <div id="bestOut"><div class="empty">Run FIND BEST.</div></div>
@@ -361,9 +361,9 @@ async function loadTickersDelta(){
     chg24: (isFinite(parseFloat(t.close)) && isFinite(parseFloat(t.open))) ? (parseFloat(t.close)/parseFloat(t.open)-1)*100 : null,
   })).filter(t=>isFinite(t.mark));
 }
-const DELTA_RES = {'15m':'15m','1h':'1h','4h':'4h','1d':'1d'};
+const DELTA_RES = {'15m':'15m','1h':'1h','2h':'2h','4h':'4h','1d':'1d'};
 async function candlesDelta(sym, res, count){
-  const secPer = {'15m':900,'1h':3600,'4h':14400,'1d':86400}[res];
+  const secPer = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
   const end = nowSec(), start = end - secPer*(count+3);
   const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`);
   const j = await r.json();
@@ -379,9 +379,9 @@ async function loadTickersCdcx(){
   const list = Array.isArray(j) ? j : (j.instruments||[]);
   return list.map(s=>({ symbol: typeof s==='string'? s : s.symbol, mark: NaN, fundingPct: null, oiUsd: 0, turnoverUsd: 0, chg24: null }));
 }
-const CDCX_RES = {'15m':'15','1h':'60','4h':'240','1d':'1D'};
+const CDCX_RES = {'15m':'15','1h':'60','2h':'120','4h':'240','1d':'1D'};
 async function candlesCdcx(sym, res, count){
-  const secPer = {'15m':900,'1h':3600,'4h':14400,'1d':86400}[res];
+  const secPer = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
   const to = nowSec(), from = to - secPer*(count+3);
   const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${from}&to=${to}&resolution=${CDCX_RES[res]}&pcode=f`);
   const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)}));
@@ -398,7 +398,7 @@ async function getTickers(){
    Evaluating a partial bar repaints — a cascade that exists at 14:37 can
    vanish by 16:00. Candle t = bar open time, so forming iff now-t < duration. */
 function dropForming(rows, res){
-  const sec = {'15m':900,'1h':3600,'4h':14400,'1d':86400}[res];
+  const sec = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
   if (!rows.length || !sec) return rows;
   return (nowSec() - rows[rows.length-1].t < sec) ? rows.slice(0,-1) : rows;
 }
@@ -467,6 +467,19 @@ function roc(vals, n){ const L=vals.length; return L>n ? (vals[L-1]/vals[L-1-n]-
    Provenance: `cusum_aligned` was the dominant feature in the user's own
    meta-label walk-forward (OOS AUC ≈0.57–0.59) — the only signal in this app
    with venue-specific out-of-sample evidence behind it. */
+/* Consecutive CLOSED bars the EMA cascade order has held — a one-bar cascade
+   is a flicker, not a trend. Perturbation-style anti-noise check. */
+function cascadeAge(closes, dir){
+  const e9=ema(closes,9), e21=ema(closes,21), e50=ema(closes,50);
+  let n=0;
+  for (let i=closes.length-1;i>=0;i--){
+    if (!isFinite(e50[i])) break;
+    const ok = dir==='long' ? (e9[i]>e21[i]&&e21[i]>e50[i]) : (e9[i]<e21[i]&&e21[i]<e50[i]);
+    if (!ok) break;
+    n++;
+  }
+  return n;
+}
 function cusumLast(vals, k=1){
   if (vals.length<30) return null;
   const rets=[]; for(let i=1;i<vals.length;i++) rets.push(Math.log(vals[i]/vals[i-1]));
@@ -1094,46 +1107,75 @@ async function runBest(){
       out.innerHTML='<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates in the top 30 by turnover. The best available trade right now is no trade — that verdict is the product working, not failing.</div>';
       return;
     }
-    /* confirmations for survivors only */
+    /* Evidence FAMILIES for survivors — independence over count.
+       Correlated indicators are grouped; each family yields at most ONE point,
+       and the TREND family needs a 2-of-3 internal majority. This is the fix
+       for triple-counting one fact (TSMOM, 1D side and CUSUM all measure trend).
+       Plus two robustness checks: cross-timeframe stability and persistence. */
     for (let i=0;i<clean.length;i++){
       const s=clean[i]; setProg('bestProg',0.65+((i+1)/clean.length)*0.3);
-      $('bestStat').textContent=`confirmations ${i+1}/${clean.length} · ${s.t.symbol}`;
-      const conf=[];
+      $('bestStat').textContent=`evidence ${i+1}/${clean.length} · ${s.t.symbol}`;
+      const want=s.dir==='long'?1:-1;
+      /* F1 TREND — members: TSMOM(MOP 2012), 1D side, CUSUM(your OOS top feature). Majority 2/3. */
+      let mTs=false, mD1=false, tsD='1D fetch failed', d1D='1D fetch failed';
       try{
         const d1=await getCandles(s.t.symbol,'1d',120); const c1=d1.map(r=>r.c);
-        const r30=roc(c1,30), r90=roc(c1,90); const want=s.dir==='long'?1:-1;
-        conf.push(['TSMOM 30d + 90d both agree (Moskowitz–Ooi–Pedersen 2012)',
-          isFinite(r30)&&isFinite(r90)&&Math.sign(r30)===want&&Math.sign(r90)===want,
-          `30d ${pct(r30,1)} · 90d ${pct(r90,1)}`]);
+        const r30=roc(c1,30), r90=roc(c1,90);
+        mTs = isFinite(r30)&&isFinite(r90)&&Math.sign(r30)===want&&Math.sign(r90)===want;
+        tsD = `30d ${pct(r30,1)} · 90d ${pct(r90,1)}`;
         const e50d=last(ema(c1,50));
-        conf.push(['1D side agrees (close vs 1D EMA50)', c1.length>=60 && (s.dir==='long'?last(c1)>e50d:last(c1)<e50d), `1D EMA50 ${px(e50d)}`]);
-      }catch(e){
-        conf.push(['TSMOM 30d + 90d both agree', false, '1D fetch failed']);
-        conf.push(['1D side agrees', false, '1D fetch failed']);
-      }
-      conf.push(['CUSUM event aligned ≤20 bars (your walk-forward\'s top feature, OOS AUC ≈0.58)',
-        !!(s.ev&&s.ev.barsAgo<=20&&s.ev.dir===s.dir), s.ev?`${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago`:'no event']);
-      conf.push(['Funding tailwind — market pays you to hold', s.fr!==null&&(s.dir==='long'?s.fr<0:s.fr>0), s.fr!==null?fmt(s.fr,4)+'%/interval':'n/a']);
+        mD1 = c1.length>=60 && (s.dir==='long'?last(c1)>e50d:last(c1)<e50d);
+        d1D = `1D EMA50 ${px(e50d)}`;
+      }catch(e){}
+      const mCu = !!(s.ev&&s.ev.barsAgo<=20&&s.ev.dir===s.dir);
+      const trendVotes=(mTs?1:0)+(mD1?1:0)+(mCu?1:0);
+      const f1 = trendVotes>=2;
+      /* F2 POSITIONING — funding tailwind: the crowd pays you to hold. */
+      const f2 = s.fr!==null && (s.dir==='long'?s.fr<0:s.fr>0);
+      /* F3 PARTICIPATION — strong volume expansion. */
+      const f3 = s.vz>1.0;
+      /* F4 STRUCTURE — breakout location (Donchian-20, Turtle) or extra room (R:R≥3). */
       const d20 = s.dir==='long' ? Math.max(...s.rows.slice(-20).map(r=>r.h)) : Math.min(...s.rows.slice(-20).map(r=>r.l));
-      conf.push(['Donchian-20 breakout proximity (Turtle rules)', Math.abs(s.entry-d20)/s.entry<=0.015, `20-bar extreme ${px(d20)}`]);
-      conf.push(['Strong participation (volume z > 1.0)', s.vz>1.0, `z ${fmt(s.vz,2)}`]);
-      conf.push(['Extra structural room (R:R ≥ 3)', s.rr>=3, `${fmt(s.rr,2)}R`]);
-      s.conf=conf; s.score=conf.filter(x=>x[1]).length;
+      const mDc = Math.abs(s.entry-d20)/s.entry<=0.015, mRr=s.rr>=3;
+      const f4 = mDc||mRr;
+      /* R1 ROBUSTNESS — cascade must also hold on 2H: a signal living at exactly
+         one timeframe is a curve-fit artifact, not a trend. */
+      let r1=false, r1D='2H fetch failed';
+      try{
+        const h2=await getCandles(s.t.symbol,'2h',160); const c2=h2.map(r=>r.c);
+        const a9=last(ema(c2,9)), a21=last(ema(c2,21)), a50=last(ema(c2,50));
+        r1 = s.dir==='long' ? (a9>a21&&a21>a50) : (a9<a21&&a21<a50);
+        r1D = `2H EMA9/21/50 ${r1?'aligned':'NOT aligned'}`;
+      }catch(e){}
+      /* R2 ROBUSTNESS — persistence: cascade held ≥3 consecutive closed 4H bars. */
+      const age = cascadeAge(s.rows.map(r=>r.c), s.dir);
+      const r2 = age>=3;
+      s.fam=[
+        ['F1','TREND family — 2-of-3 majority: TSMOM · 1D side · CUSUM', f1,
+          `${trendVotes}/3 → TSMOM ${mTs?'✓':'✗'} (${tsD}) · 1D ${mD1?'✓':'✗'} · CUSUM ${mCu?'✓':'✗'}${s.ev?` (${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago)`:''}`],
+        ['F2','POSITIONING family — funding tailwind (crowd pays you)', f2, s.fr!==null?`${fmt(s.fr,4)}%/interval`:'n/a'],
+        ['F3','PARTICIPATION family — volume z > 1.0', f3, `z ${fmt(s.vz,2)}`],
+        ['F4','STRUCTURE family — Donchian-20 breakout zone or R:R ≥ 3', f4, `Donchian ${mDc?'✓':'✗'} (${px(d20)}) · R:R ${mRr?'✓':'✗'} (${fmt(s.rr,2)}R)`],
+        ['R1','ROBUSTNESS — cascade also holds on 2H (anti curve-fit)', r1, r1D],
+        ['R2','ROBUSTNESS — cascade age ≥3 closed 4H bars (anti flicker)', r2, `${age} bars`],
+      ];
+      s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0);
+      s.robScore=(r1?1:0)+(r2?1:0);
       await sleep(120);
     }
-    clean.sort((a,b)=> b.score-a.score || b.rr-a.rr);
+    clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
     const w=clean[0];
     const t1=w.dir==='long'?w.entry+2*w.risk:w.entry-2*w.risk;
     const t2=w.dir==='long'?w.entry+3*w.risk:w.entry-3*w.risk;
     logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
-    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.score}/7 · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
+    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.famScore}/4 families · ${s.robScore}/2 robustness · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
     out.innerHTML = `
       <div class="panel">
         <h2>${w.t.symbol} <span>${w.dir.toUpperCase()} · mark ${px(w.t.mark||w.entry)} · all 7 hard gates PASSED (ticket in — not part of the ranking)</span></h2>
-        <div class="ledger">${w.conf.map(x=>gateRow('CF', x[0], x[1]?'pass':'na', x[2])).join('')}</div>
+        <div class="ledger">${w.fam.map(x=>gateRow(x[0], x[1], x[2]?'pass':'na', x[3])).join('')}</div>
         <div class="verdict ${w.dir}">
-          <div class="vword">${w.dir.toUpperCase()} · ${w.score}/7 CONFIRMATIONS</div>
-          <div class="vwhy">Ranked #1 of ${clean.length} CLEAN setups by aligned-confirmation tally (ties broken by structural R:R). The tally orders clean setups — it cannot rescue a setup that failed a hard gate, and 7/7 is still not a promise of profit. Logged to LOG automatically.</div>
+          <div class="vword">${w.dir.toUpperCase()} · ${w.famScore}/4 FAMILIES · ${w.robScore}/2 ROBUST</div>
+          <div class="vwhy">Ranked #1 of ${clean.length} CLEAN setups by independent evidence families, then robustness, then structural R:R. Families cannot be inflated by correlated indicators — trend counts once no matter how many trend indicators agree. 4/4 + 2/2 is the strongest evidence this framework can honestly claim, and it is still not a promise. Logged to LOG automatically.</div>
         </div>
         <div class="plan">${planBlock(w.dir,w.entry,w.stop,t1,t2)}</div>
         <button class="toTrade" onclick="toTrade('${w.t.symbol}','${w.dir}',${w.entry},${w.stop})">SEND TO TRADE PLAN →</button>
