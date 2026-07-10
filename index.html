@@ -156,8 +156,9 @@ table{width:100%;border-collapse:collapse}
   <div class="panel">
     <h2>Swing Scanner <span>4H structure · 1D-derived bias · funding-clean only</span></h2>
     <div class="row">
-      <label class="f">SCAN TOP (BY TURNOVER)<input id="swingN" type="number" value="30" min="5" max="120" style="width:80px"></label>
+      <label class="f">SCAN TOP (BY TURNOVER)<input id="swingN" type="number" value="30" min="5" max="500" style="width:80px"></label>
       <label class="f">MIN 24H TURNOVER $<input id="swingTurn" type="number" value="200000" style="width:110px"></label>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="swingAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
       <button class="btn" id="swingRun" onclick="runScan('swing')">SCAN</button>
       <span class="note" id="swingStat"></span>
     </div>
@@ -173,7 +174,8 @@ table{width:100%;border-collapse:collapse}
   <div class="panel">
     <h2>Scalp Scanner <span>15m trigger inside 1H context · ATR targets · funding-window aware</span></h2>
     <div class="row">
-      <label class="f">SCAN TOP (BY TURNOVER)<input id="scalpN" type="number" value="20" min="5" max="80" style="width:80px"></label>
+      <label class="f">SCAN TOP (BY TURNOVER)<input id="scalpN" type="number" value="20" min="5" max="500" style="width:80px"></label>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="scalpAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
       <button class="btn" id="scalpRun" onclick="runScan('scalp')">SCAN</button>
       <span class="note" id="scalpStat"></span>
     </div>
@@ -208,6 +210,8 @@ table{width:100%;border-collapse:collapse}
   <div class="panel">
     <h2>Best Setup <span>hard gates are the ticket in · ranking = tally of independent aligned confirmations · WAIT is a first-class answer</span></h2>
     <div class="row" style="margin-bottom:10px">
+      <label class="f">SCAN TOP (BY TURNOVER)<input id="bestN" type="number" value="30" min="5" max="500" style="width:80px"></label>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="bestAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
       <button class="btn" id="bestRun" onclick="runBest()">FIND BEST</button>
       <span class="note" id="bestStat"></span>
     </div>
@@ -462,6 +466,50 @@ function lastSwing(rows, dir, look=30){
 }
 const last = a => a[a.length-1];
 function roc(vals, n){ const L=vals.length; return L>n ? (vals[L-1]/vals[L-1-n]-1)*100 : NaN; }
+function avgFinite(vals){ const f=vals.filter(function(v){return isFinite(v);}); return f.length ? f.reduce(function(a,b){return a+b;},0)/f.length : NaN; }
+/* Bollinger Bands (Bollinger, 1980s) — mean +/- mult*stdev over p bars. widthPct is band width
+   relative to the mid-band, used to spot a volatility squeeze right before a breakout. */
+function bollinger(vals, p, mult){ p=p||20; mult=mult||2;
+  const out=new Array(vals.length).fill(NaN); const mid=new Array(vals.length).fill(NaN);
+  const upper=new Array(vals.length).fill(NaN); const lower=new Array(vals.length).fill(NaN);
+  for (let i=p-1;i<vals.length;i++){ let sum=0; for(let k=i-p+1;k<=i;k++) sum+=vals[k]; const m=sum/p;
+    let sq=0; for(let k=i-p+1;k<=i;k++) sq+=(vals[k]-m)*(vals[k]-m); const sd=Math.sqrt(sq/p);
+    mid[i]=m; upper[i]=m+mult*sd; lower[i]=m-mult*sd; }
+  const widthPct=vals.map(function(_,i){ return (isFinite(mid[i])&&mid[i]!==0) ? (upper[i]-lower[i])/mid[i]*100 : NaN; });
+  return {mid:mid, upper:upper, lower:lower, widthPct:widthPct}; }
+/* ADX / DI (Wilder, New Concepts in Technical Trading Systems, 1978) — Wilder-smoothed
+   directional movement. adx>=20 with DI on your side means a real, aligned trend push,
+   not just noise. */
+function adx(rows, p){ p=p||14; const n=rows.length;
+  const plusDM=new Array(n).fill(0), minusDM=new Array(n).fill(0), tr=new Array(n).fill(0);
+  for (let i=1;i<n;i++){ const up=rows[i].h-rows[i-1].h, down=rows[i-1].l-rows[i].l;
+    plusDM[i]=(up>down&&up>0)?up:0; minusDM[i]=(down>up&&down>0)?down:0;
+    tr[i]=Math.max(rows[i].h-rows[i].l, Math.abs(rows[i].h-rows[i-1].c), Math.abs(rows[i].l-rows[i-1].c)); }
+  function wilder(vals){ const out=new Array(n).fill(NaN); let a=null;
+    for (let i=1;i<n;i++){ if(a===null){ if(i>=p){ let sum=0; for(let k=i-p+1;k<=i;k++) sum+=vals[k]; a=sum; out[i]=a; } }
+      else { a=a-a/p+vals[i]; out[i]=a; } } return out; }
+  const trS=wilder(tr), pdS=wilder(plusDM), mdS=wilder(minusDM);
+  const plusDI=trS.map(function(v,i){ return v?100*pdS[i]/v:NaN; });
+  const minusDI=trS.map(function(v,i){ return v?100*mdS[i]/v:NaN; });
+  const dx=plusDI.map(function(v,i){ const md=minusDI[i]; return (isFinite(v)&&isFinite(md)&&(v+md)!==0) ? 100*Math.abs(v-md)/(v+md) : NaN; });
+  const out=new Array(n).fill(NaN); let a=null;
+  for (let i=0;i<n;i++){ if(isNaN(dx[i])) continue; a=(a===null)?dx[i]:(a*(p-1)+dx[i])/p; out[i]=a; }
+  return {adx:out, plusDI:plusDI, minusDI:minusDI}; }
+/* Stochastic RSI (Chande & Kroll, 1994) — stochastic oscillator applied to RSI instead of
+   price. Flags when momentum is already stretched (>80 long / <20 short) so you are not
+   chasing the last bar of a move. */
+function stochRsi(vals, rsiP, stochP){ rsiP=rsiP||14; stochP=stochP||14; const r=rsi(vals,rsiP); const n=r.length;
+  const k=new Array(n).fill(NaN);
+  for (let i=0;i<n;i++){ if(i<stochP-1) continue; let lo=Infinity,hi=-Infinity,ok=true;
+    for (let j=i-stochP+1;j<=i;j++){ if(isNaN(r[j])){ ok=false; break; } lo=Math.min(lo,r[j]); hi=Math.max(hi,r[j]); }
+    if(!ok||hi===lo) continue; k[i]=100*(r[i]-lo)/(hi-lo); }
+  return k; }
+/* Rolling VWAP deviation — is the last close trading through its own volume-weighted
+   average price over the lookback, in your direction. A cheap, real-participation check
+   that does not depend on any external feed. */
+function vwapDev(rows, look){ look=look||20; const n=rows.length; if (n<look) return NaN;
+  let pv=0, vv=0; for (let i=n-look;i<n;i++){ const typ=(rows[i].h+rows[i].l+rows[i].c)/3; pv+=typ*rows[i].v; vv+=rows[i].v; }
+  if (vv<=0) return NaN; const vwap=pv/vv; return (rows[n-1].c-vwap)/vwap*100; }
 /* Symmetric CUSUM event filter on log returns (López de Prado, AFML ch.2).
    Threshold h = k×σ of the sample. Returns the most recent event {dir, barsAgo}.
    Provenance: `cusum_aligned` was the dominant feature in the user's own
@@ -660,7 +708,8 @@ function toTrade(sym,dir,entry,stop){
 
 async function runScan(kind){
   const isSwing = kind==='swing';
-  const N = Math.max(5, Math.min(120, +$(isSwing?'swingN':'scalpN').value||30));
+  const scanAll = $(isSwing?'swingAll':'scalpAll').checked;
+  const N = Math.max(5, Math.min(500, +$(isSwing?'swingN':'scalpN').value||30));
   const minTurn = isSwing ? (+$('swingTurn').value||0) : 0;
   const cardsEl = $(isSwing?'swingCards':'scalpCards'), emptyEl=$(isSwing?'swingEmpty':'scalpEmpty'), statEl=$(isSwing?'swingStat':'scalpStat');
   const btn = $(isSwing?'swingRun':'scalpRun');
@@ -668,8 +717,9 @@ async function runScan(kind){
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
     let uni = S.tickers.slice();
-    if (S.exchange==='delta') uni = uni.filter(t=>t.turnoverUsd>=minTurn).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
-    uni = uni.slice(0,N);
+    if (S.exchange==='delta') uni = uni.filter(t=> scanAll ? true : t.turnoverUsd>=minTurn).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
+    if (!scanAll) uni = uni.slice(0,N);
+    const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
     const minsToFunding = tickClock();
     let found=0;
     for (let i=0;i<uni.length;i++){
@@ -708,11 +758,28 @@ async function runScan(kind){
           const t1 = dir==='long'? entry+2*risk : entry-2*risk;
           const t2 = dir==='long'? entry+3*risk : entry-3*risk;
           found++;
+          let momDetail = 'n/a';
+          try{
+            const nEw = c.length;
+            if (nEw>=40){
+              const bbW = bollinger(c,20,2);
+              const priorWw = bbW.widthPct.slice(Math.max(0,nEw-50), nEw-1).filter(function(v){return isFinite(v);});
+              const wAvgW = priorWw.length ? priorWw.reduce(function(a,b){return a+b;},0)/priorWw.length : NaN;
+              const wantW = dir==='long' ? 1 : -1;
+              const bbBreakW = (wantW>0 ? c[nEw-1]>bbW.upper[nEw-1] : c[nEw-1]<bbW.lower[nEw-1]) && isFinite(wAvgW) && bbW.widthPct[nEw-2]<=wAvgW;
+              const adxW = adx(rows,14);
+              const adxAlignedW = adxW.adx[nEw-1]>=20 && (wantW>0 ? adxW.plusDI[nEw-1]>adxW.minusDI[nEw-1] : adxW.minusDI[nEw-1]>adxW.plusDI[nEw-1]);
+              const srsiW = stochRsi(c,14,14);
+              const srsiOkW = isFinite(srsiW[nEw-1]) && (wantW>0 ? srsiW[nEw-1]<80 : srsiW[nEw-1]>20);
+              const votesW = (bbBreakW?1:0)+(adxAlignedW?1:0)+(srsiOkW?1:0);
+              momDetail = votesW+'/3 (BB '+(bbBreakW?'✓':'✗')+' ADX '+(adxAlignedW?'✓':'✗')+' StochRSI '+(srsiOkW?'✓':'✗')+')';
+            }
+          }catch(e){}
           cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [
             ['mark',px(t.mark||p)],['24h',t.chg24!==null?pct(t.chg24,2):'—'],
             ['RSI 4H',fmt(r14,1)],['vol z',fmt(vz,2)],
             ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['ann.',t.fundingPct!==null?fmt(t.fundingPct*3*365,1)+'%':'—'],
-            ['struct R:R',fmt(structuralRR,2)+'R room'],['turnover',t.turnoverUsd?('$'+fmt(t.turnoverUsd,0)):'—'],
+            ['struct R:R',fmt(structuralRR,2)+'R room'],['turnover',t.turnoverUsd?('$'+fmt(t.turnoverUsd,0)):'—'],['context: momentum',momDetail],
           ], ['G1 cascade+spread','G2 HTF side','G3 RSI ok','G4 funding','G5 volume','G6 R:R≥2','G7 CUSUM'+(ev&&ev.barsAgo<=20?' ✓':' n/a')],
           planBlock(dir,entry,stop,t1,t2), entry, stop));
           logSetup(t.symbol, dir, 'swing', entry, stop, t1);
@@ -753,10 +820,27 @@ async function runScan(kind){
           const recentRange = Math.max(...m15.slice(-96).map(r=>r.h)) - Math.min(...m15.slice(-96).map(r=>r.l));
           if (!(2*risk <= recentRange)) continue;                          // G6 target inside 24h range
           found++;
+          let momDetailS = 'n/a';
+          try{
+            const nEs = c15.length;
+            if (nEs>=40){
+              const bbS = bollinger(c15,20,2);
+              const priorWs = bbS.widthPct.slice(Math.max(0,nEs-50), nEs-1).filter(function(v){return isFinite(v);});
+              const wAvgS = priorWs.length ? priorWs.reduce(function(a,b){return a+b;},0)/priorWs.length : NaN;
+              const wantS = dir==='long' ? 1 : -1;
+              const bbBreakS = (wantS>0 ? c15[nEs-1]>bbS.upper[nEs-1] : c15[nEs-1]<bbS.lower[nEs-1]) && isFinite(wAvgS) && bbS.widthPct[nEs-2]<=wAvgS;
+              const adxS = adx(m15,14);
+              const adxAlignedS = adxS.adx[nEs-1]>=20 && (wantS>0 ? adxS.plusDI[nEs-1]>adxS.minusDI[nEs-1] : adxS.minusDI[nEs-1]>adxS.plusDI[nEs-1]);
+              const srsiS = stochRsi(c15,14,14);
+              const srsiOkS = isFinite(srsiS[nEs-1]) && (wantS>0 ? srsiS[nEs-1]<80 : srsiS[nEs-1]>20);
+              const votesS = (bbBreakS?1:0)+(adxAlignedS?1:0)+(srsiOkS?1:0);
+              momDetailS = votesS+'/3 (BB '+(bbBreakS?'✓':'✗')+' ADX '+(adxAlignedS?'✓':'✗')+' StochRSI '+(srsiOkS?'✓':'✗')+')';
+            }
+          }catch(e){}
           cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [
             ['mark',px(t.mark||entry)],['1H trend',dir.toUpperCase()],
             ['RSI 15m',fmt(r15,1)],['ATR 15m',px(a)],
-            ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['to settle',fmt(minsToFunding,0)+'m'],
+            ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['to settle',fmt(minsToFunding,0)+'m'],['context: momentum',momDetailS],
           ], ['G1 1H trend','G2 reclaim','G3 RSI band','G4 funding','G5 settle>25m','G6 2R in range'],
           planBlock(dir,entry,stop,t1,dir==='long'?entry+3*risk:entry-3*risk), entry, stop));
           logSetup(t.symbol, dir, 'scalp', entry, stop, t1);
@@ -764,7 +848,7 @@ async function runScan(kind){
       }catch(e){ /* skip symbol on fetch/parse error */ }
       await sleep(120); // stay polite with the public API
     }
-    statEl.textContent = `done — ${found} CLEAN / ${uni.length} scanned`;
+    statEl.textContent = `done — ${found} CLEAN / ${uni.length} scanned (${universeLabel})`;
     if (!found) emptyEl.style.display='block';
   }catch(e){
     statEl.textContent = `scan failed: ${e.message}`;
@@ -929,12 +1013,30 @@ async function runGold(){
     } else {
       sg.push(['GS7','Structural R:R ≥ 2','na','no direction to measure']);
     }
+    let sEvidenceHtml = '';
+    try{
+      if (casc!=='mixed' && c4 && c4.length>=40){
+        const eeBB = bollinger(c4,20,2); const nE = c4.length;
+        const priorW = eeBB.widthPct.slice(Math.max(0,nE-50), nE-1).filter(function(v){return isFinite(v);});
+        const wAvgE = priorW.length ? priorW.reduce(function(a,b){return a+b;},0)/priorW.length : NaN;
+        const wantE = casc==='long' ? 1 : -1;
+        const bbBreakE = (wantE>0 ? c4[nE-1]>eeBB.upper[nE-1] : c4[nE-1]<eeBB.lower[nE-1]) && isFinite(wAvgE) && eeBB.widthPct[nE-2]<=wAvgE;
+        const adxE = adx(h4,14);
+        const adxAlignedE = adxE.adx[nE-1]>=20 && (wantE>0 ? adxE.plusDI[nE-1]>adxE.minusDI[nE-1] : adxE.minusDI[nE-1]>adxE.plusDI[nE-1]);
+        const srsiE = stochRsi(c4,14,14);
+        const srsiOkE = isFinite(srsiE[nE-1]) && (wantE>0 ? srsiE[nE-1]<80 : srsiE[nE-1]>20);
+        const votesE = (bbBreakE?1:0)+(adxAlignedE?1:0)+(srsiOkE?1:0);
+        const detailE = 'BB '+(bbBreakE?'breakout':'no breakout')+' · ADX '+fmt(adxE.adx[nE-1],1)+' '+(adxAlignedE?'aligned':'not aligned')+' · StochRSI '+fmt(srsiE[nE-1],0)+' '+(srsiOkE?'not exhausted':'exhausted');
+        sEvidenceHtml = '<div class="vwhy" style="margin-top:4px">Context (not a gate) — momentum evidence '+votesE+'/3 aligned with '+casc.toUpperCase()+': '+detailE+'.</div>';
+      }
+    }catch(e){}
     $('goldSwingOut').innerHTML = `<div class="ledger">${sg.map(x=>gateRow(...x)).join('')}</div>
       <div class="verdict ${sVerdict==='aside'?'aside':sVerdict}">
         <div class="vword">${sVerdict==='aside'?'STAND ASIDE':sVerdict.toUpperCase()}</div>
         <div class="vwhy">${sVerdict==='aside'
           ?'Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event — those are your manual checks.'
           :'All swing gates cleared. Verify DXY, real yields and the event calendar manually before sizing — this ledger cannot see them and will not pretend to.'}</div>
+      ${sEvidenceHtml}
       </div>${swingPlanHtml}`;
 
     /* ---------------- SCALP ledgers: both scenarios, judged independently ---------------- */
@@ -983,10 +1085,28 @@ async function runGold(){
       } else {
         g.push(['GC6','2R fits before the opposite pool','na','needs a completed sweep + reclaim first']);
       }
+      let cEvidenceHtml = '';
+      try{
+        const c15E = m15.map(function(r){return r.c;}); const nE2 = c15E.length;
+        if (nE2>=40){
+          const eeBB2 = bollinger(c15E,20,2);
+          const priorW2 = eeBB2.widthPct.slice(Math.max(0,nE2-50), nE2-1).filter(function(v){return isFinite(v);});
+          const wAvg2 = priorW2.length ? priorW2.reduce(function(a,b){return a+b;},0)/priorW2.length : NaN;
+          const wantE2 = dir==='long' ? 1 : -1;
+          const bbBreak2 = (wantE2>0 ? c15E[nE2-1]>eeBB2.upper[nE2-1] : c15E[nE2-1]<eeBB2.lower[nE2-1]) && isFinite(wAvg2) && eeBB2.widthPct[nE2-2]<=wAvg2;
+          const adx2 = adx(m15,14);
+          const adxAligned2 = adx2.adx[nE2-1]>=20 && (wantE2>0 ? adx2.plusDI[nE2-1]>adx2.minusDI[nE2-1] : adx2.minusDI[nE2-1]>adx2.plusDI[nE2-1]);
+          const srsi2 = stochRsi(c15E,14,14);
+          const srsiOk2 = isFinite(srsi2[nE2-1]) && (wantE2>0 ? srsi2[nE2-1]<80 : srsi2[nE2-1]>20);
+          const votes2 = (bbBreak2?1:0)+(adxAligned2?1:0)+(srsiOk2?1:0);
+          const detail2 = 'BB '+(bbBreak2?'breakout':'no breakout')+' · ADX '+fmt(adx2.adx[nE2-1],1)+' '+(adxAligned2?'aligned':'not aligned')+' · StochRSI '+fmt(srsi2[nE2-1],0)+' '+(srsiOk2?'not exhausted':'exhausted');
+          cEvidenceHtml = '<div class="vwhy" style="margin-top:2px;font-size:11px">Context (not a gate) — momentum evidence '+votes2+'/3 aligned with '+dir.toUpperCase()+': '+detail2+'.</div>';
+        }
+      }catch(e){}
       const vet=g.some(x=>x[2]==='veto');
       return `<div style="margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--${dir==='long'?'long':'short'})">${dir.toUpperCase()} SCENARIO</div>
         <div class="ledger" style="margin-bottom:10px">${g.map(x=>gateRow(...x)).join('')}</div>
-        <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}</div></div>${planHtml}`;
+        <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}</div>${cEvidenceHtml}</div>${planHtml}`;
     }
     $('goldScalpOut').innerHTML = scalpLedger('long') + scalpLedger('short');
     $('goldStat').textContent = `evaluated · closed bars only · ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
@@ -1067,9 +1187,14 @@ async function runBest(){
   const btn=$('bestRun'); btn.disabled=true; setProg('bestProg',0.05);
   const out=$('bestOut'); out.innerHTML=''; $('bestStat').textContent='';
   try{
-    if (S.exchange!=='delta'){ out.innerHTML='<div class="empty">BEST needs funding + turnover fields — Delta India only.</div>'; return; }
+    const scanAll = $('bestAll').checked;
+    const N = Math.max(5, Math.min(500, +$('bestN').value||30));
     if (!S.tickers.length) S.tickers=await getTickers();
-    const uni=S.tickers.filter(t=>t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd).slice(0,30);
+    let uni = S.exchange==='delta'
+      ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
+      : S.tickers.slice();
+    if (!scanAll) uni = uni.slice(0,N);
+    const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
     const clean=[];
     for (let i=0;i<uni.length;i++){
       const t=uni[i]; setProg('bestProg',(i+1)/uni.length*0.65);
@@ -1104,7 +1229,7 @@ async function runBest(){
       await sleep(120);
     }
     if (!clean.length){
-      out.innerHTML='<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates in the top 30 by turnover. The best available trade right now is no trade — that verdict is the product working, not failing.</div>';
+      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel} on ${S.exchange==='delta'?'Delta India':'CoinDCX'}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
       return;
     }
     /* Evidence FAMILIES for survivors — independence over count.
@@ -1133,11 +1258,38 @@ async function runBest(){
       /* F2 POSITIONING — funding tailwind: the crowd pays you to hold. */
       const f2 = s.fr!==null && (s.dir==='long'?s.fr<0:s.fr>0);
       /* F3 PARTICIPATION — strong volume expansion. */
-      const f3 = s.vz>1.0;
+      let vwapOk=false, vwapDetail='n/a';
+      try{
+        const dv = vwapDev(s.rows,20);
+        if (isFinite(dv)){ vwapOk = want>0 ? dv>0 : dv<0; vwapDetail = fmt(dv,2)+'% vs 20-bar VWAP'; }
+      }catch(e){}
+      const f3 = s.vz>1.0 || vwapOk;
       /* F4 STRUCTURE — breakout location (Donchian-20, Turtle) or extra room (R:R≥3). */
       const d20 = s.dir==='long' ? Math.max(...s.rows.slice(-20).map(r=>r.h)) : Math.min(...s.rows.slice(-20).map(r=>r.l));
       const mDc = Math.abs(s.entry-d20)/s.entry<=0.015, mRr=s.rr>=3;
       const f4 = mDc||mRr;
+      /* F5 VOLATILITY/MOMENTUM — members: Bollinger(20,2) squeeze-to-breakout, ADX(14) trend
+         strength+direction, StochRSI(14) not-exhausted. Majority 2/3 — grouped as one family
+         because all three measure the same underlying fact: is momentum expanding in your
+         favor right now, not three independent facts. No claim of profitability; this only
+         changes which of the already-gated survivors gets ranked first. */
+      let f5=false, f5Detail='insufficient history';
+      try{
+        const closesX = s.rows.map(function(r){return r.c;}); const nX = closesX.length;
+        if (nX>=40){
+          const bbX = bollinger(closesX,20,2);
+          const priorWidths = bbX.widthPct.slice(Math.max(0,nX-50), nX-1).filter(function(v){return isFinite(v);});
+          const wAvg = priorWidths.length ? priorWidths.reduce(function(a,b){return a+b;},0)/priorWidths.length : NaN;
+          const bbBreak = (want>0 ? closesX[nX-1]>bbX.upper[nX-1] : closesX[nX-1]<bbX.lower[nX-1]) && isFinite(wAvg) && bbX.widthPct[nX-2]<=wAvg;
+          const adxX = adx(s.rows,14);
+          const adxAligned = adxX.adx[nX-1]>=20 && (want>0 ? adxX.plusDI[nX-1]>adxX.minusDI[nX-1] : adxX.minusDI[nX-1]>adxX.plusDI[nX-1]);
+          const srsiX = stochRsi(closesX,14,14);
+          const srsiOk = isFinite(srsiX[nX-1]) && (want>0 ? srsiX[nX-1]<80 : srsiX[nX-1]>20);
+          const votes5 = (bbBreak?1:0)+(adxAligned?1:0)+(srsiOk?1:0);
+          f5 = votes5>=2;
+          f5Detail = 'BB '+(bbBreak?'breakout':'no breakout')+' · ADX '+fmt(adxX.adx[nX-1],1)+' '+(adxAligned?'aligned':'not aligned')+' · StochRSI '+fmt(srsiX[nX-1],0)+' '+(srsiOk?'not exhausted':'exhausted');
+        }
+      }catch(e){}
       /* R1 ROBUSTNESS — cascade must also hold on 2H: a signal living at exactly
          one timeframe is a curve-fit artifact, not a trend. */
       let r1=false, r1D='2H fetch failed';
@@ -1154,12 +1306,13 @@ async function runBest(){
         ['F1','TREND family — 2-of-3 majority: TSMOM · 1D side · CUSUM', f1,
           `${trendVotes}/3 → TSMOM ${mTs?'✓':'✗'} (${tsD}) · 1D ${mD1?'✓':'✗'} · CUSUM ${mCu?'✓':'✗'}${s.ev?` (${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago)`:''}`],
         ['F2','POSITIONING family — funding tailwind (crowd pays you)', f2, s.fr!==null?`${fmt(s.fr,4)}%/interval`:'n/a'],
-        ['F3','PARTICIPATION family — volume z > 1.0', f3, `z ${fmt(s.vz,2)}`],
+        ['F3','PARTICIPATION family — volume z > 1.0 or VWAP side', f3, `z ${fmt(s.vz,2)} · ${vwapDetail}`],
         ['F4','STRUCTURE family — Donchian-20 breakout zone or R:R ≥ 3', f4, `Donchian ${mDc?'✓':'✗'} (${px(d20)}) · R:R ${mRr?'✓':'✗'} (${fmt(s.rr,2)}R)`],
+        ['F5','VOLATILITY/MOMENTUM family — 2-of-3 majority: Bollinger breakout · ADX trend+direction · StochRSI not-exhausted', f5, f5Detail],
         ['R1','ROBUSTNESS — cascade also holds on 2H (anti curve-fit)', r1, r1D],
         ['R2','ROBUSTNESS — cascade age ≥3 closed 4H bars (anti flicker)', r2, `${age} bars`],
       ];
-      s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0);
+      s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0)+(f5?1:0);
       s.robScore=(r1?1:0)+(r2?1:0);
       await sleep(120);
     }
@@ -1168,13 +1321,13 @@ async function runBest(){
     const t1=w.dir==='long'?w.entry+2*w.risk:w.entry-2*w.risk;
     const t2=w.dir==='long'?w.entry+3*w.risk:w.entry-3*w.risk;
     logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
-    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.famScore}/4 families · ${s.robScore}/2 robustness · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
+    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.famScore}/5 families · ${s.robScore}/2 robustness · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
     out.innerHTML = `
       <div class="panel">
         <h2>${w.t.symbol} <span>${w.dir.toUpperCase()} · mark ${px(w.t.mark||w.entry)} · all 7 hard gates PASSED (ticket in — not part of the ranking)</span></h2>
         <div class="ledger">${w.fam.map(x=>gateRow(x[0], x[1], x[2]?'pass':'na', x[3])).join('')}</div>
         <div class="verdict ${w.dir}">
-          <div class="vword">${w.dir.toUpperCase()} · ${w.famScore}/4 FAMILIES · ${w.robScore}/2 ROBUST</div>
+          <div class="vword">${w.dir.toUpperCase()} · ${w.famScore}/5 FAMILIES · ${w.robScore}/2 ROBUST</div>
           <div class="vwhy">Ranked #1 of ${clean.length} CLEAN setups by independent evidence families, then robustness, then structural R:R. Families cannot be inflated by correlated indicators — trend counts once no matter how many trend indicators agree. 4/4 + 2/2 is the strongest evidence this framework can honestly claim, and it is still not a promise. Logged to LOG automatically.</div>
         </div>
         <div class="plan">${planBlock(w.dir,w.entry,w.stop,t1,t2)}</div>
@@ -1182,7 +1335,7 @@ async function runBest(){
         <hr class="sep">
         <div class="note"><b>Runners-up (also CLEAN):</b><br>${others}</div>
       </div>`;
-    $('bestStat').textContent=`done · ${clean.length} CLEAN of ${uni.length} scanned`;
+    $('bestStat').textContent=`done · ${clean.length} CLEAN of ${uni.length} scanned (${universeLabel} · ${S.exchange==='delta'?'Delta India':'CoinDCX'})`;
   }catch(e){ out.innerHTML=`<div class="empty">best scan failed: ${e.message}</div>`; }
   finally{ setProg('bestProg',null); btn.disabled=false; }
 }
