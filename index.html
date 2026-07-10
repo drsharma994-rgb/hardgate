@@ -303,6 +303,7 @@ const DELTA = 'https://api.india.delta.exchange';
 const CDCX_PUB = 'https://public.coindcx.com';
 const CDCX_API = 'https://api.coindcx.com';
 const CDCX_PROXY = 'https://hardgate-proxy.onrender.com'; // Render web service name must match; edit if renamed
+const CDCX_PUBLIC_PROXY = 'https://corsproxy.io/?'; // Public backup proxy if Render proxy is cold/down (last resort, rate-limited)
 
 /* CoinDCX fetch: try direct (CORS may block), fall back to the Render proxy.
    Free-tier proxy cold-starts in ~50s after idle — first call may be slow. */
@@ -313,12 +314,17 @@ async function cdcxGet(url){
     const j = await r.json();
     S.cdcxViaProxy = false;
     return j;
-  }catch(e){
+  }catch(e){}
+  try{
     const r = await fetch(`${CDCX_PROXY}/proxy?url=${encodeURIComponent(url)}`);
     if(!r.ok) throw new Error('proxy HTTP '+r.status);
-    S.cdcxViaProxy = true;
+    S.cdcxViaProxy = 'render';
     return r.json();
-  }
+  }catch(e){}
+  const r = await fetch(`${CDCX_PUBLIC_PROXY}${encodeURIComponent(url)}`);
+  if(!r.ok) throw new Error('all proxies failed: HTTP '+r.status);
+  S.cdcxViaProxy = 'public';
+  return r.json();
 }
 
 /* ---------------- utils ---------------- */
@@ -565,10 +571,10 @@ async function setExchange(x){
     S.tickers = await getTickers();
     $('chipConn').classList.remove('warn');
     $('chipConn').innerHTML = `<b>${S.tickers.length}</b> ${x==='delta'?'Delta India':'CoinDCX'} perps`;
-    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy?'via proxy · ':''}no funding/turnover fields — gates degrade honestly)</b>`;
+    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy · ':S.cdcxViaProxy?'via proxy · ':''}no funding/turnover fields — gates degrade honestly)</b>`;
   }catch(e){
     $('chipConn').classList.add('warn');
-    $('chipConn').innerHTML = `<b>API blocked</b> — ${x==='coindcx'?'CoinDCX direct + proxy both failed. If the proxy just woke from idle it needs ~50s — retry once. Otherwise check hardgate-proxy on Render.':'Delta unreachable.'}`;
+    $('chipConn').innerHTML = `<b>API blocked</b> — ${x==='coindcx'?'CoinDCX direct + both proxies (Render + backup) failed. If Render just woke from idle it needs ~50s — retry once. Otherwise the backup proxy may be rate-limited; try again shortly.':'Delta unreachable.'}`;
     S.tickers = [];
   }
   renderBiasChips();
