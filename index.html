@@ -303,7 +303,11 @@ const DELTA = 'https://api.india.delta.exchange';
 const CDCX_PUB = 'https://public.coindcx.com';
 const CDCX_API = 'https://api.coindcx.com';
 const CDCX_PROXY = 'https://hardgate-proxy.onrender.com'; // Render web service name must match; edit if renamed
-const CDCX_PUBLIC_PROXY = 'https://corsproxy.io/?'; // Public backup proxy if Render proxy is cold/down (last resort, rate-limited)
+const CDCX_PUBLIC_PROXIES = [
+  u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+]; // Public backup proxies tried in order if Render proxy is cold/down (last resort, rate-limited)
 
 /* CoinDCX fetch: try direct (CORS may block), fall back to the Render proxy.
    Free-tier proxy cold-starts in ~50s after idle — first call may be slow. */
@@ -321,10 +325,15 @@ async function cdcxGet(url){
     S.cdcxViaProxy = 'render';
     return r.json();
   }catch(e){}
-  const r = await fetch(`${CDCX_PUBLIC_PROXY}${encodeURIComponent(url)}`);
-  if(!r.ok) throw new Error('all proxies failed: HTTP '+r.status);
-  S.cdcxViaProxy = 'public';
-  return r.json();
+  for (const build of CDCX_PUBLIC_PROXIES){
+    try{
+      const r = await fetch(build(url));
+      if(!r.ok) throw new Error('public proxy HTTP '+r.status);
+      S.cdcxViaProxy = 'public';
+      return r.json();
+    }catch(e){}
+  }
+  throw new Error('all proxies failed');
 }
 
 /* ---------------- utils ---------------- */
