@@ -388,7 +388,7 @@ setInterval(tickClock, 1000);
    ticker: {symbol, mark, fundingPct(per interval, % units), oiUsd, turnoverUsd, chg24}
    candles(sym, res, count): asc [{t,o,h,l,c,v}]  res in {'15m','1h','4h','1d'} */
 
-let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, mark){ const symEl=$('tSym'); if(symEl && symEl.value===symbol){ const entryEl=$('tEntry'); if(entryEl && document.activeElement!==entryEl){ entryEl.value = mark; } } } function initDeltaWS(){ try{ if (deltaWS && deltaWS.readyState===WebSocket.OPEN) return; deltaWS = new WebSocket('wss://socket.india.delta.exchange'); deltaWS.onopen = function(){ try{ deltaWS.send(JSON.stringify({type:'subscribe', payload:{channels:[{name:'v2/ticker'}]}})); }catch(e){} }; deltaWS.onmessage = function(msg){ try{ const data = JSON.parse(msg.data); if (data.type==='v2/ticker' && data.symbol){ const mark = parseFloat(data.mark_price ?? data.close); const fundingPct = (data.funding_rate!==undefined && data.funding_rate!==null) ? parseFloat(data.funding_rate) : null; wsTickers[data.symbol] = { mark: mark, fundingPct: fundingPct, ts: Date.now() }; if (S.exchange==='delta' && isFinite(mark)){ const idx = S.tickers.findIndex(function(t){ return t.symbol===data.symbol; }); if (idx>=0){ S.tickers[idx].mark = mark; if (fundingPct!==null) S.tickers[idx].fundingPct = fundingPct; } updateTradePlanPriceUI(data.symbol, mark); } } }catch(e){} }; deltaWS.onclose = function(){ deltaWS=null; setTimeout(initDeltaWS, 5000); }; deltaWS.onerror = function(){ try{ deltaWS.close(); }catch(e){} }; }catch(e){} } async function loadTickersDelta(){
+let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, mark){ const symEl=$('tSym'); if(symEl && symEl.value===symbol){ const entryEl=$('tEntry'); if(entryEl && document.activeElement!==entryEl){ entryEl.value = mark; } } } function initDeltaWS(){ try{ if (deltaWS && deltaWS.readyState===WebSocket.OPEN) return; deltaWS = new WebSocket('wss://socket.india.delta.exchange'); deltaWS.onopen = function(){ try{ deltaWS.send(JSON.stringify({type:'subscribe', payload:{channels:[{name:'v2/ticker'}]}})); }catch(e){} try{ if(S.exchange==='delta') $('chipConn').innerHTML = '<b>'+S.tickers.length+'</b> Delta India perps <b style="color:var(--long)">(LIVE WS)</b>'; }catch(e){} }; deltaWS.onmessage = function(msg){ try{ const data = JSON.parse(msg.data); if (data.type==='v2/ticker' && data.symbol){ const mark = parseFloat(data.mark_price ?? data.close); const fundingPct = (data.funding_rate!==undefined && data.funding_rate!==null) ? parseFloat(data.funding_rate) : null; wsTickers[data.symbol] = { mark: mark, fundingPct: fundingPct, ts: Date.now() }; if (S.exchange==='delta' && isFinite(mark)){ const idx = S.tickers.findIndex(function(t){ return t.symbol===data.symbol; }); if (idx>=0){ S.tickers[idx].mark = mark; if (fundingPct!==null) S.tickers[idx].fundingPct = fundingPct; } updateTradePlanPriceUI(data.symbol, mark); } } }catch(e){} }; deltaWS.onclose = function(){ deltaWS=null; if (S.exchange==='delta'){ setTimeout(initDeltaWS, 5000); } }; deltaWS.onerror = function(){ try{ if(S.exchange==='delta') $('chipConn').innerHTML = '<b>'+S.tickers.length+'</b> Delta India perps <b style="color:var(--short)">(WS ERROR)</b>'; }catch(e){} try{ deltaWS.close(); }catch(e){} }; }catch(e){} } async function loadTickersDelta(){
   const r = await fetch(`${DELTA}/v2/tickers?contract_types=perpetual_futures`);
   const j = await r.json();
   return (j.result||[]).map(t=>({
@@ -615,7 +615,7 @@ async function loadMacro(){
 
 /* ---------------- boot / exchange switch ---------------- */
 async function setExchange(x){
-  S.exchange = x; S.candleCache = {};
+  S.exchange = x; S.candleCache = {}; if (x!=='delta' && deltaWS){ try{ deltaWS.close(); }catch(e){} deltaWS=null; }
   $('xDelta').classList.toggle('on', x==='delta');
   $('xCdcx').classList.toggle('on', x==='coindcx');
   $('chipConn').innerHTML = '<b>…</b> loading';
@@ -623,7 +623,7 @@ async function setExchange(x){
     S.tickers = await getTickers();
     $('chipConn').classList.remove('warn');
     $('chipConn').innerHTML = `<b>${S.tickers.length}</b> ${x==='delta'?'Delta India':'CoinDCX'} perps`;
-    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy · ':S.cdcxViaProxy?'via proxy · ':''}no funding/turnover fields — gates degrade honestly)</b>`;
+    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy · ':S.cdcxViaProxy?'via proxy · ':''}no funding/turnover fields — gates degrade honestly)</b>`; if (x==='delta') initDeltaWS();
   }catch(e){
     $('chipConn').classList.add('warn');
     $('chipConn').innerHTML = `<b>API blocked</b> — ${x==='coindcx'?'CoinDCX direct + both proxies (Render + backup) failed. If Render just woke from idle it needs ~50s — retry once. Otherwise the backup proxy may be rate-limited; try again shortly.':'Delta unreachable.'}`;
