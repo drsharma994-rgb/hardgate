@@ -1607,6 +1607,113 @@ let S_SEARCH_CACHE = null;
 function searchBase(sym, ex){
   return ex==='delta' ? sym.replace(/USD$/,'') : sym.replace(/^B-/,'').replace(/_USDT$/,'');
 }
+
+async function getCryptoCandlesTD(base, res, count){
+const key = 'tdc|' + base + '|' + res;
+const hit = S.candleCache[key];
+if (hit && (nowSec()-hit.at) < 300) return hit.rows;
+const intervalMap = {'15m':'15min','1h':'1h','2h':'2h','4h':'4h','1d':'1day'};
+const interval = intervalMap[res];
+if (!interval) throw new Error('unsupported interval: ' + res);
+const outputsize = Math.min(count + 5, 5000);
+const url = 'https://api.twelvedata.com/time_series?symbol=' + encodeURIComponent(base + '/USD') + '&interval=' + interval + '&outputsize=' + outputsize + '&timezone=UTC&apikey=' + TWELVEDATA_KEY;
+const r = await fetch(url);
+const j = await r.json();
+if (j.status !== 'ok' || !Array.isArray(j.values)) throw new Error('Twelve Data has no historical coverage for ' + base + '/USD');
+let rows = j.values.map(function(v){
+const iso = v.datetime.length > 10 ? v.datetime.replace(' ','T') + 'Z' : v.datetime + 'T00:00:00Z';
+return { t: Math.floor(new Date(iso).getTime()/1000), o:+v.open, h:+v.high, l:+v.low, c:+v.close, v: null };
+});
+rows.sort(function(a,b){ return a.t - b.t; });
+rows = dropForming(rows, res);
+S.candleCache[key] = { rows: rows, at: nowSec() };
+return rows;
+}
+function backtestSwingTD(rows){
+const lastv = function(a){ return a[a.length-1]; };
+const MIN_LOOKBACK = 210, HORIZON = 120;
+const results = [];
+let i = MIN_LOOKBACK;
+while (i < rows.length - 1){
+const win = rows.slice(0, i+1);
+const c = win.map(function(r){ return r.c; });
+const e9=lastv(ema(c,9)), e21=lastv(ema(c,21)), e50=lastv(ema(c,50)), e200=lastv(ema(c,200));
+const p=lastv(c), r14=lastv(rsi(c,14));
+let dir=null;
+if (e9>e21 && e21>e50) dir='long'; else if (e9<e21 && e21<e50) dir='short';
+if (!dir){ i++; continue; }
+const a4=lastv(atr(win,14));
+if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)){ i++; continue; }
+if (dir==='long' ? !(p>e200) : !(p<e200)){ i++; continue; }
+if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)){ i++; continue; }
+const stop = lastSwing(win, dir, 30);
+const entry = p;
+const risk = Math.abs(entry-stop);
+if (!(risk>0)){ i++; continue; }
+const roomHigh = Math.max.apply(null, win.slice(-120).map(function(r){return r.h;}));
+const roomLow = Math.min.apply(null, win.slice(-120).map(function(r){return r.l;}));
+const room = dir==='long' ? (roomHigh - entry) : (entry - roomLow);
+const structuralRR = room/risk;
+if (!(structuralRR>=2)){ i++; continue; }
+const ev = cusumLast(c.slice(-120), 1);
+if (ev && ev.barsAgo<=20 && ev.dir!==dir){ i++; continue; }
+const t1 = dir==='long'? entry+2*risk : entry-2*risk;
+const t2 = dir==='long'? entry+3*risk : entry-3*risk;
+let outcome='unresolved', resolvedAt=null, rMult=0;
+for (let j=i+1; j<Math.min(rows.length, i+1+HORIZON); j++){
+const bar = rows[j];
+if (dir==='long'){
+if (bar.l<=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+if (bar.h>=t2){ outcome='target2'; resolvedAt=j; rMult=3; break; }
+if (bar.h>=t1){ outcome='target1'; resolvedAt=j; rMult=2; break; }
+} else {
+if (bar.h>=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+if (bar.l<=t2){ outcome='target2'; resolvedAt=j; rMult=3; break; }
+if (bar.l<=t1){ outcome='target1'; resolvedAt=j; rMult=2; break; }
+}
+}
+results.push({ t: rows[i].t, dir: dir, entry: entry, stop: stop, t1: t1, t2: t2, outcome: outcome, rMult: rMult });
+i = (resolvedAt!==null ? resolvedAt : i+HORIZON) + 1;
+}
+return results;
+}
+function backtestSummaryHTML(base, rows, results){
+const fmtD = function(t){ return new Date(t*1000).toISOString().slice(0,10); };
+const total = results.length;
+const wins = results.filter(function(r){ return r.outcome==='target1'||r.outcome==='target2'; }).length;
+const stops = results.filter(function(r){ return r.outcome==='stop'; }).length;
+const openCt = results.filter(function(r){ return r.outcome==='unresolved'; }).length;
+const resolved = results.filter(function(r){ return r.outcome!=='unresolved'; });
+const winRate = total ? (wins/total*100) : NaN;
+const avgR = resolved.length ? (resolved.reduce(function(a,r){return a+r.rMult;},0)/resolved.length) : NaN;
+const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
+const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) — treat as directional evidence, not a reliable win rate.</div>' : '';
+return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve Data history · '+rangeNote+'</span></h2>'
++ '<div class="note">Replays this app\'s own SWING gates (cascade+spread, HTF side, RSI band, structural R:R≥ 2, CUSUM) bar-by-bar on real historical price data. Funding-rate and volume gates are NOT included — Twelve Data does not provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here. This is a frequency count of what already happened, not a prediction or guarantee.</div>'
++ '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
++ '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
++ '<div class="kv"><span class="k">Hit stop first</span><span class="v">'+stops+'</span></div>'
++ '<div class="kv"><span class="k">Still open at horizon end</span><span class="v">'+openCt+'</span></div>'
++ '<div class="kv"><span class="k">Avg R (resolved trades)</span><span class="v">'+(isFinite(avgR)?avgR.toFixed(2)+'R':'n/a')+'</span></div>'
++ smallNote + '</div>';
+}
+async function runCryptoBacktest(base, btnId, outId){
+const btn = $(btnId), out = $(outId);
+if (!btn || !out) return;
+btn.disabled = true; btn.textContent = 'RUNNING…';
+out.innerHTML = '';
+try{
+const rows = await getCryptoCandlesTD(base, '4h', 5000);
+if (rows.length < 220){ out.innerHTML = '<div class="note warn">Twelve Data only has '+rows.length+' 4H bars for '+base+' — not enough history for a meaningful backtest.</div>'; return; }
+const results = backtestSwingTD(rows);
+out.innerHTML = backtestSummaryHTML(base, rows, results);
+} catch(e){
+out.innerHTML = '<div class="note warn">'+((e&&e.message)||'backtest failed')+'</div>';
+} finally {
+btn.disabled = false; btn.textContent = 'BACKTEST';
+}
+}
+
 function searchRow(ex, sym, price, chg, funding, turnover){
   const bits=[];
   bits.push(isFinite(price)&&price!=null ? px(price) : 'n/a');
@@ -1648,7 +1755,14 @@ async function runSearch(){
     cCap.forEach(t=> rowsHtml.push(searchRow('cdcx', t.symbol, cPrices[t.symbol], null, null, null)));
     let moreNote='';
     if (cHits.length>cCap.length) moreNote = '<div class="note">+'+(cHits.length-cCap.length)+' more CoinDCX matches \u2014 narrow your search to see prices for all of them.</div>';
-    out.innerHTML = '<div class="panel"><h2>'+raw+' <span>'+dHits.length+' Delta India match'+(dHits.length===1?'':'es')+' \u00b7 '+cHits.length+' CoinDCX match'+(cHits.length===1?'':'es')+'</span></h2><div class="ledger">'+rowsHtml.join('')+'</div>'+moreNote+'</div>';
+    
+const uniqBases = Array.from(new Set(dHits.map(function(t){ return searchBase(t.symbol,'delta'); }).concat(cHits.map(function(t){ return searchBase(t.symbol,'cdcx'); }))));
+const idSafe = raw.replace(/[^A-Z0-9]/g,'_');
+const btHtml = uniqBases.map(function(b,idx){
+const btnId='btBtn_'+idSafe+'_'+idx, outId='btOut_'+idSafe+'_'+idx;
+return '<div class="lrow"><span class="gid">TD</span><span class="gname">'+b+'</span><span class="gdetail">Historical swing-gate backtest via Twelve Data (separate feed, on demand)</span><button id="'+btnId+'" onclick="runCryptoBacktest(\''+b+'\',\''+btnId+'\',\''+outId+'\')" style="padding:4px 10px;font-size:11px;background:transparent;border:1px solid var(--line);color:var(--gold);border-radius:4px">BACKTEST</button></div><div id="'+outId+'"></div>';
+}).join('');
+out.innerHTML = '<div class="panel"><h2>'+raw+' <span>'+dHits.length+' Delta India match'+(dHits.length===1?'':'es')+' \u00b7 '+cHits.length+' CoinDCX match'+(cHits.length===1?'':'es')+'</span></h2><div class="ledger">'+rowsHtml.join('')+'</div>'+moreNote+btHtml+'</div>';
     $('searchStat').textContent=(dHits.length+cHits.length)+' total matches';
   } catch(e){
     $('searchStat').textContent = 'search failed: '+((e&&e.message)||e);
