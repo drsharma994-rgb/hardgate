@@ -132,6 +132,8 @@ table{width:100%;border-collapse:collapse}
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
   <button id="tabB_scalp" onclick="showTab('scalp')">SCALP SCAN</button>
     <button id="tabB_coil" onclick="showTab('coil')">COIL WATCHLIST</button>
+    <button id="tabB_apex" onclick="showTab('apex')">APEX (RS)</button>
+    <button id="tabB_trap" onclick="showTab('trap')">LIQUIDITY TRAP</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
@@ -203,6 +205,36 @@ table{width:100%;border-collapse:collapse}
     <div class="cards" id="coilCards"></div>
     <div class="empty" id="coilEmpty" style="display:none">No compressed assets found. The market is currently expanded.</div>
   </section>
+
+    <section id="tab_apex" class="tabpane">
+      <div class="panel">
+        <h2>Apex Leaders <span>relative strength vs BTC · manual macro execution</span></h2>
+        <div class="row">
+          <button class="btn" id="apexRun" onclick="runApexScan()">FIND APEX ASSETS</button>
+          <span class="note" id="apexStat"></span>
+        </div>
+        <div class="prog" id="apexProg"><i></i></div>
+      </div>
+      <div class="note" style="margin-bottom:10px">Gates: G1 BTC not bullish (24h return ≤ 1.5%, macro headwind present) · G2 Asset is outperforming BTC by ≥ 5% over 24h (the RS spread) · G3 Asset holding above its 1H EMA50 (short-term structure intact despite BTC bleeding). Action: Watch Bitcoin, not the altcoin. The minute BTC prints a 15m bullish sweep/reclaim, manually buy the #1 Apex asset.</div>
+      <div class="cards" id="apexCards"></div>
+      <div class="empty" id="apexEmpty" style="display:none">No valid Apex setups. Either BTC is currently bullish (no headwind to test against), or no assets are showing true relative strength.</div>
+    </section>
+
+
+    <section id="tab_trap" class="tabpane">
+      <div class="panel">
+        <h2>Liquidation Snapback <span>mean reversion · fading the extreme</span></h2>
+        <div class="row">
+          <button class="btn" id="trapRun" onclick="runTrapScan()">FIND TRAPPED TRADERS</button>
+          <span class="note" id="trapStat"></span>
+        </div>
+        <div class="prog" id="trapProg"><i></i></div>
+      </div>
+      <div class="note" style="margin-bottom:10px">Gates: G1 Extreme excursion — price pierced a volatility-scaled outer Bollinger Band (2.5–4.5 SD, wider for higher-ATR% assets) · G2 The rejection — candle closed back inside a volatility-scaled inner band (1.8–3.0 SD) · G3 Momentum exhaustion (RSI < 30 or > 70). Action: The crowd is trapped at the extreme. You are fading them. Buy/sell the reclaim, stop goes just past the liquidation wick, target the mean.</div>
+      <div class="cards" id="trapCards"></div>
+      <div class="empty" id="trapEmpty" style="display:none">No active liquidity traps. The market is currently respecting its boundaries.</div>
+    </section>
+
 
 
 <!-- ================= GOLD ================= -->
@@ -696,8 +728,131 @@ async function runCoilScan(){
     btn.disabled=false;
   }
 }
+async function runApexScan(){
+  const btn=$('apexRun'); const cardsEl=$('apexCards'); const emptyEl=$('apexEmpty'); const statEl=$('apexStat');
+  btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+  try{
+    if (!S.tickers.length) S.tickers=await getTickers();
+    const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT';
+    const btcRows = await getCandles(btcSym,'1h',72);
+    if (btcRows.length<48) throw new Error('Insufficient BTC data for benchmark');
+    const btcNow = btcRows[btcRows.length-1].c;
+    const btc24h = btcRows[Math.max(0,btcRows.length-25)].c;
+    const btcRet24 = ((btcNow-btc24h)/btc24h)*100;
+    if (btcRet24>1.5){
+      cardsEl.innerHTML = `<div class="empty">BTC is up ${fmt(btcRet24,2)}% in 24h. Relative Strength scans are invalid during macro uptrends because everything goes up. Wait for a BTC pullback to test for true Apex leaders.</div>`;
+      statEl.textContent = `skipped — BTC bullish (+${fmt(btcRet24,2)}%)`;
+      return;
+    }
+    const uni = S.tickers.filter(t=>t.turnoverUsd>=500000 && t.symbol!==btcSym);
+    let results=[];
+    for (let i=0;i<uni.length;i++){
+      const t=uni[i];
+      setProg('apexProg',(i+1)/uni.length);
+      statEl.textContent = `measuring ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'1h',72);
+        if (rows.length<50) continue;
+        const c=rows.map(r=>r.c);
+        const p=c[c.length-1];
+        const p24=c[Math.max(0,c.length-25)];
+        const ret24=((p-p24)/p24)*100;
+        const spread24 = ret24 - btcRet24;
+        if (spread24<5.0) continue;
+        const e50=last(ema(c,50));
+        if (p<e50) continue;
+        results.push({sym:t.symbol, mark:p, ret24, spread24, e50});
+      }catch(e){}
+      await sleep(100);
+    }
+    results.sort((a,b)=>b.spread24-a.spread24);
+    results.forEach(r=>{
+      cardsEl.insertAdjacentHTML('beforeend', cardHTML(r.sym,'long',
+        [['mark',px(r.mark)],['BTC 24h',pct(btcRet24,2)],['asset 24h',pct(r.ret24,2)],['RS spread',pct(r.spread24,2)]],
+        ['G1 BTC headwind','G2 spread ≥5%','G3 1H EMA50 intact'],
+        `MANUAL TRIGGER: do not buy yet. Pull up a 15m chart of BTC. The exact minute BTC prints a bullish reclaim or sweeps a local low, buy this asset.`,
+        r.mark, r.e50, r.mark*1.05));
+    });
+    statEl.textContent = `done — ${results.length} Apex assets found`;
+    if (!results.length) emptyEl.style.display='block';
+  }catch(e){
+    statEl.textContent = `apex scan failed: ${e.message}`;
+  }finally{
+    setProg('apexProg', null);
+    btn.disabled=false;
+  }
+}
+async function runTrapScan(){
+  const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty'); const statEl=$('trapStat');
+  btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+  try{
+    if (!S.tickers.length) S.tickers=await getTickers();
+    const uni=S.tickers.filter(t=>t.turnoverUsd>=300000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
+    let found=0;
+    for (let i=0;i<uni.length;i++){
+      const t=uni[i];
+      setProg('trapProg',(i+1)/uni.length);
+      statEl.textContent = `hunting ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'15m',100);
+        if (rows.length<50) continue;
+        const c=rows.map(r=>r.c);
+        const p=c[c.length-1];
+        const currentBar=rows[rows.length-1];
+
+        const a14=last(atr(rows,14));
+        const atrPct=(a14/p)*100;
+        const outerSD=Math.min(4.5, Math.max(2.5, 3.0+(atrPct-0.5)*0.6));
+        const innerSD=Math.min(3.0, Math.max(1.8, 2.0+(atrPct-0.5)*0.3));
+
+        const bbOuter=bollinger(c,20,outerSD);
+        const bbInner=bollinger(c,20,innerSD);
+        const e20=bbInner.mid[c.length-1];
+        const r14=last(rsi(c,14));
+
+        const lOuter=bbOuter.lower[c.length-1];
+        const lInner=bbInner.lower[c.length-1];
+        const uOuter=bbOuter.upper[c.length-1];
+        const uInner=bbInner.upper[c.length-1];
+
+        let dir=null, stop=NaN;
+        if (currentBar.l<lOuter && p>lInner && r14<35){
+          dir='long'; stop=currentBar.l-(currentBar.l*0.001);
+        } else if (currentBar.h>uOuter && p<uInner && r14>65){
+          dir='short'; stop=currentBar.h+(currentBar.h*0.001);
+        }
+        if (!dir) continue;
+
+        const risk=Math.abs(p-stop);
+        if (!(risk>0)) continue;
+        const t1=e20;
+        const room=Math.abs(t1-p);
+        const rr=room/risk;
+        if (rr<1.5) continue;
+
+        found++;
+        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir,
+          [['mark',px(p)],['RSI',fmt(r14,1)],['vol (ATR%)',fmt(atrPct,2)+'%'],
+           [fmt(outerSD,1)+' SD pierced', dir==='long'?px(lOuter):px(uOuter)],
+           [fmt(innerSD,1)+' SD reclaimed', dir==='long'?px(lInner):px(uInner)],
+           ['target (mean)',px(t1)]],
+          ['G1 '+fmt(outerSD,1)+' SD extreme','G2 reclaimed '+fmt(innerSD,1)+' SD','G3 momentum exhausted'],
+          `Dynamic mean reversion: bands auto-scaled to ${fmt(outerSD,1)} SD based on this asset's volatility. Stop goes tight behind the wick at ${px(stop)}. Target the mean at ${px(t1)}.`,
+          p, stop, t1));
+      }catch(e){}
+      await sleep(100);
+    }
+    statEl.textContent = `done — ${found} traps found`;
+    if (!found) emptyEl.style.display='block';
+  }catch(e){
+    statEl.textContent = `trap scan failed: ${e.message}`;
+  }finally{
+    setProg('trapProg', null);
+    btn.disabled=false;
+  }
+}
 function showTab(t){
-  ['bias','swing','scalp','coil','gold','best','search','log','trade'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','gold','best','search','log','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
