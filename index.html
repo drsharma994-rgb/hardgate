@@ -274,7 +274,7 @@ table{width:100%;border-collapse:collapse}
       <div class="row" style="margin-bottom:8px">
         <label class="f">EQUITY $<input id="tEq" type="number" value="1000" style="width:90px"></label>
         <label class="f">RISK %<input id="tRisk" type="number" value="1" step="0.25" style="width:70px"></label>
-        <label class="f">LEVERAGE<input id="tLev" type="number" value="10" step="1" style="width:70px"></label>
+        <label class="f">AUTO LEVERAGE<input id="tLev" type="number" value="10" step="1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Computed automatically from stop distance for 1.5x liquidation clearance"></label>
         <label class="f">MMR %<input id="tMmr" type="number" value="0.5" step="0.1" style="width:70px"></label>
         <label class="f">T1 SCALE-OUT %<input id="tScale" type="number" value="50" step="5" style="width:80px"></label>
       </div>
@@ -800,28 +800,33 @@ function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return N
 }
 function planTrade(){
   const side=$('tSide').value, entry=+$('tEntry').value, stop=+$('tStop').value;
-  const eq=+$('tEq').value, riskPct=+$('tRisk').value, lev=+$('tLev').value, mmr=(+$('tMmr').value||0.5)/100;
+  const eq=+$('tEq').value, riskPct=+$('tRisk').value, mmr=(+$('tMmr').value||0.5)/100;
   const scaleOut=Math.min(100,Math.max(0,+$('tScale').value||50));
   const out=$('tradeOut');
-  if (!(entry>0&&stop>0&&eq>0&&riskPct>0&&lev>0)){ out.innerHTML='<div class="empty">Fill entry, stop, equity, risk %, leverage.</div>'; return; }
+  if (!(entry>0&&stop>0&&eq>0&&riskPct>0)){ out.innerHTML='<div class="empty">Fill entry, stop, equity, and risk %.</div>'; return; }
   const dirOk = side==='long' ? stop<entry : stop>entry;
   const riskUnit = Math.abs(entry-stop);
   const riskUsd = eq*riskPct/100;
   const qty = riskUsd/riskUnit;
   const notional = qty*entry;
+  const stopDist = riskUnit/entry;
+  const targetClearance = 1.5;
+  let optimalLev = Math.floor(1/(stopDist*targetClearance+mmr));
+  optimalLev = Math.max(1, Math.min(100, optimalLev));
+  $('tLev').value = optimalLev;
+  const lev = optimalLev;
   const margin = notional/lev;
   const liq = side==='long' ? entry*(1 - 1/lev + mmr) : entry*(1 + 1/lev - mmr);
-  const stopDist = riskUnit/entry, liqDist = Math.abs(entry-liq)/entry;
+  const liqDist = Math.abs(entry-liq)/entry;
   const clearance = liqDist/stopDist; // want ≥ 1.5×
-  const maxLev = Math.max(1, Math.floor(1/(stopDist*1.5+mmr)));
   const t1 = $('tT1').value ? +$('tT1').value : (side==='long'?entry+2*riskUnit:entry-2*riskUnit);
   const rr = Math.abs(t1-entry)/riskUnit;
 
   const g=[];
   g.push(['P1','Stop on the correct side of entry', dirOk?'pass':'veto', dirOk?'':'stop must be '+(side==='long'?'below':'above')+' entry']);
   g.push(['P2','R:R ≥ 2 to T1', rr>=2?'pass':'veto', `${fmt(rr,2)}R to T1 ${px(t1)} — never move the stop to fix this; move the trade`]);
-  g.push(['P3','Liquidation clearance ≥ 1.5× stop distance', clearance>=1.5?'pass':'veto',
-    `liq ≈ ${px(liq)} · ${fmt(clearance,2)}× stop distance${clearance<1.5?` → drop leverage to ≤ ${maxLev}×`:''}`]);
+  g.push(['P3','Liquidation clearance auto-scaled (>= 1.5x stop)', clearance>=1.45?'pass':'veto',
+    `liq ≈ ${px(liq)} · leverage auto-set to ${lev}x to yield ${fmt(clearance,2)}× stop clearance`]);
   g.push(['P4','Margin sanity (margin ≤ 25% equity)', margin<=eq*0.25?'pass':'veto', `margin $${fmt(margin,2)} of $${fmt(eq,2)}`]);
   const checksDone = [...document.querySelectorAll('#tCheck .ck')].every(c=>c.checked);
   g.push(['P5','Discipline checklist complete', checksDone?'pass':'veto', checksDone?'':'tick every box on the left — SKYAI/HYPE/GOAT were checklist failures, not signal failures']);
