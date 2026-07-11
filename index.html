@@ -1306,15 +1306,10 @@ async function silentBestScan(exchangeArg){
           if (Math.abs(fr)>0.05-1e-9) continue;
           if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) continue;
         }
-        if (!(vz>0.5)) continue;
-        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) continue; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk = Math.abs(entry-stop);
-        if (!(risk>0)) continue;
-        const room = dir==='long' ? Math.max(...rows.slice(-120).map(r=>r.h))-entry : entry-Math.min(...rows.slice(-120).map(r=>r.l));
-        const rr=room/risk;
-        if (!(rr>=2)) continue;
-        const ev=cusumLast(c.slice(-120),1);
-        if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue;
-        clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,vz,fr,ev});
+        if (!(vz > 0.5)) continue; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) continue; if (dir === 'short' && closePos > 0.40) continue;
+        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) continue; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk=Math.abs(entry-stop);
+if (!(risk>0)) continue;
+const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const rr = expectedMove/risk; if (!(rr>=2)) continue; const ev = cusumLast(c.slice(-120),1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue; clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,t1,t2,vz,fr,ev});
       }catch(e){}
       await sleep(60);
     }
@@ -1519,19 +1514,19 @@ const a4=lastv(atr(win,14));
 if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)){ i++; continue; }
 if (dir==='long' ? !(p>e200) : !(p<e200)){ i++; continue; }
 if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)){ i++; continue; }
+const currentBar=win[win.length-1]; const range=currentBar.h - currentBar.l; const closePos=range>0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir==='long' && closePos<0.60){ i++; continue; } if (dir==='short' && closePos>0.40){ i++; continue; }
 const stop = lastSwing(win, dir, 30);
 const entry = p;
 const risk = Math.abs(entry-stop);
 if (!(risk>0)){ i++; continue; }
-const roomHigh = Math.max.apply(null, win.slice(-120).map(function(r){return r.h;}));
-const roomLow = Math.min.apply(null, win.slice(-120).map(function(r){return r.l;}));
-const room = dir==='long' ? (roomHigh - entry) : (entry - roomLow);
-const structuralRR = room/risk;
-if (!(structuralRR>=2)){ i++; continue; }
 const ev = cusumLast(c.slice(-120), 1);
 if (ev && ev.barsAgo<=20 && ev.dir!==dir){ i++; continue; }
-const t1 = dir==='long'? entry+2*risk : entry-2*risk;
-const t2 = dir==='long'? entry+3*risk : entry-3*risk;
+const expectedMove = a4*3.5;
+const maxExcursion = a4*4.9;
+const dynamicRR = expectedMove/risk;
+if (!(dynamicRR>=2)){ i++; continue; }
+const t1 = dir==='long'? entry+expectedMove : entry-expectedMove;
+const t2 = dir==='long'? entry+maxExcursion : entry-maxExcursion;
 let outcome='unresolved', resolvedAt=null, rMult=0;
 for (let j=i+1; j<Math.min(rows.length, i+1+HORIZON); j++){
 const bar = rows[j];
