@@ -135,6 +135,7 @@ table{width:100%;border-collapse:collapse}
     <button id="tabB_apex" onclick="showTab('apex')">APEX (RS)</button>
     <button id="tabB_trap" onclick="showTab('trap')">LIQUIDITY TRAP</button>
     <button id="tabB_smc" onclick="showTab('smc')">SMC (FVG)</button>
+    <button id="tabB_ob" onclick="showTab('ob')">ORDER BLOCKS</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
@@ -249,6 +250,21 @@ table{width:100%;border-collapse:collapse}
         <div class="cards" id="smcCards"></div>
         <div class="empty" id="smcEmpty" style="display:none">No assets are currently tapping an unmitigated 4H FVG.</div>
       </section>
+
+      <section id="tab_ob" class="tabpane">
+        <div class="panel">
+          <h2>ORDER BLOCKS <span>institutional order blocks · equal-high/low liquidity pools</span></h2>
+          <div class="row">
+            <button class="btn" id="obRun" onclick="runObScan()">FIND UNMITIGATED ORDER BLOCKS</button>
+            <span class="note" id="obStat"></span>
+          </div>
+          <div class="prog" id="obProg"><i></i></div>
+        </div>
+        <div class="note" style="margin-bottom:10px">Gates: G1 Valid Order Block (the last opposite-colored 4H candle before a displacement candle that broke recent structure) · G2 Unmitigated (no subsequent candle has fully closed/wicked through the block) · G3 Price inside OB (current price has pulled back and is trading inside the block) · G4 HTF Context (aligned with the 4H/200 EMA trend). Liquidity Target shows the nearest unswept equal-high/low pool in your direction. Action: drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH), then execute.</div>
+        <div class="cards" id="obCards"></div>
+        <div class="empty" id="obEmpty" style="display:none">No assets are currently tapping an unmitigated 4H Order Block.</div>
+      </section>
+
 
 
 
@@ -586,6 +602,66 @@ function lastSwing(rows, dir, look=30){
   if (!seg.length) return NaN;
   return dir==='long' ? Math.min(...seg.map(r=>r.l)) : Math.max(...seg.map(r=>r.h));
 }
+function findOrderBlock(rows, dir){
+  if (!rows || rows.length < 30) return null;
+  const aArr = atr(rows, 14);
+  let best = null;
+  const start = Math.max(2, rows.length - 40);
+  for (let j = start; j < rows.length - 1; j++){
+    const disp = rows[j], ob = rows[j-1];
+    const dispRange = disp.h - disp.l;
+    const avgAtr = aArr[j];
+    if (!avgAtr || dispRange < avgAtr * 1.5) continue;
+    const swingHigh = lastSwing(rows.slice(0, j+1), 'short', 20);
+    const swingLow = lastSwing(rows.slice(0, j+1), 'long', 20);
+    if (dir === 'long' && disp.c > disp.o && disp.c > swingHigh && ob.c < ob.o){
+      const top = ob.h, bottom = ob.l;
+      let mitigated = false;
+      for (let k = j+1; k < rows.length; k++){ if (rows[k].l <= bottom){ mitigated = true; break; } }
+      if (!mitigated) best = { top, bottom, age: rows.length-1-j };
+    } else if (dir === 'short' && disp.c < disp.o && disp.c < swingLow && ob.c > ob.o){
+      const top = ob.h, bottom = ob.l;
+      let mitigated = false;
+      for (let k = j+1; k < rows.length; k++){ if (rows[k].h >= top){ mitigated = true; break; } }
+      if (!mitigated) best = { top, bottom, age: rows.length-1-j };
+    }
+  }
+  return best;
+}
+function findLiquidityPools(rows){
+  if (!rows || rows.length < 25) return { buySide:null, sellSide:null };
+  const look = Math.min(40, rows.length-1);
+  const seg = rows.slice(rows.length-1-look, rows.length-1);
+  const tol = 0.0015;
+  let bestHigh = null, bestLow = null;
+  for (let i=0;i<seg.length;i++){
+    let cH=[seg[i].h], cL=[seg[i].l];
+    for (let j=0;j<seg.length;j++){
+      if (i===j) continue;
+      if (Math.abs(seg[j].h-seg[i].h)/seg[i].h <= tol) cH.push(seg[j].h);
+      if (Math.abs(seg[j].l-seg[i].l)/seg[i].l <= tol) cL.push(seg[j].l);
+    }
+    if (cH.length>=2){ const lvl=Math.max(...cH); if(!bestHigh||lvl>bestHigh.level) bestHigh={level:lvl,count:cH.length}; }
+    if (cL.length>=2){ const lvl=Math.min(...cL); if(!bestLow||lvl<bestLow.level) bestLow={level:lvl,count:cL.length}; }
+  }
+  if (bestHigh && seg.some(r=>r.c > bestHigh.level)) bestHigh = null;
+  if (bestLow && seg.some(r=>r.c < bestLow.level)) bestLow = null;
+  return { buySide: bestHigh, sellSide: bestLow };
+}
+function nearestOBText(rows, dir){
+  try{
+    const ob = findOrderBlock(rows, dir);
+    return ob ? (px(ob.bottom)+'–'+px(ob.top)+' ('+ob.age+' bars)') : 'none nearby';
+  }catch(e){ return 'n/a'; }
+}
+function liquidityTargetText(rows, dir){
+  try{
+    const lp = findLiquidityPools(rows);
+    const target = dir === 'long' ? lp.buySide : lp.sellSide;
+    return target ? (px(target.level)+' (x'+target.count+')') : 'none nearby';
+  }catch(e){ return 'n/a'; }
+}
+
 const last = a => a[a.length-1];
 function roc(vals, n){ const L=vals.length; return L>n ? (vals[L-1]/vals[L-1-n]-1)*100 : NaN; }
 function avgFinite(vals){ const f=vals.filter(function(v){return isFinite(v);}); return f.length ? f.reduce(function(a,b){return a+b;},0)/f.length : NaN; }
@@ -929,8 +1005,56 @@ async function runSmcScan(){
     btn.disabled = false;
   }
 }
+async function runObScan(){
+  const btn = $('obRun'); const cardsEl = $('obCards'); const emptyEl = $('obEmpty'); const statEl = $('obStat');
+  btn.disabled = true; cardsEl.innerHTML = ''; emptyEl.style.display = 'none';
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
+    let found = 0;
+    for (let i = 0; i < uni.length; i++){
+      const t = uni[i];
+      setProg('obProg', (i+1)/uni.length);
+      statEl.textContent = `hunting ${i+1}/${uni.length} - ${t.symbol}`;
+      try{
+        const isGold = t.symbol.includes('XAU');
+        const rows = isGold ? await getXAUCandles('4h', 150) : await getCandles(t.symbol, '4h', 150);
+        if (rows.length < 50) continue;
+        const c = rows.map(r => r.c);
+        const p = c[c.length-1];
+        const e200 = last(ema(c, 200));
+        let dir = null, ob = null;
+        const obLong = findOrderBlock(rows, 'long');
+        const obShort = findOrderBlock(rows, 'short');
+        if (obLong && p >= obLong.bottom && p <= obLong.top && p > e200){ dir = 'long'; ob = obLong; }
+        else if (obShort && p >= obShort.bottom && p <= obShort.top && p < e200){ dir = 'short'; ob = obShort; }
+        if (!dir) continue;
+        found++;
+        const lp = findLiquidityPools(rows);
+        const target = dir === 'long' ? lp.buySide : lp.sellSide;
+        const stop = dir === 'long' ? ob.bottom - (ob.bottom*0.002) : ob.top + (ob.top*0.002);
+        const t1 = target ? target.level : (dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l)));
+        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [
+          ['mark', px(p)], ['OB Age', `${ob.age} bars (4H)`],
+          ['OB Top', px(ob.top)], ['OB Bottom', px(ob.bottom)],
+          ['Struct Stop', px(stop)], ['Liquidity Target', target ? `${px(target.level)} (x${target.count})` : px(t1)]
+        ], ['G1 Valid Order Block', 'G2 Unmitigated', 'G3 Price inside OB', 'G4 HTF Trend Aligned'],
+        'ORDER BLOCK TAP: price has pulled back into an unmitigated 4H order block. Drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.', p, stop, t1));
+      } catch(e) { /* skip this symbol */ }
+      await sleep(100);
+    }
+    statEl.textContent = `done - ${found} Order Block setups found`;
+    if (!found) emptyEl.style.display = 'block';
+  } catch(e){
+    statEl.textContent = `order block scan failed: ${e.message}`;
+  } finally {
+    setProg('obProg', null);
+    btn.disabled = false;
+  }
+}
 function showTab(t){
-  ['bias','swing','scalp','coil','apex','trap','smc','gold','best','search','log','trade'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','smc','ob','gold','best','search','log','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
