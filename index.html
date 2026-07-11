@@ -1346,7 +1346,7 @@ async function runBest(){
   const out=$('bestOut'); out.innerHTML=''; $('bestStat').textContent='';
   try{
     const scanAll = $('bestAll').checked;
-    const N = Math.max(5, Math.min(500, +$('bestN').value||30)); if (!S.tickers.length) S.tickers=await getTickers(); const regime=await checkMarketRegime(); if(!regime.safe){ out.innerHTML='<div class="verdict aside"><div class="vword">MASTER VETO: STAND ASIDE</div><div class="vwhy">'+regime.reason+' Scanning canceled to protect capital.</div></div>'; $('bestStat').textContent='master veto: regime unsafe'; setProg('bestProg',null); btn.disabled=false; return; }
+    const N = Math.max(5, Math.min(500, +$('bestN').value||30)); if (!S.tickers.length) S.tickers=await getTickers(); 
     if (!S.tickers.length) S.tickers=await getTickers();
     let uni = S.exchange==='delta'
       ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
