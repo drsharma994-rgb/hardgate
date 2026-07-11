@@ -1554,7 +1554,8 @@ async function runBest(){
       ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
       : S.tickers.slice();
     if (!scanAll) uni = uni.slice(0,N);
-    const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
+    const exLabel = S.exchange==='delta'?'Delta India':'CoinDCX';
+    const universeLabel = scanAll ? `whole ${exLabel} futures universe` : `top ${N} by turnover`;
     const clean=[];
     for (let i=0;i<uni.length;i++){
       const t=uni[i]; setProg('bestProg',(i+1)/uni.length*0.65);
@@ -1584,7 +1585,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
       await sleep(60);
     }
     if (!clean.length){
-      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel} on ${S.exchange==='delta'?'Delta India':'CoinDCX'}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
+      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
       return;
     }
     /* Evidence FAMILIES for survivors — independence over count.
@@ -1690,7 +1691,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
         <hr class="sep">
         <div class="note"><b>Runners-up (also CLEAN):</b><br>${others}</div>
       </div>`;
-    $('bestStat').textContent=`done · ${clean.length} CLEAN of ${uni.length} scanned (${universeLabel} · ${S.exchange==='delta'?'Delta India':'CoinDCX'})`;
+    $('bestStat').textContent=`done · ${clean.length} CLEAN of ${uni.length} scanned (${universeLabel})`;
   }catch(e){ out.innerHTML=`<div class="empty">best scan failed: ${e.message}</div>`; }
   finally{ setProg('bestProg',null); btn.disabled=false; }
 }
