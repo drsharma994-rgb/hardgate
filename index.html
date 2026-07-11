@@ -428,7 +428,7 @@ async function candlesCdcx(sym, res, count){
   return rows;
 }
 
-async function getTickers(){
+async function candlesRangeRaw(sym, res, start, end){ if (S.exchange==='delta'){ const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`); const j = await r.json(); const rows = (j.result||[]).map(c=>({t:c.time, o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+c.volume})); rows.sort((a,b)=>a.t-b.t); return rows; } else { const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${start}&to=${end}&resolution=${CDCX_RES[res]}&pcode=f`); const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)})); rows.sort((a,b)=>a.t-b.t); return rows; } } async function getTickers(){
   if (S.exchange==='delta') return loadTickersDelta();
   try { const t = await loadTickersCdcx(); S.cdcxBlocked=false; return t; }
   catch(e){ S.cdcxBlocked=true; throw e; }
@@ -442,7 +442,7 @@ function dropForming(rows, res){
   return (nowSec() - rows[rows.length-1].t < sec) ? rows.slice(0,-1) : rows;
 }
 async function getCandles(sym, res, count){
-  const key = `${S.exchange}|${sym}|${res}`;
+  const key = `${S.exchange}|${sym}|${res}|${count}`;
   const hit = S.candleCache[key];
   if (hit && (nowSec()-hit.at) < 60) return hit.rows;
   let rows = S.exchange==='delta' ? await candlesDelta(sym,res,count) : await candlesCdcx(sym,res,count);
@@ -452,7 +452,7 @@ async function getCandles(sym, res, count){
 }
 
 async function getXAUCandles(res, count){
-  const key = 'xau|' + res;
+  const key = 'xau|' + res + '|' + count;
   const hit = S.candleCache[key];
   if (hit && (nowSec()-hit.at) < 60) return hit.rows;
   const intervalMap = {'15m':'15min','1h':'1h','2h':'2h','4h':'4h','1d':'1day'};
@@ -904,7 +904,7 @@ async function runScan(kind){
           logSetup(t.symbol, dir, 'scalp', entry, stop, t1);
         }
       }catch(e){ /* skip symbol on fetch/parse error */ }
-      await sleep(120); // stay polite with the public API
+      await sleep(60); // stay polite with the public API
     }
     statEl.textContent = `done — ${found} CLEAN / ${uni.length} scanned (${universeLabel})`;
     if (!found) emptyEl.style.display='block';
@@ -1172,7 +1172,7 @@ async function runGold(){
     $('goldStat').textContent = `evaluated · closed bars only · ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
   }catch(e){
     $('goldStat').textContent = 'gold eval failed: '+e.message;
-  }finally{ setProg('goldProg',null); btn.disabled=false; }
+  }finally{ setProg('goldProg',null); setTimeout(()=>{ btn.disabled=false; }, 10000); }
 }
 
 /* =============================================================================
@@ -1182,7 +1182,7 @@ async function runGold(){
    ============================================================================= */
 const LOG_KEY='hardgate_log_v1';
 function loadLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
-function saveLog(l){ try{ localStorage.setItem(LOG_KEY, JSON.stringify(l)); }catch(e){} }
+function saveLog(l){ try{ if (l.length>1000) l = l.slice(l.length-1000); localStorage.setItem(LOG_KEY, JSON.stringify(l)); }catch(e){} }
 function logSetup(sym,dir,kind,entry,stop,t1){
   if (!(isFinite(entry)&&isFinite(stop)&&isFinite(t1)&&Math.abs(entry-stop)>0)) return;
   const l=loadLog();
@@ -1205,14 +1205,14 @@ async function checkOutcomes(){
       const rows = (await getCandles(e.sym,res,Math.min(300,Math.ceil(age/secPer)+5))).filter(r=>r.t>=e.ts);
       for (const b of rows){
         const hitSL = e.dir==='long' ? b.l<=e.stop : b.h>=e.stop;
-        const hitTP = e.dir==='long' ? b.h>=e.t1  : b.l<=e.t1;
+        const hitTP = e.dir==='long' ? b.h>=e.t1  : b.l<=e.t1; if (hitSL && hitTP && res!=='15m'){ try{ const sub = await candlesRangeRaw(e.sym, '15m', b.t, b.t+secPer); let rS=null, rT=null; for (const sb of sub){ const subSL = e.dir==='long' ? sb.l<=e.stop : sb.h>=e.stop; const subTP = e.dir==='long' ? sb.h>=e.t1 : sb.l<=e.t1; if (subSL){ rS='sl'; rT=sb.t; break; } if (subTP){ rS='tp'; rT=sb.t; break; } } if (rS){ e.status=rS; e.doneTs=rT; break; } }catch(err){} }
         if (hitSL){ e.status='sl'; e.doneTs=b.t; break; }   // same-bar ambiguity → SL, always
         if (hitTP){ e.status='tp'; e.doneTs=b.t; break; }
       }
       if (e.status==='open' && age>14*86400) e.status='exp';
       checked++;
     }catch(err){ /* symbol delisted or fetch failed — stays open */ }
-    await sleep(120);
+    await sleep(60);
   }
   saveLog(l); renderLog();
   $('logStat').textContent = `checked ${checked} open${skipped?` · ${skipped} skipped (other exchange)`:''}`;
@@ -1286,7 +1286,7 @@ async function runBest(){
         if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue;
         clean.push({t,dir,rows,entry,stop,risk,rr,vz,fr,ev});
       }catch(e){}
-      await sleep(120);
+      await sleep(60);
     }
     if (!clean.length){
       out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel} on ${S.exchange==='delta'?'Delta India':'CoinDCX'}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
@@ -1374,7 +1374,7 @@ async function runBest(){
       ];
       s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0)+(f5?1:0);
       s.robScore=(r1?1:0)+(r2?1:0);
-      await sleep(120);
+      await sleep(60);
     }
     clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
     const w=clean[0];
@@ -1443,7 +1443,7 @@ async function silentBestScan(exchangeArg){
         if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue;
         clean.push({t,dir,rows,entry,stop,risk,rr,vz,fr,ev});
       }catch(e){}
-      await sleep(120);
+      await sleep(60);
     }
     if (!clean.length) return [];
     /* Evidence FAMILIES for survivors — independence over count.
@@ -1526,7 +1526,7 @@ async function silentBestScan(exchangeArg){
       ];
       s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0)+(f5?1:0);
       s.robScore=(r1?1:0)+(r2?1:0);
-      await sleep(120);
+      await sleep(60);
     }
     clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
     return clean;
@@ -1609,7 +1609,7 @@ function searchBase(sym, ex){
 }
 
 async function getCryptoCandlesTD(base, res, count){
-const key = 'tdc|' + base + '|' + res;
+const key = 'tdc|' + base + '|' + res + '|' + count;
 const hit = S.candleCache[key];
 if (hit && (nowSec()-hit.at) < 300) return hit.rows;
 const intervalMap = {'15m':'15min','1h':'1h','2h':'2h','4h':'4h','1d':'1day'};
@@ -1710,7 +1710,7 @@ out.innerHTML = backtestSummaryHTML(base, rows, results);
 } catch(e){
 out.innerHTML = '<div class="note warn">'+((e&&e.message)||'backtest failed')+'</div>';
 } finally {
-btn.disabled = false; btn.textContent = 'BACKTEST';
+btn.textContent = 'BACKTEST'; setTimeout(()=>{ btn.disabled = false; }, 5000);
 }
 }
 
