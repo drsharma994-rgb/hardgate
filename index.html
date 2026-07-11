@@ -1308,14 +1308,14 @@ async function silentBestScan(exchangeArg){
           if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) continue;
         }
         if (!(vz>0.5)) continue;
-        const stop=lastSwing(rows,dir,30), entry=p, risk=Math.abs(entry-stop);
+        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) continue; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk = Math.abs(entry-stop);
         if (!(risk>0)) continue;
         const room = dir==='long' ? Math.max(...rows.slice(-120).map(r=>r.h))-entry : entry-Math.min(...rows.slice(-120).map(r=>r.l));
         const rr=room/risk;
         if (!(rr>=2)) continue;
         const ev=cusumLast(c.slice(-120),1);
         if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue;
-        clean.push({t,dir,rows,entry,stop,risk,rr,vz,fr,ev});
+        clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,vz,fr,ev});
       }catch(e){}
       await sleep(60);
     }
