@@ -131,6 +131,7 @@ table{width:100%;border-collapse:collapse}
   <button id="tabB_bias" class="on" onclick="showTab('bias')">BIAS</button>
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
   <button id="tabB_scalp" onclick="showTab('scalp')">SCALP SCAN</button>
+    <button id="tabB_coil" onclick="showTab('coil')">COIL WATCHLIST</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
@@ -188,6 +189,21 @@ table{width:100%;border-collapse:collapse}
   <div class="cards" id="scalpCards"></div>
   <div class="empty" id="scalpEmpty" style="display:none">No CLEAN scalp triggers right now.</div>
 </section>
+
+    <section id="tab_coil" class="tabpane">
+    <div class="panel">
+      <h2>Compression Stalker <span>find stored energy before the breakout · manual execution</span></h2>
+      <div class="row">
+        <button class="btn" id="coilRun" onclick="runCoilScan()">FIND COILS</button>
+        <span class="note" id="coilStat"></span>
+      </div>
+      <div class="prog" id="coilProg"><i></i></div>
+    </div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 Bollinger Band width is ≥ 25% tighter than its 50-bar average (Volatility Squeeze) · G2 Volume z-score < -0.5 (Drought/Quiet Accumulation) · G3 Price above 4H 200 EMA (Bullish HTF context). Action: Do not buy blindly. Send these to the Trade Plan and wait for a Liquidity Sweep of the local low before manually entering.</div>
+    <div class="cards" id="coilCards"></div>
+    <div class="empty" id="coilEmpty" style="display:none">No compressed assets found. The market is currently expanded.</div>
+  </section>
+
 
 <!-- ================= GOLD ================= -->
 <section id="tab_gold" class="tabpane">
@@ -631,8 +647,57 @@ async function setExchange(x){
   }
   renderBiasChips();
 }
+async function runCoilScan(){
+  const btn=$('coilRun'); const cardsEl=$('coilCards'); const emptyEl=$('coilEmpty'); const statEl=$('coilStat');
+  btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+  try{
+    if (!S.tickers.length) S.tickers=await getTickers();
+    const uni=S.tickers.filter(t=>t.turnoverUsd>=500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
+    let found=0;
+    for (let i=0;i<uni.length;i++){
+      const t=uni[i];
+      setProg('coilProg',(i+1)/uni.length);
+      statEl.textContent=`scanning ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'4h',200);
+        if (rows.length<80) continue;
+        const c=rows.map(r=>r.c);
+        const p=c[c.length-1];
+        const bb=bollinger(c,20,2);
+        const currentWidth=bb.widthPct[c.length-1];
+        const pastWidths=bb.widthPct.slice(-50).filter(isFinite);
+        if (!pastWidths.length) continue;
+        const avgWidth=pastWidths.reduce((a,b)=>a+b,0)/pastWidths.length;
+        if (!(currentWidth<avgWidth*0.75)) continue;
+        const vz=volZ(rows,20);
+        if (!(vz<-0.5)) continue;
+        const e200=last(ema(c,200));
+        if (!(p>e200)) continue;
+        const recentRows=rows.slice(-20);
+        const coilHigh=Math.max(...recentRows.map(r=>r.h));
+        const coilLow=Math.min(...recentRows.map(r=>r.l));
+        found++;
+        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol,'long',
+          [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'—'],
+           ['BB width',fmt(currentWidth,2)+'% (avg '+fmt(avgWidth,2)+'%)'],['vol z',fmt(vz,2)],
+           ['coil low',px(coilLow)],['coil high',px(coilHigh)]],
+          ['G1 BB squeeze','G2 vol drought','G3 >4H 200 EMA'],
+          `Wait for price to sweep below ${px(coilLow)}, then manually bid the reclaim. Do not buy inside the chop.`,
+          coilLow, coilLow*0.95, coilHigh));
+      }catch(e){}
+      await sleep(120);
+    }
+    statEl.textContent=`done — ${found} coils found`;
+    if (!found) emptyEl.style.display='block';
+  }catch(e){
+    statEl.textContent=`coil scan failed: ${e.message}`;
+  }finally{
+    setProg('coilProg', null);
+    btn.disabled=false;
+  }
+}
 function showTab(t){
-  ['bias','swing','scalp','gold','best','search','log','trade'].forEach(k=>{
+  ['bias','swing','scalp','coil','gold','best','search','log','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
