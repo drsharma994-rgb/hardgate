@@ -134,6 +134,7 @@ table{width:100%;border-collapse:collapse}
     <button id="tabB_coil" onclick="showTab('coil')">COIL WATCHLIST</button>
     <button id="tabB_apex" onclick="showTab('apex')">APEX (RS)</button>
     <button id="tabB_trap" onclick="showTab('trap')">LIQUIDITY TRAP</button>
+    <button id="tabB_smc" onclick="showTab('smc')">SMC (FVG)</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
@@ -234,6 +235,21 @@ table{width:100%;border-collapse:collapse}
       <div class="cards" id="trapCards"></div>
       <div class="empty" id="trapEmpty" style="display:none">No active liquidity traps. The market is currently respecting its boundaries.</div>
     </section>
+
+      <section id="tab_smc" class="tabpane">
+        <div class="panel">
+          <h2>SMC (FVG) <span>institutional imbalance · fair value gaps · mitigation taps</span></h2>
+          <div class="row">
+            <button class="btn" id="smcRun" onclick="runSmcScan()">FIND UNMITIGATED FVGs</button>
+            <span class="note" id="smcStat"></span>
+          </div>
+          <div class="prog" id="smcProg"><i></i></div>
+        </div>
+        <div class="note" style="margin-bottom:10px">Gates: G1 Displacement (a valid 3-candle Fair Value Gap was created recently) · G2 Unmitigated (the gap has not been fully filled or invalidated by subsequent closes) · G3 The Tap (current price has pulled back and is trading inside the FVG zone) · G4 HTF Context (aligned with the 4H/200 EMA trend — note: this scan runs on 4H candles, not 1D). Action: the asset is currently sitting in an institutional Point of Interest (POI). Drop to a 5m/15m chart. Wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.</div>
+        <div class="cards" id="smcCards"></div>
+        <div class="empty" id="smcEmpty" style="display:none">No assets are currently tapping an unmitigated 4H FVG.</div>
+      </section>
+
 
 
 
@@ -851,8 +867,70 @@ async function runTrapScan(){
     btn.disabled=false;
   }
 }
+async function runSmcScan(){
+  const btn = $('smcRun'); const cardsEl = $('smcCards'); const emptyEl = $('smcEmpty'); const statEl = $('smcStat');
+  btn.disabled = true; cardsEl.innerHTML = ''; emptyEl.style.display = 'none';
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    let uni = S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
+    if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
+    let found = 0;
+    for (let i = 0; i < uni.length; i++){
+      const t = uni[i];
+      setProg('smcProg', (i+1)/uni.length);
+      statEl.textContent = `hunting ${i+1}/${uni.length} - ${t.symbol}`;
+      try{
+        const isGold = t.symbol.includes('XAU');
+        const rows = isGold ? await getXAUCandles('4h', 150) : await getCandles(t.symbol, '4h', 150);
+        if (rows.length < 50) continue;
+        const c = rows.map(r => r.c);
+        const p = c[c.length-1];
+        const e200 = last(ema(c, 200));
+        let fvg = null, dir = null;
+        for (let j = rows.length-30; j < rows.length-1; j++){
+          const bar1 = rows[j-2], bar2 = rows[j-1], bar3 = rows[j];
+          if (bar1.h < bar3.l && bar2.c > bar2.o){
+            let gapHigh = bar3.l, gapLow = bar1.h, mitigated = false;
+            for (let k = j+1; k < rows.length; k++){
+              if (rows[k].l <= gapLow){ mitigated = true; break; }
+              if (rows[k].l < gapHigh) gapHigh = rows[k].l;
+            }
+            if (!mitigated && p > e200){ fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j }; dir = 'long'; }
+          } else if (bar1.l > bar3.h && bar2.c < bar2.o){
+            let gapLow = bar3.h, gapHigh = bar1.l, mitigated = false;
+            for (let k = j+1; k < rows.length; k++){
+              if (rows[k].h >= gapHigh){ mitigated = true; break; }
+              if (rows[k].h > gapLow) gapLow = rows[k].h;
+            }
+            if (!mitigated && p < e200){ fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j }; dir = 'short'; }
+          }
+        }
+        if (!fvg) continue;
+        const isTapping = p <= fvg.top && p >= fvg.bottom;
+        if (!isTapping) continue;
+        found++;
+        const stop = dir === 'long' ? fvg.bottom - (fvg.bottom*0.002) : fvg.top + (fvg.top*0.002);
+        const t1 = dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l));
+        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [
+          ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
+          ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
+          ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
+        ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned'],
+        'SMC TAP: price has pulled back into a 4H institutional imbalance. Drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.', p, stop, t1));
+      } catch(e) { /* skip this symbol */ }
+      await sleep(100);
+    }
+    statEl.textContent = `done - ${found} SMC setups found`;
+    if (!found) emptyEl.style.display = 'block';
+  } catch(e){
+    statEl.textContent = `smc scan failed: ${e.message}`;
+  } finally {
+    setProg('smcProg', null);
+    btn.disabled = false;
+  }
+}
 function showTab(t){
-  ['bias','swing','scalp','coil','apex','trap','gold','best','search','log','trade'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','smc','gold','best','search','log','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
