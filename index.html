@@ -304,6 +304,7 @@ const S = {
 
 const DELTA = 'https://api.india.delta.exchange';
 const CDCX_PUB = 'https://public.coindcx.com';
+const TWELVEDATA_KEY = 'de260a776e5d49d091d7a49bf9d17be5';
 const CDCX_API = 'https://api.coindcx.com';
 const CDCX_PROXY = 'https://hardgate-proxy.onrender.com'; // Render web service name must match; edit if renamed
 const CDCX_PUBLIC_PROXIES = [
@@ -433,6 +434,29 @@ async function getCandles(sym, res, count){
   S.candleCache[key] = {rows, at: nowSec()};
   return rows;
 }
+
+async function getXAUCandles(res, count){
+  const key = 'xau|' + res;
+  const hit = S.candleCache[key];
+  if (hit && (nowSec()-hit.at) < 60) return hit.rows;
+  const intervalMap = {'15m':'15min','1h':'1h','2h':'2h','4h':'4h','1d':'1day'};
+  const interval = intervalMap[res];
+  if (!interval) throw new Error('unsupported gold interval: ' + res);
+  const outputsize = Math.min(count + 5, 5000);
+  const url = 'https://api.twelvedata.com/time_series?symbol=XAU/USD&interval=' + interval + '&outputsize=' + outputsize + '&timezone=UTC&apikey=' + TWELVEDATA_KEY;
+  const r = await fetch(url);
+  const j = await r.json();
+  if (j.status !== 'ok' || !Array.isArray(j.values)) throw new Error('XAUUSD data unavailable: ' + (j.message || j.status || 'unknown error'));
+  let rows = j.values.map(function(v){
+    const iso = v.datetime.length > 10 ? v.datetime.replace(' ','T') + 'Z' : v.datetime + 'T00:00:00Z';
+    return { t: Math.floor(new Date(iso).getTime()/1000), o: +v.open, h: +v.high, l: +v.low, c: +v.close, v: null };
+  });
+  rows.sort(function(a,b){ return a.t - b.t; });
+  rows = dropForming(rows, res);
+  S.candleCache[key] = { rows: rows, at: nowSec() };
+  return rows;
+}
+
 
 /* ---------------- indicators ---------------- */
 function ema(vals, p){
@@ -956,13 +980,13 @@ async function runGold(){
   const btn=$('goldRun'); btn.disabled=true; setProg('goldProg',0.1);
   $('goldStat').textContent='';
   try{
-    if (S.exchange!=='delta'){ $('goldStat').textContent='XAUTUSD lives on Delta India — switch the exchange toggle.'; return; }
-    if (!S.tickers.length) S.tickers = await getTickers();
-    const tkr = S.tickers.find(t=>t.symbol===GOLD_SYM);
-    const d1 = await getCandles(GOLD_SYM,'1d',260);  setProg('goldProg',0.35);
-    const h4 = await getCandles(GOLD_SYM,'4h',300);  setProg('goldProg',0.6);
-    const h1 = await getCandles(GOLD_SYM,'1h',160);  setProg('goldProg',0.75);
-    const m15= await getCandles(GOLD_SYM,'15m',200); setProg('goldProg',0.9);
+    
+    
+    
+    const d1 = await getXAUCandles('1d',260);  setProg('goldProg',0.35);
+    const h4 = await getXAUCandles('4h',300);  setProg('goldProg',0.6);
+    const h1 = await getXAUCandles('1h',160);  setProg('goldProg',0.75);
+    const m15= await getXAUCandles('15m',200); setProg('goldProg',0.9);
     if (d1.length<60||h4.length<210||m15.length<40){ $('goldStat').textContent='not enough XAUTUSD history'; return; }
 
     /* ---- levels: prior-day H/L from last CLOSED daily; Asian range 00:00–07:00 UTC today ---- */
@@ -982,7 +1006,7 @@ async function runGold(){
     const a4=last(atr(h4,14));
     const e50d=last(ema(c1,50)), pd=last(c1);
     const r4=last(rsi(c4,14));
-    const fr = tkr?.fundingPct ?? null;
+    const fr = null; // real spot XAUUSD has no futures funding rate
     const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
     const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
     const dSide = pd>e50d ? 'long' : 'short';
@@ -1013,7 +1037,7 @@ async function runGold(){
       gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (4H)`;
     } else if (evG){ gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (stale)`; }
     sg.push(['GS6','CUSUM event alignment — your walk-forward\'s top feature (OOS AUC ≈0.58)', gs6, gs6d]);
-    let swingPlanHtml='', sVerdict='aside';
+    let swingPlanHtml='', sVerdict='aside', nearMissSwing='';
     if (casc!=='mixed'){
       const stop=lastSwing(h4,casc,30), entry=last(c4), risk=Math.abs(entry-stop);
       const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
@@ -1022,6 +1046,7 @@ async function runGold(){
         risk>0?`${fmt(room/risk,2)}R room · stop ${px(stop)}`:'no structure']);
       const vet = sg.some(x=>x[2]==='veto');
       sVerdict = vet?'aside':casc;
+      nearMissSwing = vet ? (' Nearest miss: '+sg.filter(x=>x[2]==='pass').length+'/'+sg.length+' gates cleared — blocked by '+sg.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'. Not a signal, just how close price is.') : '';
       if(!vet){
         const t1=casc==='long'?entry+2*risk:entry-2*risk, t2=casc==='long'?entry+3*risk:entry-3*risk;
         logSetup(GOLD_SYM, casc, 'gold-swing', entry, stop, t1);
@@ -1052,7 +1077,7 @@ async function runGold(){
       <div class="verdict ${sVerdict==='aside'?'aside':sVerdict}">
         <div class="vword">${sVerdict==='aside'?'STAND ASIDE':sVerdict.toUpperCase()}</div>
         <div class="vwhy">${sVerdict==='aside'
-          ?'Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event — those are your manual checks.'
+          ?('Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event — those are your manual checks.'+nearMissSwing)
           :'All swing gates cleared. Verify DXY, real yields and the event calendar manually before sizing — this ledger cannot see them and will not pretend to.'}</div>
       ${sEvidenceHtml}
       </div>${swingPlanHtml}`;
@@ -1122,9 +1147,10 @@ async function runGold(){
         }
       }catch(e){}
       const vet=g.some(x=>x[2]==='veto');
+    const nearMissScalp = vet ? ('<div class="vwhy">Nearest miss: '+g.filter(x=>x[2]==='pass').length+'/'+g.length+' gates cleared — blocked by '+g.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'.</div>') : '';
       return `<div style="margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--${dir==='long'?'long':'short'})">${dir.toUpperCase()} SCENARIO</div>
         <div class="ledger" style="margin-bottom:10px">${g.map(x=>gateRow(...x)).join('')}</div>
-        <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}</div>${cEvidenceHtml}</div>${planHtml}`;
+        <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}${nearMissScalp}</div>${cEvidenceHtml}</div>${planHtml}`;
     }
     $('goldScalpOut').innerHTML = scalpLedger('long') + scalpLedger('short');
     $('goldStat').textContent = `evaluated · closed bars only · ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
