@@ -872,7 +872,7 @@ async function runSmcScan(){
   btn.disabled = true; cardsEl.innerHTML = ''; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
-    let uni = S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
+    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
     let found = 0;
     for (let i = 0; i < uni.length; i++){
