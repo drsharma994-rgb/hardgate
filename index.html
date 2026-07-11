@@ -1074,13 +1074,13 @@ async function checkOutcomes(){
     try{
       const age = nowSec()-e.ts;
       const res = age<2*86400 ? '15m' : age<12*86400 ? '1h' : '4h';
-      const secPer = {'15m':900,'1h':3600,'4h':14400}[res];
+      const secPer = {'15m':900,'1h':3600,'4h':14400}[res]; const maxBars = 24; const maxTimeAllowed = e.ts + (maxBars * secPer);
       const rows = (await getCandles(e.sym,res,Math.min(300,Math.ceil(age/secPer)+5))).filter(r=>r.t>=e.ts);
       for (const b of rows){
         const hitSL = e.dir==='long' ? b.l<=e.stop : b.h>=e.stop;
         const hitTP = e.dir==='long' ? b.h>=e.t1  : b.l<=e.t1; if (hitSL && hitTP && res!=='15m'){ try{ const sub = await candlesRangeRaw(e.sym, '15m', b.t, b.t+secPer); let rS=null, rT=null; for (const sb of sub){ const subSL = e.dir==='long' ? sb.l<=e.stop : sb.h>=e.stop; const subTP = e.dir==='long' ? sb.h>=e.t1 : sb.l<=e.t1; if (subSL){ rS='sl'; rT=sb.t; break; } if (subTP){ rS='tp'; rT=sb.t; break; } } if (rS){ e.status=rS; e.doneTs=rT; break; } }catch(err){} }
         if (hitSL){ e.status='sl'; e.doneTs=b.t; break; }   // same-bar ambiguity → SL, always
-        if (hitTP){ e.status='tp'; e.doneTs=b.t; break; }
+        if (hitTP){ e.status='tp'; e.doneTs=b.t; break; } if (b.t >= maxTimeAllowed && e.status==='open'){ e.status='time_stop'; e.doneTs=b.t; e.rr=-0.1; break; }
       }
       if (e.status==='open' && age>14*86400) e.status='exp';
       checked++;
@@ -1094,14 +1094,14 @@ async function checkOutcomes(){
 function renderLog(){
   const l=loadLog().slice().sort((a,b)=>b.ts-a.ts);
   const tp=l.filter(e=>e.status==='tp').length, sl=l.filter(e=>e.status==='sl').length,
-        op=l.filter(e=>e.status==='open').length, ex=l.filter(e=>e.status==='exp').length;
+        op=l.filter(e=>e.status==='open').length, ex=l.filter(e=>e.status==='exp').length; const tsStop = l.filter(e=>e.status==='time_stop').length;
   const closed=tp+sl;
-  const sumR=l.reduce((a,e)=> a + (e.status==='tp' ? (e.rr||2) : e.status==='sl' ? -1 : 0), 0);
-  $('logSummary').innerHTML = `logged <b>${l.length}</b> · open <b>${op}</b> · TP <b class="pos">${tp}</b> · SL <b class="neg">${sl}</b> · expired <b>${ex}</b> · hit rate <b>${closed?fmt(tp/closed*100,1)+'%':'—'}</b> · ΣR <b class="${sumR>=0?'pos':'neg'}">${fmt(sumR,2)}R</b>${closed>0&&closed<30?' · <span style="color:var(--gold)">n='+closed+' closed — far too small to call an edge</span>':''}`;
+  const sumR=l.reduce((a,e)=> a + (e.status==='tp' ? (e.rr||2) : e.status==='sl' ? -1 : e.status==='time_stop' ? (e.rr||-0.1) : 0), 0);
+  $('logSummary').innerHTML = `logged <b>${l.length}</b> · open <b>${op}</b> · TP <b class="pos">${tp}</b> · SL <b class="neg">${sl}</b> · expired <b>${ex}</b> · time-stop <b>${tsStop}</b> · hit rate <b>${closed?fmt(tp/closed*100,1)+'%':'—'}</b> · ΣR <b class="${sumR>=0?'pos':'neg'}">${fmt(sumR,2)}R</b>${closed>0&&closed<30?' · <span style="color:var(--gold)">n='+closed+' closed — far too small to call an edge</span>':''}`;
   $('logTable').innerHTML = l.length ? `<table><tr><th>time IST</th><th>sym</th><th>kind</th><th>dir</th><th>entry</th><th>stop</th><th>T1</th><th>R:R</th><th>status</th></tr>${
     l.map(e=>{
       const d=new Date((e.ts+19800)*1000).toISOString().slice(5,16).replace('T',' ');
-      const st=e.status==='tp'?'<b class="pos">TP</b>':e.status==='sl'?'<b class="neg">SL</b>':e.status==='exp'?'<span style="color:var(--dim)">EXP</span>':'open';
+      const st=e.status==='tp'?'<b class="pos">TP</b>':e.status==='sl'?'<b class="neg">SL</b>':e.status==='exp'?'<span style="color:var(--dim)">EXP</span>':e.status==='time_stop'?'<span style="color:var(--dim)">TIME_STOP</span>':'open';
       return `<tr><td>${d}</td><td>${e.sym}</td><td>${e.kind}</td><td>${e.dir.toUpperCase()}</td><td>${px(e.entry)}</td><td>${px(e.stop)}</td><td>${px(e.t1)}</td><td>${fmt(e.rr,2)}</td><td>${st}</td></tr>`;
     }).join('')}</table>` : '<div class="empty">Nothing logged yet. Run any scan — every CLEAN setup lands here automatically.</div>';
 }
