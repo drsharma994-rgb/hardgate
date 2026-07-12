@@ -136,8 +136,10 @@ table{width:100%;border-collapse:collapse}
     <button id="tabB_trap" onclick="showTab('trap')">LIQUIDITY TRAP</button>
     <button id="tabB_smc" onclick="showTab('smc')">SMC (FVG)</button>
     <button id="tabB_ob" onclick="showTab('ob')">ORDER BLOCKS</button>
+  <button id="tabB_div" onclick="showTab('div')">DIVERGENCE</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
+  <button id="tabB_basis" onclick="showTab('basis')">BASIS</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
   <button id="tabB_log" onclick="showTab('log')">LOG</button>
   <button id="tabB_trade" onclick="showTab('trade')">TRADE PLAN</button>
@@ -206,6 +208,42 @@ table{width:100%;border-collapse:collapse}
     <div class="note" style="margin-bottom:10px">Gates: G1 Bollinger Band width is ≥ 25% tighter than its 50-bar average (Volatility Squeeze) · G2 Volume z-score < -0.5 (Drought/Quiet Accumulation) · G3 Price above 4H 200 EMA (Bullish HTF context). Action: Do not buy blindly. Send these to the Trade Plan and wait for a Liquidity Sweep of the local low before manually entering.</div>
     <div class="cards" id="coilCards"></div>
     <div class="empty" id="coilEmpty" style="display:none">No compressed assets found. The market is currently expanded.</div>
+      <div class="note" style="margin:16px 0 10px;border-top:1px solid var(--line);padding-top:14px">Expansion check: after FIND COILS saves a watchlist, run this to see which of those symbols have since closed outside the compression range on a volume spike (G4 closed above coil high, G5 vol z&gt;2). Two-step process by design — run FIND COILS first, check back later.</div>
+      <div class="row">
+        <button class="btn" id="expRun" onclick="runExpansionCheck()">CHECK EXPANSION</button>
+        <span class="note" id="expStat"></span>
+      </div>
+      <div class="prog" id="expProg"><i></i></div>
+      <div class="cards" id="expCards"></div>
+      <div class="empty" id="expEmpty" style="display:none">No saved coils have triggered expansion yet.</div>
+  </section>
+
+  <section id="tab_div" class="tabpane">
+    <div class="panel">
+      <h2>RSI Divergence <span>regular + hidden divergence on 4H · price vs momentum disagreement</span></h2>
+      <div class="row">
+        <button class="btn" id="divRun" onclick="runDivScan()">FIND DIVERGENCE</button>
+        <span class="note" id="divStat"></span>
+      </div>
+      <div class="prog" id="divProg"><i></i></div>
+    </div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 valid pivot structure (price vs RSI disagree over 2 swing points) &middot; G2 span&ge;10 bars between pivots, newest pivot &le;15 bars old &middot; G3 funding not extreme/opposing &middot; G4 no opposing CUSUM event in last 10 bars &middot; G5 R:R&ge;2. Regular divergence favors range/reversal contexts; hidden divergence favors trending continuation — shown as regime context, not a veto.</div>
+    <div class="cards" id="divCards"></div>
+    <div class="empty" id="divEmpty" style="display:none">No qualifying divergence found.</div>
+  </section>
+
+  <section id="tab_basis" class="tabpane">
+    <div class="panel">
+      <h2>Cross-Venue Basis <span>Delta India vs CoinDCX price gap · informational, not an executed arbitrage</span></h2>
+      <div class="row">
+        <button class="btn" id="basisRun" onclick="runBasisScan()">FIND BASIS GAPS</button>
+        <span class="note" id="basisStat"></span>
+      </div>
+      <div class="prog" id="basisProg"><i></i></div>
+    </div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 base asset listed on both venues &middot; G2 |basis|&ge;0.15%. CoinDCX's public API exposes no funding-rate field in this app, so this cannot confirm a funding-driven arbitrage — it only flags a price disagreement between venues. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.</div>
+    <div class="cards" id="basisCards"></div>
+    <div class="empty" id="basisEmpty" style="display:none">No basis gaps found.</div>
   </section>
 
     <section id="tab_apex" class="tabpane">
@@ -784,6 +822,7 @@ async function runCoilScan(){
     if (!S.tickers.length) S.tickers=await getTickers();
     const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     let found=0;
+    let coilList = [];
     for (let i=0;i<uni.length;i++){
       const t=uni[i];
       setProg('coilProg',(i+1)/uni.length);
@@ -807,6 +846,7 @@ async function runCoilScan(){
         const coilHigh=Math.max(...recentRows.map(r=>r.h));
         const coilLow=Math.min(...recentRows.map(r=>r.l));
         found++;
+        coilList.push({symbol: t.symbol, dir: "long", coilLow: coilLow, coilHigh: coilHigh});
         cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol,'long',
           [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'—'],
            ['BB width',fmt(currentWidth,2)+'% (avg '+fmt(avgWidth,2)+'%)'],['vol z',fmt(vz,2)],
@@ -817,6 +857,7 @@ async function runCoilScan(){
       }catch(e){}
       await sleep(120);
     }
+    saveCoilWatch(coilList);
     statEl.textContent=`done — ${found} coils found`;
     if (!found) emptyEl.style.display='block';
   }catch(e){
@@ -826,6 +867,200 @@ async function runCoilScan(){
     btn.disabled=false;
   }
 }
+
+function findPivots(vals, win){
+  win = win || 3;
+  const out = [];
+  for (let i=win;i<vals.length-win;i++){
+    let isHigh=true, isLow=true;
+    for (let k=1;k<=win;k++){
+      if (!(vals[i]>vals[i-k] && vals[i]>vals[i+k])) isHigh=false;
+      if (!(vals[i]<vals[i-k] && vals[i]<vals[i+k])) isLow=false;
+    }
+    if (isHigh) out.push({i:i, type:"high", v:vals[i]});
+    if (isLow) out.push({i:i, type:"low", v:vals[i]});
+  }
+  return out;
+}
+function detectRegime(rows){
+  if (!rows || rows.length < 60) return {regime:"unknown", label:"DATA THIN"};
+  const c = rows.map(function(r){ return r.c; });
+  const n = c.length;
+  const adxR = adx(rows,14);
+  const bb = bollinger(c,20,2);
+  const atrArr = atr(rows,14);
+  const adxNow = adxR.adx[n-1];
+  const wNow = bb.widthPct[n-1], wPrev = bb.widthPct[n-2];
+  const wHist = bb.widthPct.slice(Math.max(0,n-51), n-1).filter(function(v){ return isFinite(v); });
+  const wAvg = wHist.length ? wHist.reduce(function(a,b){ return a+b; },0)/wHist.length : NaN;
+  const atrNow = atrArr[n-1];
+  const atrHist = atrArr.slice(Math.max(0,n-51), n-1).filter(function(v){ return isFinite(v); }).slice().sort(function(a,b){ return a-b; });
+  const atrMedian = atrHist.length ? atrHist[Math.floor(atrHist.length/2)] : NaN;
+  const distMid = (isFinite(bb.mid[n-1]) && bb.mid[n-1]!==0) ? Math.abs(c[n-1]-bb.mid[n-1])/bb.mid[n-1] : NaN;
+  let regime="weak_trend", label="WEAK TREND";
+  if (isFinite(atrNow) && isFinite(atrMedian) && atrMedian>0 && atrNow > atrMedian*2){ regime="volatile"; label="VOLATILE EXPANSION"; }
+  else if (isFinite(wNow) && isFinite(wAvg) && wAvg>0 && wNow < wAvg*0.6){ regime="compression"; label="COMPRESSION"; }
+  else if (isFinite(adxNow) && adxNow>30 && isFinite(wNow) && isFinite(wPrev) && wNow>wPrev){ regime="trend"; label="STRONG TREND"; }
+  else if (isFinite(adxNow) && adxNow<20 && isFinite(distMid) && distMid<0.02){ regime="range"; label="RANGE"; }
+  return {regime:regime, label:label};
+}
+const COILWATCH_KEY = "hardgate_coilwatch_v1";
+function saveCoilWatch(list){ try{ localStorage.setItem(COILWATCH_KEY, JSON.stringify({at:nowSec(), ex:S.exchange, list:list})); }catch(e){} }
+function loadCoilWatch(){ try{ return JSON.parse(localStorage.getItem(COILWATCH_KEY)||"null"); }catch(e){ return null; } }
+async function runExpansionCheck(){
+  const btn=$("expRun"); const cardsEl=$("expCards"); const emptyEl=$("expEmpty"); const statEl=$("expStat");
+  btn.disabled=true; cardsEl.innerHTML=""; emptyEl.style.display="none";
+  try{
+    const watch = loadCoilWatch();
+    if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist — run FIND COILS first"; return; }
+    if (watch.ex !== S.exchange){ statEl.textContent="saved watchlist is for "+watch.ex.toUpperCase()+" — switch exchange or re-run FIND COILS"; return; }
+    let found=0;
+    for (let i=0;i<watch.list.length;i++){
+      const w = watch.list[i];
+      setProg("expProg",(i+1)/watch.list.length);
+      statEl.textContent = "checking "+(i+1)+"/"+watch.list.length+" · "+w.symbol;
+      try{
+        const rows = await getCandles(w.symbol,"4h",60);
+        if (rows.length<25) continue;
+        const cur = rows[rows.length-1];
+        const vz = volZ(rows,20);
+        const broke = cur.c > w.coilHigh && vz > 2;
+        if (!broke) continue;
+        found++;
+        const entry = cur.c;
+        const stop = w.coilLow;
+        const risk = Math.abs(entry-stop);
+        if (!(risk>0)) continue;
+        const t1 = entry + 2*risk;
+        const t2 = entry + 3*risk;
+        cardsEl.insertAdjacentHTML("beforeend", cardHTML(w.symbol,"long",
+          [["mark",px(entry)],["coil high",px(w.coilHigh)],["coil low",px(w.coilLow)],["vol z",fmt(vz,2)],["watch age",fmt((nowSec()-watch.at)/3600,1)+"h"]],
+          ["G1 was on coil watchlist","G2 closed above range","G3 vol z>2"],
+          planBlock("long",entry,stop,t1,t2), entry, stop, t1));
+        logSetup(w.symbol,"long","coil-expansion",entry,stop,t1);
+      }catch(e){}
+      await sleep(120);
+    }
+    statEl.textContent = "done — "+found+" expansions triggered";
+    if (!found) emptyEl.style.display="block";
+  }catch(e){ statEl.textContent = "expansion check failed: "+e.message; }
+  finally{ setProg("expProg", null); btn.disabled=false; }
+}
+async function runDivScan(){
+  const btn=$("divRun"); const cardsEl=$("divCards"); const emptyEl=$("divEmpty"); const statEl=$("divStat");
+  btn.disabled=true; cardsEl.innerHTML=""; emptyEl.style.display="none";
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    const uni = S.exchange==="delta" ? S.tickers.filter(function(t){ return t.turnoverUsd>=500000; }).sort(function(a,b){ return b.turnoverUsd-a.turnoverUsd; }) : S.tickers.slice();
+    let found=0;
+    for (let i=0;i<uni.length;i++){
+      const t = uni[i];
+      setProg("divProg",(i+1)/uni.length);
+      statEl.textContent = "scanning "+(i+1)+"/"+uni.length+" · "+t.symbol;
+      try{
+        const rows = await getCandles(t.symbol,"4h",200);
+        if (rows.length < 80) continue;
+        const c = rows.map(function(r){ return r.c; });
+        const n = c.length;
+        const rv = rsi(c,14);
+        const pivots = findPivots(c,3);
+        const highs = pivots.filter(function(p){ return p.type==="high"; });
+        const lows = pivots.filter(function(p){ return p.type==="low"; });
+        let dir=null, kindLabel=null, pivA=null, pivB=null;
+        if (highs.length>=2){
+          const h1=highs[highs.length-2], h2=highs[highs.length-1];
+          if (h2.i-h1.i>=10 && isFinite(rv[h1.i]) && isFinite(rv[h2.i])){
+            if (h2.v>h1.v && rv[h2.i]<rv[h1.i]){ dir="short"; kindLabel="Regular Bearish"; pivA=h1; pivB=h2; }
+            else if (h2.v<h1.v && rv[h2.i]>rv[h1.i]){ dir="short"; kindLabel="Hidden Bearish"; pivA=h1; pivB=h2; }
+          }
+        }
+        if (!dir && lows.length>=2){
+          const l1=lows[lows.length-2], l2=lows[lows.length-1];
+          if (l2.i-l1.i>=10 && isFinite(rv[l1.i]) && isFinite(rv[l2.i])){
+            if (l2.v<l1.v && rv[l2.i]>rv[l1.i]){ dir="long"; kindLabel="Regular Bullish"; pivA=l1; pivB=l2; }
+            else if (l2.v>l1.v && rv[l2.i]<rv[l1.i]){ dir="long"; kindLabel="Hidden Bullish"; pivA=l1; pivB=l2; }
+          }
+        }
+        if (!dir) continue;
+        if ((n-1-pivB.i) > 15) continue;
+        const ev = cusumLast(c,1);
+        if (ev && ev.barsAgo<=10){
+          if ((dir==="long" && ev.dir==="short") || (dir==="short" && ev.dir==="long")) continue;
+        }
+        if (t.fundingPct!==null){
+          const fr = t.fundingPct;
+          if (Math.abs(fr) > 0.05-1e-9) continue;
+          if ((dir==="long" && fr>=0.04) || (dir==="short" && fr<=-0.04)) continue;
+        }
+        const p = c[n-1];
+        const a4 = last(atr(rows,14));
+        if (!isFinite(a4) || a4<=0) continue;
+        const entry = p;
+        const stop = dir==="long" ? pivB.v - 0.5*a4 : pivB.v + 0.5*a4;
+        const risk = Math.abs(entry-stop);
+        if (!(risk>0)) continue;
+        const t1 = dir==="long" ? entry+2*risk : entry-2*risk;
+        const t2 = dir==="long" ? entry+3*risk : entry-3*risk;
+        const rr = Math.abs(t1-entry)/risk;
+        if (!(rr>=2)) continue;
+        found++;
+        const reg = detectRegime(rows);
+        cardsEl.insertAdjacentHTML("beforeend", cardHTML(t.symbol, dir,
+          [["mark",px(t.mark||p)],["type",kindLabel],["RSI 4H",fmt(rv[n-1],1)],["span",(pivB.i-pivA.i)+" bars"],
+           ["funding", t.fundingPct!==null?fmt(t.fundingPct,4)+"%":"n/a"],["regime",reg.label]],
+          ["G1 pivot structure","G2 span>=10 bars","G3 funding","G4 no opposing CUSUM","G5 R:R>=2"],
+          planBlock(dir,entry,stop,t1,t2), entry, stop, t1));
+        logSetup(t.symbol, dir, "div", entry, stop, t1);
+      }catch(e){}
+      await sleep(120);
+    }
+    statEl.textContent = "done — "+found+" divergences found";
+    if (!found) emptyEl.style.display="block";
+  }catch(e){ statEl.textContent = "divergence scan failed: "+e.message; }
+  finally{ setProg("divProg", null); btn.disabled=false; }
+}
+async function runBasisScan(){
+  const btn=$("basisRun"); const cardsEl=$("basisCards"); const emptyEl=$("basisEmpty"); const statEl=$("basisStat");
+  btn.disabled=true; cardsEl.innerHTML=""; emptyEl.style.display="none";
+  try{
+    statEl.textContent = "loading Delta India + CoinDCX symbol lists…";
+    const res = await Promise.all([ loadTickersDelta().catch(function(){return [];}), loadTickersCdcx().catch(function(){return [];}) ]);
+    const dTick = res[0], cTick = res[1];
+    const dMap = {}; dTick.forEach(function(t){ dMap[searchBase(t.symbol,"delta")] = t; });
+    const cByBase = {}; cTick.forEach(function(t){ const b=searchBase(t.symbol,"cdcx"); if(!cByBase[b]) cByBase[b]=[]; cByBase[b].push(t); });
+    const bases = Object.keys(dMap).filter(function(b){ return cByBase[b] && cByBase[b].length; });
+    let found=0;
+    for (let i=0;i<bases.length;i++){
+      const b = bases[i];
+      setProg("basisProg",(i+1)/bases.length);
+      statEl.textContent = "checking "+(i+1)+"/"+bases.length+" · "+b;
+      const dT = dMap[b];
+      const cSym = cByBase[b][0].symbol;
+      try{
+        const rows = await candlesCdcx(cSym,"15m",3);
+        if (!rows.length) continue;
+        const cPrice = rows[rows.length-1].c;
+        if (!isFinite(dT.mark) || !isFinite(cPrice) || cPrice<=0) continue;
+        const basisPct = (dT.mark - cPrice)/cPrice*100;
+        if (Math.abs(basisPct) < 0.15) continue;
+        found++;
+        const dir = basisPct>0 ? "short" : "long";
+        const nomStop = dir==="long" ? dT.mark*0.995 : dT.mark*1.005;
+        const nomT1 = dir==="long" ? dT.mark*1.01 : dT.mark*0.99;
+        const planTxt = "Informational only — not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage — it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
+        cardsEl.insertAdjacentHTML("beforeend", cardHTML(b, dir,
+          [["Delta mark",px(dT.mark)],["CoinDCX px",px(cPrice)],["basis",fmt(basisPct,3)+"%"],["delta funding", dT.fundingPct!==null?fmt(dT.fundingPct,4)+"%":"n/a"]],
+          ["G1 base asset on both venues","G2 |basis|>=0.15%"],
+          planTxt, dT.mark, nomStop, nomT1));
+      }catch(e){}
+      await sleep(150);
+    }
+    statEl.textContent = "done — "+found+" basis gaps found";
+    if (!found) emptyEl.style.display="block";
+  }catch(e){ statEl.textContent = "basis scan failed: "+e.message; }
+  finally{ setProg("basisProg", null); btn.disabled=false; }
+}
+
 async function runApexScan(){
   const btn=$('apexRun'); const cardsEl=$('apexCards'); const emptyEl=$('apexEmpty'); const statEl=$('apexStat');
   btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
@@ -1060,7 +1295,7 @@ async function runObScan(){
   }
 }
 function showTab(t){
-  ['bias','swing','scalp','coil','apex','trap','smc','ob','gold','best','search','log','trade'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','best','basis','search','log','trade'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
@@ -1836,7 +2071,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
 }
 
 function isManualScanBusy(){
-  const ids = ['bestRun','swingRun','scalpRun','goldRun','smcRun','obRun','coilRun','apexRun','trapRun','biasRun'];
+  const ids = ['bestRun','swingRun','scalpRun','goldRun','smcRun','obRun','coilRun','apexRun','trapRun','biasRun','divRun','expRun','basisRun'];
   return ids.some(function(id){ const el = document.getElementById(id); return el && el.disabled; });
 }
 
