@@ -556,11 +556,16 @@ async function getXAUCandles(res, count){
 
 /* ---------------- indicators ---------------- */
 function ema(vals, p){
-  const k = 2/(p+1); const out = new Array(vals.length).fill(NaN);
-  let e = null;
-  for (let i=0;i<vals.length;i++){
-    e = e===null ? vals[i] : vals[i]*k + e*(1-k);
-    out[i] = i>=p-1 ? e : NaN;
+  const out = new Array(vals.length).fill(NaN);
+  if (vals.length < p) return out;
+  const k = 2/(p+1);
+  let sum = 0;
+  for (let i=0;i<p;i++) sum += vals[i];
+  let e = sum/p;
+  out[p-1] = e;
+  for (let i=p;i<vals.length;i++){
+    e = vals[i]*k + e*(1-k);
+    out[i] = e;
   }
   return out;
 }
@@ -593,7 +598,8 @@ function volZ(rows, look=20){
   const n=rows.length; if(n<look+1) return NaN;
   const vs = rows.slice(n-1-look, n-1).map(r=>r.v);
   const m = vs.reduce((a,b)=>a+b,0)/vs.length;
-  const sd = Math.sqrt(vs.reduce((a,b)=>a+(b-m)**2,0)/vs.length)||1e-12;
+  const sd = Math.sqrt(vs.reduce((a,b)=>a+(b-m)**2,0)/vs.length);
+  if (sd < 1e-8) return 0;
   return (rows[n-1].v - m)/sd;
 }
 function lastSwing(rows, dir, look=30){
@@ -957,8 +963,8 @@ async function runSmcScan(){
       statEl.textContent = `hunting ${i+1}/${uni.length} - ${t.symbol}`;
       try{
         const isGold = t.symbol.includes('XAU');
-        const rows = isGold ? await getXAUCandles('4h', 150) : await getCandles(t.symbol, '4h', 150);
-        if (rows.length < 50) continue;
+        const rows = isGold ? await getXAUCandles('4h', 260) : await getCandles(t.symbol, '4h', 260);
+        if (rows.length < 210) continue;
         const c = rows.map(r => r.c);
         const p = c[c.length-1];
         const e200 = last(ema(c, 200));
@@ -1019,8 +1025,8 @@ async function runObScan(){
       statEl.textContent = `hunting ${i+1}/${uni.length} - ${t.symbol}`;
       try{
         const isGold = t.symbol.includes('XAU');
-        const rows = isGold ? await getXAUCandles('4h', 150) : await getCandles(t.symbol, '4h', 150);
-        if (rows.length < 50) continue;
+        const rows = isGold ? await getXAUCandles('4h', 260) : await getCandles(t.symbol, '4h', 260);
+        if (rows.length < 210) continue;
         const c = rows.map(r => r.c);
         const p = c[c.length-1];
         const e200 = last(ema(c, 200));
@@ -1173,12 +1179,15 @@ function planBlock(dir, entry, stop, t1, t2){
   return `entry <b>${px(entry)}</b> · stop <b>${px(stop)}</b> (structural) · T1 <b>${px(t1)}</b> (${fmt(Math.abs(t1-entry)/risk,1)}R, vol target, scale out) · T2 <b>${px(t2)}</b> (${fmt(Math.abs(t2-entry)/risk,1)}R, max excursion, trail rest) · risk/unit ${px(risk)}`;
 }
 function cardHTML(sym, dir, mini, gates, plan, entry, stop, t1){
+  const symHtml = String(sym).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const onclickJs = `toTrade(${JSON.stringify(sym)},${JSON.stringify(dir)},${entry},${stop},${t1})`;
+  const onclickAttr = onclickJs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   return `<div class="card ${dir}">
-    <div class="chead"><span class="sym">${sym}</span><span class="dir">${dir.toUpperCase()} · CLEAN</span></div>
+    <div class="chead"><span class="sym">${symHtml}</span><span class="dir">${dir.toUpperCase()} · CLEAN</span></div>
     <div class="mini">${mini.map(([k,v])=>`<span class="k">${k}</span><span>${v}</span>`).join('')}</div>
     <div class="gates">${gates.map(g=>`<span class="gpip ok">${g}</span>`).join('')}</div>
     <div class="plan">${plan}</div>
-    <button class="toTrade" onclick="toTrade('${sym}','${dir}',${entry},${stop},${t1})">SEND TO TRADE PLAN →</button>
+    <button class="toTrade" onclick="${onclickAttr}">SEND TO TRADE PLAN →</button>
   </div>`;
 }
 function toTrade(sym,dir,entry,stop,t1){
@@ -1272,7 +1281,7 @@ liq est   ${px(liq)}  (${fmt(clearance,2)}× stop clearance)`;
     </div>
     <hr class="sep">
     <div class="ticket" id="ticketTxt">${ticket}</div>
-    <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)">COPY TICKET</button><div class="kv" id="portfolioHeatRow" style="margin-top:8px"><span class="k">Portfolio Heat</span><span class="v">checking…</span></div>`; updatePortfolioHeat($('tSym').value||'', side); if(!vet){ out.insertAdjacentHTML('beforeend', '<button class="btn" style="margin-top:8px" onclick="executeTrade({sym:'+JSON.stringify($('tSym').value)+',side:'+JSON.stringify(side)+',qty:'+qty+',lev:'+lev+',stop:'+stop+',t1:'+t1+',vetoed:false})">EXECUTE BRACKET</button>'); }
+    <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)" ${vet?'disabled title="Fix the vetoed gates before copying this ticket"':''}>COPY TICKET</button><div class="kv" id="portfolioHeatRow" style="margin-top:8px"><span class="k">Portfolio Heat</span><span class="v">checking…</span></div>`; updatePortfolioHeat($('tSym').value||'', side); if(!vet){ out.insertAdjacentHTML('beforeend', '<button class="btn" style="margin-top:8px" onclick="executeTrade({sym:'+JSON.stringify($('tSym').value)+',side:'+JSON.stringify(side)+',qty:'+qty+',lev:'+lev+',stop:'+stop+',t1:'+t1+',vetoed:false})">EXECUTE BRACKET</button>'); }
 }
 
 /* =============================================================================
@@ -1308,7 +1317,8 @@ async function runGold(){
     /* ---- levels: prior-day H/L from last CLOSED daily; Asian range 00:00–07:00 UTC today ---- */
     const pdc = d1[d1.length-1];
     const PDH = pdc.h, PDL = pdc.l;
-    const day0 = utcDayStart();
+    const day0now = utcDayStart();
+    const day0 = (nowSec() < day0now+7*3600) ? day0now-86400 : day0now;
     const asia = m15.filter(r=> r.t>=day0 && r.t<day0+7*3600);
     const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
     const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
@@ -1826,7 +1836,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
 }
 
 function isManualScanBusy(){
-  const ids = ['bestRun','swingRun','scalpRun','goldRun','smcRun','obRun','coilRun','apexRun','trapRun'];
+  const ids = ['bestRun','swingRun','scalpRun','goldRun','smcRun','obRun','coilRun','apexRun','trapRun','biasRun'];
   return ids.some(function(id){ const el = document.getElementById(id); return el && el.disabled; });
 }
 
