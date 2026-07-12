@@ -22,6 +22,7 @@ async function main() {
 
   const browser = await puppeteer.launch({
     headless: 'new',
+    protocolTimeout: 540000,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
