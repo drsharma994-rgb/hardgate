@@ -506,7 +506,59 @@ setInterval(tickClock, 1000);
    ticker: {symbol, mark, fundingPct(per interval, % units), oiUsd, turnoverUsd, chg24}
    candles(sym, res, count): asc [{t,o,h,l,c,v}]  res in {'15m','1h','4h','1d'} */
 
-let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, mark){ const symEl=$('tSym'); if(symEl && symEl.value===symbol){ const entryEl=$('tEntry'); if(entryEl && document.activeElement!==entryEl){ entryEl.value = mark; } } } function initDeltaWS(){ try{ if (deltaWS && deltaWS.readyState===WebSocket.OPEN) return; deltaWS = new WebSocket('wss://socket.india.delta.exchange'); deltaWS.onopen = function(){ try{ deltaWS.send(JSON.stringify({type:'subscribe', payload:{channels:[{name:'v2/ticker'}]}})); }catch(e){} try{ if(S.exchange==='delta') $('chipConn').innerHTML = '<b>'+S.tickers.length+'</b> Delta India perps <b style="color:var(--long)">(LIVE WS)</b>'; }catch(e){} }; deltaWS.onmessage = function(msg){ try{ const data = JSON.parse(msg.data); if (data.type==='v2/ticker' && data.symbol){ const mark = parseFloat(data.mark_price ?? data.close); const fundingPct = (data.funding_rate!==undefined && data.funding_rate!==null) ? parseFloat(data.funding_rate) : null; wsTickers[data.symbol] = { mark: mark, fundingPct: fundingPct, ts: Date.now() }; if (S.exchange==='delta' && isFinite(mark)){ const idx = S.tickers.findIndex(function(t){ return t.symbol===data.symbol; }); if (idx>=0){ S.tickers[idx].mark = mark; if (fundingPct!==null) S.tickers[idx].fundingPct = fundingPct; } updateTradePlanPriceUI(data.symbol, mark); } } }catch(e){} }; deltaWS.onclose = function(){ deltaWS=null; if (S.exchange==='delta'){ setTimeout(initDeltaWS, 5000); } }; deltaWS.onerror = function(){ try{ if(S.exchange==='delta') $('chipConn').innerHTML = '<b>'+S.tickers.length+'</b> Delta India perps <b style="color:var(--short)">(WS ERROR)</b>'; }catch(e){} try{ deltaWS.close(); }catch(e){} }; }catch(e){} } async function loadTickersDelta(){
+let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, mark){ const symEl=$('tSym'); if(symEl && symEl.value===symbol){ const entryEl=$('tEntry'); if(entryEl && document.activeElement!==entryEl){ entryEl.value = mark; } } } function initDeltaWS(){
+  try{
+    if (deltaWS && (deltaWS.readyState===WebSocket.OPEN || deltaWS.readyState===WebSocket.CONNECTING)) return;
+    if (!S.tickers || !S.tickers.length){ setTimeout(initDeltaWS, 500); return; }
+    deltaWS = new WebSocket('wss://public-socket.india.delta.exchange');
+    deltaWS.onopen = function(){
+      try{
+        const symbols = S.tickers.map(function(t){ return t.symbol; });
+        deltaWS.send(JSON.stringify({type:'subscribe', payload:{channels:[
+          {name:'ticker', symbols: symbols},
+          {name:'funding_rate', symbols:['all']}
+        ]}}));
+      }catch(e){}
+      try{ if(S.exchange==='delta') $('chipConn').innerHTML = '<b>'+S.tickers.length+'</b> Delta India perps <b style="color:var(--long)">(LIVE WS)</b>'; }catch(e){}
+    };
+    deltaWS.onmessage = function(msg){
+      try{
+        const data = JSON.parse(msg.data);
+        if (data.type==='ticker' && Array.isArray(data.d)){
+          data.d.forEach(function(item){
+            const sym = item.s;
+            const mark = parseFloat(item.m ?? (Array.isArray(item.ohlc)?item.ohlc[3]:NaN));
+            if (!sym || !isFinite(mark)) return;
+            const prevF = wsTickers[sym] ? wsTickers[sym].fundingPct : null;
+            wsTickers[sym] = { mark: mark, fundingPct: prevF, ts: Date.now() };
+            if (S.exchange==='delta'){
+              const idx = S.tickers.findIndex(function(t){ return t.symbol===sym; });
+              if (idx>=0) S.tickers[idx].mark = mark;
+              updateTradePlanPriceUI(sym, mark);
+            }
+          });
+        } else if (data.type==='funding_rate' && data.sy){
+          const sym = data.sy;
+          const fr = parseFloat(data.fr);
+          if (!isFinite(fr)) return;
+          if (!wsTickers[sym]) wsTickers[sym] = { mark: null, fundingPct: null, ts: Date.now() };
+          wsTickers[sym].fundingPct = fr;
+          wsTickers[sym].ts = Date.now();
+          if (S.exchange==='delta'){
+            const idx = S.tickers.findIndex(function(t){ return t.symbol===sym; });
+            if (idx>=0) S.tickers[idx].fundingPct = fr;
+          }
+        }
+      }catch(e){}
+    };
+    deltaWS.onclose = function(){ deltaWS=null; if (S.exchange==='delta'){ setTimeout(initDeltaWS, 5000); } };
+    deltaWS.onerror = function(){
+      try{ if(S.exchange==='delta') $('chipConn').innerHTML = '<b>'+S.tickers.length+'</b> Delta India perps <b style="color:var(--short)">(WS ERROR)</b>'; }catch(e){}
+      try{ deltaWS.close(); }catch(e){}
+    };
+  }catch(e){}
+}
+async function loadTickersDelta(){
   const r = await fetch(`${DELTA}/v2/tickers?contract_types=perpetual_futures`);
   const j = await r.json();
   return (j.result||[]).map(t=>({
@@ -1788,20 +1840,8 @@ function renderLogBadge(){ const b=$('tabB_log'); if(b){ const n=loadLog().lengt
    BEST — all hard gates first (binary ticket), then rank CLEAN survivors by a
    visible tally of independent aligned confirmations. Never a weighted score.
    ============================================================================= */
-async function runBest(){
-  const btn=$('bestRun'); btn.disabled=true; setProg('bestProg',0.05);
-  const out=$('bestOut'); out.innerHTML=''; $('bestStat').textContent='';
-  try{
-    const scanAll = $('bestAll').checked;
-    const N = Math.max(5, Math.min(500, +$('bestN').value||30)); if (!S.tickers.length) S.tickers=await getTickers(); 
-    if (!S.tickers.length) S.tickers=await getTickers();
-    let uni = S.exchange==='delta'
-      ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
-      : S.tickers.slice();
-    if (!scanAll) uni = uni.slice(0,N);
-    const exLabel = S.exchange==='delta'?'Delta India':'CoinDCX';
-    const universeLabel = scanAll ? `whole ${exLabel} futures universe` : `top ${N} by turnover`;
-    const clean=[];
+async function runCascadeCore(uni){
+  const clean=[];
     for (let i=0;i<uni.length;i++){
       const t=uni[i]; setProg('bestProg',(i+1)/uni.length*0.65);
       $('bestStat').textContent=`gates ${i+1}/${uni.length} · ${t.symbol}`;
@@ -1829,10 +1869,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
       }catch(e){}
       await sleep(60);
     }
-    if (!clean.length){
-      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
-      return;
-    }
+    
     /* Evidence FAMILIES for survivors — independence over count.
        Correlated indicators are grouped; each family yields at most ONE point,
        and the TREND family needs a 2-of-3 internal majority. This is the fix
@@ -1919,6 +1956,27 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
       await sleep(60);
     }
     clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
+  return clean;
+}
+
+async function runBest(){
+  const btn=$('bestRun'); btn.disabled=true; setProg('bestProg',0.05);
+  const out=$('bestOut'); out.innerHTML=''; $('bestStat').textContent='';
+  try{
+    const scanAll = $('bestAll').checked;
+    const N = Math.max(5, Math.min(500, +$('bestN').value||30)); if (!S.tickers.length) S.tickers=await getTickers(); 
+    if (!S.tickers.length) S.tickers=await getTickers();
+    let uni = S.exchange==='delta'
+      ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
+      : S.tickers.slice();
+    if (!scanAll) uni = uni.slice(0,N);
+    const exLabel = S.exchange==='delta'?'Delta India':'CoinDCX';
+    const universeLabel = scanAll ? `whole ${exLabel} futures universe` : `top ${N} by turnover`;
+    const clean = await runCascadeCore(uni);
+    if (!clean.length){
+      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
+      return;
+    }
     const w=clean[0];
     const t1=w.t1; const t2=w.t2;
     logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
@@ -1955,116 +2013,7 @@ async function silentBestScan(exchangeArg){
       : S.tickers.slice();
     if (!scanAll) uni = uni.slice(0,N);
     const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
-    const clean=[];
-    for (let i=0;i<uni.length;i++){
-      const t=uni[i]; try{
-        const rows=await getCandles(t.symbol,'4h',260);
-        if (rows.length<210) continue;
-        const c=rows.map(r=>r.c);
-        const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
-        const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20), a4=last(atr(rows,14));
-        let dir=null;
-        if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short';
-        if (!dir) continue;
-        if (!(isFinite(a4)&&Math.abs(e21-e50)>=0.25*a4)) continue;
-        if (dir==='long' ? !(p>e200) : !(p<e200)) continue;
-        if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) continue;
-        const fr=t.fundingPct;
-        if (fr!==null){
-          if (Math.abs(fr)>0.05-1e-9) continue;
-          if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) continue;
-        }
-        if (!(vz > 0.5)) continue; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) continue; if (dir === 'short' && closePos > 0.40) continue;
-        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) continue; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk=Math.abs(entry-stop);
-if (!(risk>0)) continue;
-const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const rr = expectedMove/risk; if (!(rr>=2)) continue; const ev = cusumLast(c.slice(-120),1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue; clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,t1,t2,vz,fr,ev});
-      }catch(e){}
-      await sleep(60);
-    }
-    if (!clean.length) return [];
-    /* Evidence FAMILIES for survivors — independence over count.
-       Correlated indicators are grouped; each family yields at most ONE point,
-       and the TREND family needs a 2-of-3 internal majority. This is the fix
-       for triple-counting one fact (TSMOM, 1D side and CUSUM all measure trend).
-       Plus two robustness checks: cross-timeframe stability and persistence. */
-    for (let i=0;i<clean.length;i++){
-      const s=clean[i]; const want=s.dir==='long'?1:-1;
-      /* F1 TREND — members: TSMOM(MOP 2012), 1D side, CUSUM(your OOS top feature). Majority 2/3. */
-      let mTs=false, mD1=false, tsD='1D fetch failed', d1D='1D fetch failed';
-      try{
-        const d1=await getCandles(s.t.symbol,'1d',120); const c1=d1.map(r=>r.c);
-        const r30=roc(c1,30), r90=roc(c1,90);
-        mTs = isFinite(r30)&&isFinite(r90)&&Math.sign(r30)===want&&Math.sign(r90)===want;
-        tsD = `30d ${pct(r30,1)} · 90d ${pct(r90,1)}`;
-        const e50d=last(ema(c1,50));
-        mD1 = c1.length>=60 && (s.dir==='long'?last(c1)>e50d:last(c1)<e50d);
-        d1D = `1D EMA50 ${px(e50d)}`;
-      }catch(e){}
-      const mCu = !!(s.ev&&s.ev.barsAgo<=20&&s.ev.dir===s.dir);
-      const trendVotes=(mTs?1:0)+(mD1?1:0)+(mCu?1:0);
-      const f1 = trendVotes>=2;
-      /* F2 POSITIONING — funding tailwind: the crowd pays you to hold. */
-      const f2 = s.fr!==null && (s.dir==='long'?s.fr<0:s.fr>0);
-      /* F3 PARTICIPATION — strong volume expansion. */
-      let vwapOk=false, vwapDetail='n/a';
-      try{
-        const dv = vwapDev(s.rows,20);
-        if (isFinite(dv)){ vwapOk = want>0 ? dv>0 : dv<0; vwapDetail = fmt(dv,2)+'% vs 20-bar VWAP'; }
-      }catch(e){}
-      const f3 = s.vz>1.0 || vwapOk;
-      /* F4 STRUCTURE — breakout location (Donchian-20, Turtle) or extra room (R:R≥3). */
-      const d20 = s.dir==='long' ? Math.max(...s.rows.slice(-20).map(r=>r.h)) : Math.min(...s.rows.slice(-20).map(r=>r.l));
-      const mDc = Math.abs(s.entry-d20)/s.entry<=0.015, mRr=s.rr>=3;
-      const f4 = mDc||mRr;
-      /* F5 VOLATILITY/MOMENTUM — members: Bollinger(20,2) squeeze-to-breakout, ADX(14) trend
-         strength+direction, StochRSI(14) not-exhausted. Majority 2/3 — grouped as one family
-         because all three measure the same underlying fact: is momentum expanding in your
-         favor right now, not three independent facts. No claim of profitability; this only
-         changes which of the already-gated survivors gets ranked first. */
-      let f5=false, f5Detail='insufficient history';
-      try{
-        const closesX = s.rows.map(function(r){return r.c;}); const nX = closesX.length;
-        if (nX>=40){
-          const bbX = bollinger(closesX,20,2);
-          const priorWidths = bbX.widthPct.slice(Math.max(0,nX-50), nX-1).filter(function(v){return isFinite(v);});
-          const wAvg = priorWidths.length ? priorWidths.reduce(function(a,b){return a+b;},0)/priorWidths.length : NaN;
-          const bbBreak = (want>0 ? closesX[nX-1]>bbX.upper[nX-1] : closesX[nX-1]<bbX.lower[nX-1]) && isFinite(wAvg) && bbX.widthPct[nX-2]<=wAvg;
-          const adxX = adx(s.rows,14);
-          const adxAligned = adxX.adx[nX-1]>=20 && (want>0 ? adxX.plusDI[nX-1]>adxX.minusDI[nX-1] : adxX.minusDI[nX-1]>adxX.plusDI[nX-1]);
-          const srsiX = stochRsi(closesX,14,14);
-          const srsiOk = isFinite(srsiX[nX-1]) && (want>0 ? srsiX[nX-1]<80 : srsiX[nX-1]>20);
-          const votes5 = (bbBreak?1:0)+(adxAligned?1:0)+(srsiOk?1:0);
-          f5 = votes5>=2;
-          f5Detail = 'BB '+(bbBreak?'breakout':'no breakout')+' · ADX '+fmt(adxX.adx[nX-1],1)+' '+(adxAligned?'aligned':'not aligned')+' · StochRSI '+fmt(srsiX[nX-1],0)+' '+(srsiOk?'not exhausted':'exhausted');
-        }
-      }catch(e){}
-      /* R1 ROBUSTNESS — cascade must also hold on 2H: a signal living at exactly
-         one timeframe is a curve-fit artifact, not a trend. */
-      let r1=false, r1D='2H fetch failed';
-      try{
-        const h2=await getCandles(s.t.symbol,'2h',160); const c2=h2.map(r=>r.c);
-        const a9=last(ema(c2,9)), a21=last(ema(c2,21)), a50=last(ema(c2,50));
-        r1 = s.dir==='long' ? (a9>a21&&a21>a50) : (a9<a21&&a21<a50);
-        r1D = `2H EMA9/21/50 ${r1?'aligned':'NOT aligned'}`;
-      }catch(e){}
-      /* R2 ROBUSTNESS — persistence: cascade held ≥3 consecutive closed 4H bars. */
-      const age = cascadeAge(s.rows.map(r=>r.c), s.dir);
-      const r2 = age>=3;
-      s.fam=[
-        ['F1','TREND family — 2-of-3 majority: TSMOM · 1D side · CUSUM', f1,
-          `${trendVotes}/3 → TSMOM ${mTs?'✓':'✗'} (${tsD}) · 1D ${mD1?'✓':'✗'} · CUSUM ${mCu?'✓':'✗'}${s.ev?` (${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago)`:''}`],
-        ['F2','POSITIONING family — funding tailwind (crowd pays you)', f2, s.fr!==null?`${fmt(s.fr,4)}%/interval`:'n/a'],
-        ['F3','PARTICIPATION family — volume z > 1.0 or VWAP side', f3, `z ${fmt(s.vz,2)} · ${vwapDetail}`],
-        ['F4','STRUCTURE family — Donchian-20 breakout zone or R:R ≥ 3', f4, `Donchian ${mDc?'✓':'✗'} (${px(d20)}) · R:R ${mRr?'✓':'✗'} (${fmt(s.rr,2)}R)`],
-        ['F5','VOLATILITY/MOMENTUM family — 2-of-3 majority: Bollinger breakout · ADX trend+direction · StochRSI not-exhausted', f5, f5Detail],
-        ['R1','ROBUSTNESS — cascade also holds on 2H (anti curve-fit)', r1, r1D],
-        ['R2','ROBUSTNESS — cascade age ≥3 closed 4H bars (anti flicker)', r2, `${age} bars`],
-      ];
-      s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0)+(f5?1:0);
-      s.robScore=(r1?1:0)+(r2?1:0);
-      await sleep(60);
-    }
-    clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
+    const clean = await runCascadeCore(uni);
     return clean;
   }catch(e){ return []; }
   finally{ S.exchange = prevExchange; S.tickers = prevTickers; }
