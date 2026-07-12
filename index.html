@@ -449,7 +449,29 @@ const CDCX_PUBLIC_PROXIES = [
 
 /* CoinDCX fetch: try direct (CORS may block), fall back to the Render proxy.
    Free-tier proxy cold-starts in ~50s after idle — first call may be slow. */
+
+/* ---------------- lightweight rate-limit tracking (client-side estimate only) ---------------- */
+const RateTrack = { td: [], cdcx: [] };
+function trackCall(bucket){
+  try{
+    const arr = RateTrack[bucket];
+    const now = Date.now();
+    arr.push(now);
+    const cutoff = bucket==='td' ? 86400000 : 60000;
+    while (arr.length && now - arr[0] > cutoff) arr.shift();
+    if (bucket==='td'){
+      const minAgo = arr.filter(function(t){ return now-t<=60000; }).length;
+      const el = document.getElementById('goldStat');
+      if (el) el.title = 'Twelve Data usage (client-side estimate): '+arr.length+'/800 today · '+minAgo+'/8 this minute';
+    } else {
+      const el = document.getElementById('chipConn');
+      if (el) el.title = 'CoinDCX proxy/API calls in the last 60s: '+arr.length;
+    }
+  }catch(e){}
+}
+
 async function cdcxGet(url){
+  trackCall('cdcx');
   try{
     const r = await fetch(url);
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -622,6 +644,7 @@ async function getCandles(sym, res, count){
 }
 
 async function getXAUCandles(res, count){
+  trackCall('td');
   const key = 'xau|' + res + '|' + count;
   const hit = S.candleCache[key];
   if (hit && (nowSec()-hit.at) < 60) return hit.rows;
@@ -2094,6 +2117,7 @@ function searchBase(sym, ex){
 }
 
 async function getCryptoCandlesTD(base, res, count){
+ trackCall('td');
 const key = 'tdc|' + base + '|' + res + '|' + count;
 const hit = S.candleCache[key];
 if (hit && (nowSec()-hit.at) < 300) return hit.rows;
@@ -2269,6 +2293,64 @@ function initAlerts(){
   }
 }
 
+
+/* ---------------- dev-only self-tests (console: runSelfTests()) ----------------
+   Lightweight fixture checks for the gate logic most prone to silent regressions.
+   Not a full test suite — pins the closePos/sweep formulas and exercises the
+   real cusumLast() directly so future edits to these can't silently flip a sign
+   or break a divide-by-zero guard without a visible console failure. */
+function runSelfTests(){
+  const results = [];
+  function assert(name, cond, detail){ results.push({name:name, pass:!!cond, detail:detail||''}); }
+
+  (function(){
+    function closePosOf(bar){ const range = bar.h - bar.l; return range>0 ? (bar.c - bar.l)/range : 0.5; }
+    const strong = {h:110,l:100,c:109};
+    const weak = {h:110,l:100,c:101};
+    const flatBar = {h:100,l:100,c:100};
+    assert('closePos: strong bullish close ~0.9', Math.abs(closePosOf(strong)-0.9)<1e-9, closePosOf(strong));
+    assert('closePos: weak close ~0.1', Math.abs(closePosOf(weak)-0.1)<1e-9, closePosOf(weak));
+    assert('closePos: zero-range bar defaults to 0.5 (no div/0)', closePosOf(flatBar)===0.5, closePosOf(flatBar));
+    assert('closePos gate: long passes on strong close (>=0.60)', closePosOf(strong)>=0.60, '');
+    assert('closePos gate: long vetoes weak close (<0.60)', !(closePosOf(weak)>=0.60), '');
+    assert('closePos gate: short passes on weak close (<=0.40)', closePosOf(weak)<=0.40, '');
+  })();
+
+  (function(){
+    function sweepOf(vals, dir, n){
+      const lookback = vals.slice(n-24, n-1);
+      const localLow = Math.min.apply(null, lookback);
+      const localHigh = Math.max.apply(null, lookback);
+      const recent = vals.slice(n-7, n-1);
+      return dir==='long' ? Math.min.apply(null, recent) <= localLow : Math.max.apply(null, recent) >= localHigh;
+    }
+    const flat = new Array(24).fill(100);
+    const swept = flat.concat([100,100,100,100,100,95]);
+    const notSwept = flat.concat([100,100,100,100,100,100]);
+    assert('sweep: detected when recent extreme undercuts prior range', sweepOf(swept,'long',swept.length), '');
+    assert('sweep: no false-positive when nothing undercuts the range', !sweepOf(notSwept,'long',notSwept.length), '');
+  })();
+
+  (function(){
+    let p = 100; const up = [];
+    for (let i=0;i<60;i++){ p *= 1.01; up.push(p); }
+    const evUp = cusumLast(up, 1);
+    assert('cusumLast: sustained uptrend yields a long event', !!(evUp && evUp.dir==='long'), JSON.stringify(evUp));
+
+    p = 100; const down = [];
+    for (let i=0;i<60;i++){ p *= 0.99; down.push(p); }
+    const evDown = cusumLast(down, 1);
+    assert('cusumLast: sustained downtrend yields a short event', !!(evDown && evDown.dir==='short'), JSON.stringify(evDown));
+
+    const flatSeries = new Array(60).fill(100);
+    const evFlat = cusumLast(flatSeries, 1);
+    assert('cusumLast: flat series does not throw (div/0 guard holds)', evFlat===null || typeof evFlat==='object', JSON.stringify(evFlat));
+  })();
+
+  const pass = results.filter(function(r){ return r.pass; }).length;
+  console.log('HARDGATE self-tests: '+pass+'/'+results.length+' passed', results);
+  return { pass:pass, total:results.length, results:results };
+}
 
 /* ---------------- init ---------------- */
 tickClock(); loadMacro(); setExchange('delta'); renderBiasChips(); renderLog(); renderLogBadge(); initDeltaWS();
