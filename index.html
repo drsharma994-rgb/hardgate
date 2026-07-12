@@ -2325,8 +2325,8 @@ function runSelfTests(){
       return dir==='long' ? Math.min.apply(null, recent) <= localLow : Math.max.apply(null, recent) >= localHigh;
     }
     const flat = new Array(24).fill(100);
-    const swept = flat.concat([100,100,100,100,100,95]);
-    const notSwept = flat.concat([100,100,100,100,100,100]);
+    const swept = flat.concat([100,100,100,100,95,100]); // undercut sits inside the 6-bar recent window, not at the very last (excluded) bar
+    const notSwept = new Array(23).fill(100).concat(new Array(7).fill(102)); // last 6 bars (recent window) are entirely above the lookback low
     assert('sweep: detected when recent extreme undercuts prior range', sweepOf(swept,'long',swept.length), '');
     assert('sweep: no false-positive when nothing undercuts the range', !sweepOf(notSwept,'long',notSwept.length), '');
   })();
