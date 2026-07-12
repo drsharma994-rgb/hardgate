@@ -1865,6 +1865,7 @@ function renderLogBadge(){ const b=$('tabB_log'); if(b){ const n=loadLog().lengt
    ============================================================================= */
 async function runCascadeCore(uni){
   const clean=[];
+    let breadthBull=0, breadthTotal=0;
     for (let i=0;i<uni.length;i++){
       const t=uni[i]; setProg('bestProg',(i+1)/uni.length*0.65);
       $('bestStat').textContent=`gates ${i+1}/${uni.length} · ${t.symbol}`;
@@ -1874,6 +1875,7 @@ async function runCascadeCore(uni){
         const c=rows.map(r=>r.c);
         const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
         const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20), a4=last(atr(rows,14));
+      if (isFinite(e200)){ breadthTotal++; if (p>e200) breadthBull++; }
         let dir=null;
         if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short';
         if (!dir) continue;
@@ -1979,7 +1981,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
       await sleep(60);
     }
     clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
-  return clean;
+  return {clean, breadth:{bull:breadthBull, total:breadthTotal}};
 }
 
 async function runBest(){
@@ -1995,12 +1997,19 @@ async function runBest(){
     if (!scanAll) uni = uni.slice(0,N);
     const exLabel = S.exchange==='delta'?'Delta India':'CoinDCX';
     const universeLabel = scanAll ? `whole ${exLabel} futures universe` : `top ${N} by turnover`;
-    const clean = await runCascadeCore(uni);
+    const {clean, breadth} = await runCascadeCore(uni);
     if (!clean.length){
       out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
       return;
     }
     const w=clean[0];
+    const breadthPct = breadth.total>=10 ? (breadth.bull/breadth.total*100) : 50;
+    const regimeDir = breadth.total>=10 ? (breadthPct<=20?'bear':(breadthPct>=80?'bull':null)) : null;
+    if (regimeDir && ((regimeDir==='bear' && w.dir==='long') || (regimeDir==='bull' && w.dir==='short'))){
+      $('bestStat').textContent = 'master veto: regime unsafe';
+      out.innerHTML = `<div class="empty"><b style="color:var(--veto)">MASTER VETO: STAND ASIDE</b><br><br>Market breadth only ${fmt(breadthPct,0)}% bullish (${breadth.bull}/${breadth.total} coins above 200-EMA on 4H) — ${regimeDir} regime, ${w.dir} setups here are ${regimeDir==='bear'?'catching falling knives':'fighting a screaming uptrend'}. Scanning canceled to protect capital.</div>`;
+      return;
+    }
     const t1=w.t1; const t2=w.t2;
     logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
     const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.famScore}/5 families · ${s.robScore}/2 robustness · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
@@ -2036,7 +2045,7 @@ async function silentBestScan(exchangeArg){
       : S.tickers.slice();
     if (!scanAll) uni = uni.slice(0,N);
     const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
-    const clean = await runCascadeCore(uni);
+    const {clean} = await runCascadeCore(uni);
     return clean;
   }catch(e){ return []; }
   finally{ S.exchange = prevExchange; S.tickers = prevTickers; }
