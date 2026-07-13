@@ -125,8 +125,11 @@ table{width:100%;border-collapse:collapse}
   <span class="statuschip" id="chipDom">BTC.D <b>—</b></span>
   <div class="spacer"></div>
   <span class="statuschip" id="chipClock"><b>—</b> IST</span>
-  <span class="statuschip" id="chipAlert" onclick="toggleAlerts()" style="cursor:pointer"><b>🔔</b> ALERTS <b id="alertState">OFF</b></span>
+  <button id="hardRefreshBtn" class="statuschip" style="cursor:pointer" onclick="hardRefreshAll()">⟳ HARD REFRESH</button>
+<span class="statuschip" id="hardRefreshStat"></span>
+<span class="statuschip" id="chipAlert" onclick="toggleAlerts()" style="cursor:pointer"><b>🔔</b> ALERTS <b id="alertState">OFF</b></span>
 </header>
+<div id="marketPictureBar" style="padding:8px 16px;text-align:center;border-bottom:1px solid #2a2a2a;font-size:13px;letter-spacing:.04em">MARKET PICTURE: <b id="mpVerdict">—</b> <span id="mpDetail" class="note" style="font-size:11px"></span></div>
 <nav>
   <button id="tabB_bias" class="on" onclick="showTab('bias')">BIAS</button>
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
@@ -143,6 +146,7 @@ table{width:100%;border-collapse:collapse}
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
   <button id="tabB_log" onclick="showTab('log')">LOG</button>
   <button id="tabB_trade" onclick="showTab('trade')">TRADE PLAN</button>
+<button id="tabB_finder" onclick="showTab('finder')">FIND TRADE</button>
 </nav>
 <main>
 
@@ -194,6 +198,12 @@ table{width:100%;border-collapse:collapse}
   <div class="note" style="margin-bottom:10px">Gates: G1 1H EMA cascade sets direction · G2 15m EMA9/21 pullback-and-reclaim in that direction · G3 15m RSI in 40–65 band (long) / 35–60 (short), no chasing exhaustion · G4 funding clean · G5 ≥ 25 min to funding settlement (00:00/08:00/16:00 UTC = 5:30/13:30/21:30 IST) · G6 ATR-based 2R target inside recent range. Scalps are invalid if you can't be filled early — entry is the reclaim close, not a market chase.</div>
   <div class="cards" id="scalpCards"></div>
   <div class="empty" id="scalpEmpty" style="display:none">No CLEAN scalp triggers right now.</div>
+
+<div class="row" style="margin-top:10px">
+<label class="f">BACKTEST SYMBOL (Twelve Data)<input id="scalpBtSym" type="text" placeholder="e.g. BTC" style="width:140px" onkeydown="if(event.key==='Enter') runScalpBacktestUI()"></label>
+<button class="btn" id="scalpBtRun" onclick="runScalpBacktestUI()">BACKTEST SCALP</button>
+</div>
+<div id="scalpBtOut"></div>
 </section>
 
     <section id="tab_coil" class="tabpane">
@@ -320,7 +330,12 @@ table{width:100%;border-collapse:collapse}
     <div class="note">Gold logic: swing side follows the 4H/1D hard gates (same discipline as crypto, no exceptions for the shiny metal). Scalps only fire inside London (12:30–15:30 IST) or NY (17:30–20:30 IST) kill zones, and only on a sweep of the Asian range or prior-day high/low followed by a closed-bar reclaim — the Judas pattern you already trade. Fear &amp; Greed is crypto sentiment and is deliberately NOT applied here. DXY, real yields and the event calendar are your manual homework — no API here will judge them honestly for you.</div>
     <div class="prog" id="goldProg"><i></i></div>
   </div>
-  <div class="grid2">
+  
+<div class="row" style="margin-top:10px">
+<button class="btn" id="goldBtRun" onclick="runGoldBacktest()">BACKTEST (Twelve Data)</button>
+</div>
+<div id="goldBtOut"></div>
+<div class="grid2">
     <div class="panel"><h2>Swing Ledger <span>4H structure</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
     <div class="panel"><h2>Scalp Ledger <span>15m sweep-and-reclaim in kill zone</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
   </div>
@@ -355,6 +370,20 @@ table{width:100%;border-collapse:collapse}
     <div class="prog" id="searchProg"><i></i></div>
   </div>
   <div id="searchOut"><div class="empty">Type a coin and hit SEARCH.</div></div>
+</section>
+
+<section id="tab_finder" class="tabpane">
+<div class="panel">
+<h2>Find Trade <span>one symbol, every strategy this app knows — SWING, SCALP, and Judas Sweep, gates shown honestly</span></h2>
+<div class="row" style="margin-bottom:10px">
+<label class="f">TYPE<select id="finderType" onchange="finderTypeChanged()"><option value="crypto">CRYPTO</option><option value="gold">GOLD (XAUTUSD)</option></select></label>
+<label class="f" id="finderSymWrap">SYMBOL<input id="finderSym" type="text" placeholder="e.g. BTC" style="width:140px" onkeydown="if(event.key==='Enter') runFinder()"></label>
+<button class="btn" onclick="runFinder()">EVALUATE</button>
+<span class="note" id="finderStat"></span>
+</div>
+<div class="note">Runs this app's existing SWING and SCALP gate ledgers plus a session-gated Judas Sweep check (liquidity sweep of the Asian range / prior-day high-low, kill-zone timed) on one symbol at a time — crypto looks the symbol up on Delta India first, then CoinDCX. Nothing here is a new indicator; it's the same gates used elsewhere in this app, just gathered in one place per-symbol, with an optional Twelve Data backtest for context.</div>
+</div>
+<div id="finderOut"></div>
 </section>
 
 <!-- ================= LOG ================= -->
@@ -1370,7 +1399,7 @@ async function runObScan(){
   }
 }
 function showTab(t){
-  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','best','basis','search','log','trade'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','best','basis','search','log','trade','finder'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
@@ -1520,7 +1549,7 @@ async function runScan(kind){
     if (!scanAll) uni = uni.slice(0,N);
     const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
     const minsToFunding = tickClock();
-    let found=0; const CHUNK_SIZE=5; for (let ci=0; ci<uni.length; ci+=CHUNK_SIZE){ const chunk = uni.slice(ci, ci+CHUNK_SIZE); await Promise.all(chunk.map(async function(t, idxInChunk){ const i = ci+idxInChunk; setProg(isSwing?'swingProg':'scalpProg', (i+1)/uni.length); statEl.textContent = `scanning ${i+1}/${uni.length} - ${t.symbol}`; try{ if (isSwing){ const rows = await getCandles(t.symbol,'4h',260); if (rows.length<210) return; const c=rows.map(r=>r.c); const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200)); const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20); let dir=null; if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short'; if (!dir) return; const a4=last(atr(rows,14)); if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)) return; if (dir==='long' ? !(p>e200) : !(p<e200)) return; if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) return; if (t.fundingPct!==null){ const fr=t.fundingPct; if (Math.abs(fr)>0.05-1e-9) return; if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return; } if (!(vz > 0.5)) return; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return; const stop = lastSwing(rows, dir, 30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) return; let plannedEntry = p; let entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25) { plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry; const risk = Math.abs(entry-stop); if (!(risk>0)) return; const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const dynamicRR = expectedMove/risk; if (!(dynamicRR>=2)) return; const ev = cusumLast(c.slice(-120), 1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) return; found++; let momDetail = 'n/a'; try{ const nEw = c.length; if (nEw>=40){ const bbW = bollinger(c,20,2); const priorWw = bbW.widthPct.slice(Math.max(0,nEw-50), nEw-1).filter(function(v){return isFinite(v);}); const wAvgW = priorWw.length ? priorWw.reduce(function(a,b){return a+b;},0)/priorWw.length : NaN; const wantW = dir==='long' ? 1 : -1; const bbBreakW = (wantW>0 ? c[nEw-1]>bbW.upper[nEw-1] : c[nEw-1]<bbW.lower[nEw-1]) && isFinite(wAvgW) && bbW.widthPct[nEw-2]<=wAvgW; const adxW = adx(rows,14); const adxAlignedW = adxW.adx[nEw-1]>=20 && (wantW>0 ? adxW.plusDI[nEw-1]>adxW.minusDI[nEw-1] : adxW.minusDI[nEw-1]>adxW.plusDI[nEw-1]); const srsiW = stochRsi(c,14,14); const srsiOkW = isFinite(srsiW[nEw-1]) && (wantW>0 ? srsiW[nEw-1]<80 : srsiW[nEw-1]>20); const votesW = (bbBreakW?1:0)+(adxAlignedW?1:0)+(srsiOkW?1:0); momDetail = votesW+'/3 (BB '+(bbBreakW?'ok':'x')+' ADX '+(adxAlignedW?'ok':'x')+' StochRSI '+(srsiOkW?'ok':'x')+')'; } }catch(e){} cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [ ['mark',px(t.mark||p)],['order',entryType==='MARKET'?'market':'limit @ EMA9'],['24h',t.chg24!==null?pct(t.chg24,2):'-'], ['RSI 4H',fmt(r14,1)],['vol z',fmt(vz,2)], ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['ann.',t.fundingPct!==null?fmt(t.fundingPct*3*365,1)+'%':'-'], ['dyn R:R',fmt(dynamicRR,2)+'R vol-capped'],['turnover',t.turnoverUsd?('$'+fmt(t.turnoverUsd,0)):'-'],['context: momentum',momDetail],['Nearest OB',nearestOBText(rows,dir)],['Liquidity Target',liquidityTargetText(rows,dir)], ], ['G1 cascade+spread','G2 HTF side','G3 RSI ok','G4 funding','G5 vol+wick','G6 R:R>=2','G7 CUSUM'+(ev&&ev.barsAgo<=20?' ok':' n/a')], planBlock(dir,entry,stop,t1,t2), entry, stop, t1)); logSetup(t.symbol, dir, 'swing', entry, stop, t1); } else { const h1 = await getCandles(t.symbol,'1h',120); if (h1.length<60) return; const c1=h1.map(r=>r.c); const e9h=last(ema(c1,9)), e21h=last(ema(c1,21)), e50h=last(ema(c1,50)); let dir=null; if (e9h>e21h&&e21h>e50h) dir='long'; else if (e9h<e21h&&e21h<e50h) dir='short'; if (!dir) return; const m15 = await getCandles(t.symbol,'15m',160); if (m15.length<60) return; const c15=m15.map(r=>r.c); const e9a=ema(c15,9), e21a=ema(c15,21); const n=c15.length; const lookback = m15.slice(n-24, n-1); const localLow = Math.min(...lookback.map(r=>r.l)); const localHigh = Math.max(...lookback.map(r=>r.h)); const sweptLiquidity = dir === 'long' ? Math.min(...c15.slice(n-7,n-1)) <= localLow : Math.max(...c15.slice(n-7,n-1)) >= localHigh; const reclaimed = dir === 'long' ? (c15[n-1] > e9a[n-1] && e9a[n-1] > e21a[n-1]) : (c15[n-1] < e9a[n-1] && e9a[n-1] < e21a[n-1]); if (!(sweptLiquidity && reclaimed)) return; const r15=last(rsi(c15,14)); if (dir==='long' ? !(r15>=40&&r15<=65) : !(r15>=35&&r15<=60)) return; if (t.fundingPct!==null){ const fr=t.fundingPct; if (Math.abs(fr)>0.05-1e-9) return; if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return; } if (minsToFunding<25) return; const atrArr = atr(m15,14); const a = last(atrArr); const base = atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y); const aMed = base.length ? base[Math.floor(base.length/2)] : NaN; if (!(isFinite(a) && isFinite(aMed) && a >= 0.8*aMed)) return; const vz = volZ(m15,20); if (!(vz > 0.5)) return; const currentBar = m15[m15.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return; const entry = c15[n-1]; const stop = dir === 'long' ? localLow - (a * 0.25) : localHigh + (a * 0.25); const risk = Math.abs(entry - stop); if (!(risk > 0)) return; const expectedMove = a * 2.5; const t1 = dir === 'long' ? entry + expectedMove : entry - expectedMove; const t2 = dir === 'long' ? entry + (a * 4) : entry - (a * 4); const dynamicRR = expectedMove / risk; if (!(dynamicRR >= 1.5)) return; found++; let momDetailS = 'n/a'; try{ const nEs = c15.length; if (nEs>=40){ const bbS = bollinger(c15,20,2); const priorWs = bbS.widthPct.slice(Math.max(0,nEs-50), nEs-1).filter(function(v){return isFinite(v);}); const wAvgS = priorWs.length ? priorWs.reduce(function(a,b){return a+b;},0)/priorWs.length : NaN; const wantS = dir==='long' ? 1 : -1; const bbBreakS = (wantS>0 ? c15[nEs-1]>bbS.upper[nEs-1] : c15[nEs-1]<bbS.lower[nEs-1]) && isFinite(wAvgS) && bbS.widthPct[nEs-2]<=wAvgS; const adxS = adx(m15,14); const adxAlignedS = adxS.adx[nEs-1]>=20 && (wantS>0 ? adxS.plusDI[nEs-1]>adxS.minusDI[nEs-1] : adxS.minusDI[nEs-1]>adxS.plusDI[nEs-1]); const srsiS = stochRsi(c15,14,14); const srsiOkS = isFinite(srsiS[nEs-1]) && (wantS>0 ? srsiS[nEs-1]<80 : srsiS[nEs-1]>20); const votesS = (bbBreakS?1:0)+(adxAlignedS?1:0)+(srsiOkS?1:0); momDetailS = votesS+'/3 (BB '+(bbBreakS?'ok':'x')+' ADX '+(adxAlignedS?'ok':'x')+' StochRSI '+(srsiOkS?'ok':'x')+')'; } }catch(e){} cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [ ['mark',px(t.mark||entry)],['1H trend',dir.toUpperCase()], ['RSI 15m',fmt(r15,1)],['ATR 15m',px(a)],['dyn R:R',fmt(dynamicRR,2)+'R vol-capped'], ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['to settle',fmt(minsToFunding,0)+'m'],['context: momentum',momDetailS],['Nearest OB',nearestOBText(m15,dir)],['Liquidity Target',liquidityTargetText(m15,dir)], ], ['G1 1H trend','G2 Judas sweep+reclaim','G3 RSI band','G4 funding','G5 settle>25m','G6 vol+wick commit','G7 1.5R vol-capped'], planBlock(dir,entry,stop,t1,t2), entry, stop, t1)); logSetup(t.symbol, dir, 'scalp', entry, stop, t1); } }catch(e){ } })); await sleep(150); } statEl.textContent = `done - ${found} CLEAN / ${uni.length} scanned (${universeLabel})`;
+    let found=0; const CHUNK_SIZE=5; for (let ci=0; ci<uni.length; ci+=CHUNK_SIZE){ const chunk = uni.slice(ci, ci+CHUNK_SIZE); await Promise.all(chunk.map(async function(t, idxInChunk){ const i = ci+idxInChunk; setProg(isSwing?'swingProg':'scalpProg', (i+1)/uni.length); statEl.textContent = `scanning ${i+1}/${uni.length} - ${t.symbol}`; try{ if (isSwing){ const rows = await getCandles(t.symbol,'4h',260); if (rows.length<210) return; const c=rows.map(r=>r.c); const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200)); const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20); let dir=null; if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short'; if (!dir) return; const a4=last(atr(rows,14)); if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)) return; if (dir==='long' ? !(p>e200) : !(p<e200)) return; if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) return; if (t.fundingPct!==null){ const fr=t.fundingPct; if (Math.abs(fr)>0.05-1e-9) return; if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return; } if (!(vz > 0.5)) return; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return; const stop = lastSwing(rows, dir, 30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) return; let plannedEntry = p; let entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25) { plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry; const risk = Math.abs(entry-stop); if (!(risk>0)) return; const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const dynamicRR = expectedMove/risk; if (!(dynamicRR>=2)) return; const ev = cusumLast(c.slice(-120), 1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) return; found++; let momDetail = 'n/a'; try{ const nEw = c.length; if (nEw>=40){ const bbW = bollinger(c,20,2); const priorWw = bbW.widthPct.slice(Math.max(0,nEw-50), nEw-1).filter(function(v){return isFinite(v);}); const wAvgW = priorWw.length ? priorWw.reduce(function(a,b){return a+b;},0)/priorWw.length : NaN; const wantW = dir==='long' ? 1 : -1; const bbBreakW = (wantW>0 ? c[nEw-1]>bbW.upper[nEw-1] : c[nEw-1]<bbW.lower[nEw-1]) && isFinite(wAvgW) && bbW.widthPct[nEw-2]<=wAvgW; const adxW = adx(rows,14); const adxAlignedW = adxW.adx[nEw-1]>=20 && (wantW>0 ? adxW.plusDI[nEw-1]>adxW.minusDI[nEw-1] : adxW.minusDI[nEw-1]>adxW.plusDI[nEw-1]); const srsiW = stochRsi(c,14,14); const srsiOkW = isFinite(srsiW[nEw-1]) && (wantW>0 ? srsiW[nEw-1]<80 : srsiW[nEw-1]>20); const votesW = (bbBreakW?1:0)+(adxAlignedW?1:0)+(srsiOkW?1:0); momDetail = votesW+'/3 (BB '+(bbBreakW?'ok':'x')+' ADX '+(adxAlignedW?'ok':'x')+' StochRSI '+(srsiOkW?'ok':'x')+')'; } }catch(e){} cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [ ['mark',px(t.mark||p)],['order',entryType==='MARKET'?'market':'limit @ EMA9'],['24h',t.chg24!==null?pct(t.chg24,2):'-'], ['RSI 4H',fmt(r14,1)],['vol z',fmt(vz,2)], ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['ann.',t.fundingPct!==null?fmt(t.fundingPct*3*365,1)+'%':'-'], ['dyn R:R',fmt(dynamicRR,2)+'R vol-capped'],['turnover',t.turnoverUsd?('$'+fmt(t.turnoverUsd,0)):'-'],['context: momentum',momDetail],['Nearest OB',nearestOBText(rows,dir)],['Liquidity Target',liquidityTargetText(rows,dir)], ], ['G1 cascade+spread','G2 HTF side','G3 RSI ok','G4 funding','G5 vol+wick','G6 R:R>=2','G7 CUSUM'+(ev&&ev.barsAgo<=20?' ok':' n/a')], planBlock(dir,entry,stop,t1,t2), entry, stop, t1)); logSetup(t.symbol, dir, 'swing', entry, stop, t1); } else { const h1 = await getCandles(t.symbol,'1h',120); if (h1.length<60) return; const c1=h1.map(r=>r.c); const e9h=last(ema(c1,9)), e21h=last(ema(c1,21)), e50h=last(ema(c1,50)); let dir=null; if (e9h>e21h&&e21h>e50h) dir='long'; else if (e9h<e21h&&e21h<e50h) dir='short'; if (!dir) return; const m15 = await getCandles(t.symbol,'15m',160); if (m15.length<60) return; const c15=m15.map(r=>r.c); const e9a=ema(c15,9), e21a=ema(c15,21); const n=c15.length; const priorWin = m15.slice(n-24, n-7); const localLow = Math.min(...priorWin.map(r=>r.l)); const localHigh = Math.max(...priorWin.map(r=>r.h)); const recentWin = m15.slice(n-7, n-1); const sweptLiquidity = dir === 'long' ? Math.min(...recentWin.map(r=>r.l)) < localLow : Math.max(...recentWin.map(r=>r.h)) > localHigh; const reclaimed = dir === 'long' ? (c15[n-1] > e9a[n-1] && e9a[n-1] > e21a[n-1]) : (c15[n-1] < e9a[n-1] && e9a[n-1] < e21a[n-1]); if (!(sweptLiquidity && reclaimed)) return; const r15=last(rsi(c15,14)); if (dir==='long' ? !(r15>=40&&r15<=65) : !(r15>=35&&r15<=60)) return; if (t.fundingPct!==null){ const fr=t.fundingPct; if (Math.abs(fr)>0.05-1e-9) return; if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return; } if (minsToFunding<25) return; const atrArr = atr(m15,14); const a = last(atrArr); const base = atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y); const aMed = base.length ? base[Math.floor(base.length/2)] : NaN; if (!(isFinite(a) && isFinite(aMed) && a >= 0.8*aMed)) return; const vz = volZ(m15,20); if (!(vz > 0.5)) return; const currentBar = m15[m15.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return; const entry = c15[n-1]; const stop = dir === 'long' ? localLow - (a * 0.25) : localHigh + (a * 0.25); const risk = Math.abs(entry - stop); if (!(risk > 0)) return; const expectedMove = a * 2.5; const t1 = dir === 'long' ? entry + expectedMove : entry - expectedMove; const t2 = dir === 'long' ? entry + (a * 4) : entry - (a * 4); const dynamicRR = expectedMove / risk; if (!(dynamicRR >= 1.5)) return; found++; let momDetailS = 'n/a'; try{ const nEs = c15.length; if (nEs>=40){ const bbS = bollinger(c15,20,2); const priorWs = bbS.widthPct.slice(Math.max(0,nEs-50), nEs-1).filter(function(v){return isFinite(v);}); const wAvgS = priorWs.length ? priorWs.reduce(function(a,b){return a+b;},0)/priorWs.length : NaN; const wantS = dir==='long' ? 1 : -1; const bbBreakS = (wantS>0 ? c15[nEs-1]>bbS.upper[nEs-1] : c15[nEs-1]<bbS.lower[nEs-1]) && isFinite(wAvgS) && bbS.widthPct[nEs-2]<=wAvgS; const adxS = adx(m15,14); const adxAlignedS = adxS.adx[nEs-1]>=20 && (wantS>0 ? adxS.plusDI[nEs-1]>adxS.minusDI[nEs-1] : adxS.minusDI[nEs-1]>adxS.plusDI[nEs-1]); const srsiS = stochRsi(c15,14,14); const srsiOkS = isFinite(srsiS[nEs-1]) && (wantS>0 ? srsiS[nEs-1]<80 : srsiS[nEs-1]>20); const votesS = (bbBreakS?1:0)+(adxAlignedS?1:0)+(srsiOkS?1:0); momDetailS = votesS+'/3 (BB '+(bbBreakS?'ok':'x')+' ADX '+(adxAlignedS?'ok':'x')+' StochRSI '+(srsiOkS?'ok':'x')+')'; } }catch(e){} cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [ ['mark',px(t.mark||entry)],['1H trend',dir.toUpperCase()], ['RSI 15m',fmt(r15,1)],['ATR 15m',px(a)],['dyn R:R',fmt(dynamicRR,2)+'R vol-capped'], ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['to settle',fmt(minsToFunding,0)+'m'],['context: momentum',momDetailS],['Nearest OB',nearestOBText(m15,dir)],['Liquidity Target',liquidityTargetText(m15,dir)], ], ['G1 1H trend','G2 Judas sweep+reclaim','G3 RSI band','G4 funding','G5 settle>25m','G6 vol+wick commit','G7 1.5R vol-capped'], planBlock(dir,entry,stop,t1,t2), entry, stop, t1)); logSetup(t.symbol, dir, 'scalp', entry, stop, t1); } }catch(e){ } })); await sleep(150); } statEl.textContent = `done - ${found} CLEAN / ${uni.length} scanned (${universeLabel})`;
     if (!found){ emptyEl.textContent=(isSwing?'No CLEAN swing setups. Standing aside is a position.':'No CLEAN scalp triggers right now.'); emptyEl.style.display='block'; }
   }catch(e){
     statEl.textContent = `scan failed: ${e.message}`;
@@ -2327,11 +2356,11 @@ function runSelfTests(){
 
   (function(){
     function sweepOf(vals, dir, n){
-      const lookback = vals.slice(n-24, n-1);
-      const localLow = Math.min.apply(null, lookback);
-      const localHigh = Math.max.apply(null, lookback);
+      const priorWin = vals.slice(n-24, n-7);
+      const localLow = Math.min.apply(null, priorWin);
+      const localHigh = Math.max.apply(null, priorWin);
       const recent = vals.slice(n-7, n-1);
-      return dir==='long' ? Math.min.apply(null, recent) <= localLow : Math.max.apply(null, recent) >= localHigh;
+      return dir==='long' ? Math.min.apply(null, recent) < localLow : Math.max.apply(null, recent) > localHigh;
     }
     const flat = new Array(24).fill(100);
     const swept = flat.concat([100,100,100,100,95,100]); // undercut sits inside the 6-bar recent window, not at the very last (excluded) bar
@@ -2365,6 +2394,651 @@ function runSelfTests(){
 tickClock(); loadMacro(); setExchange('delta'); renderBiasChips(); renderLog(); renderLogBadge(); initDeltaWS();
 initAlerts();
 setInterval(loadMacro, 10*60*1000);
+</script>
+
+<script>
+/* =========================================================================
+FIND TRADE tab + SCALP/GOLD Twelve Data backtests + Judas Sweep + Hard Refresh
++ Market Picture -- added 2026-07-13
+========================================================================= */
+function fundingMinsAt(tSec){
+  const d = new Date(tSec*1000);
+  const secIn8h = (d.getUTCHours()%8)*3600 + d.getUTCMinutes()*60 + d.getUTCSeconds();
+  return (8*3600 - secIn8h)/60;
+}
+
+function dayStartOf(tSec){
+  const d = new Date(tSec*1000);
+  return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())/1000);
+}
+
+function sessionAt(tSec){
+  const d = new Date(tSec*1000);
+  const h = d.getUTCHours() + d.getUTCMinutes()/60;
+  if (h>=7 && h<10) return {name:'LONDON KZ', kz:true};
+  if (h>=12 && h<15) return {name:'NY KZ', kz:true};
+  if (h>=0 && h<7) return {name:'ASIA (range builds)', kz:false};
+  return {name:'OFF-SESSION', kz:false};
+}
+
+function judasSweepCheck(dir, d1rows, h1rows, m15rows){
+  const pdc = d1rows[d1rows.length-1];
+  const PDH = pdc.h, PDL = pdc.l;
+  const nowT = m15rows[m15rows.length-1].t;
+  const day0now = dayStartOf(nowT);
+  const day0 = (nowT < day0now+7*3600) ? day0now-86400 : day0now;
+  const asia = m15rows.filter(r=> r.t>=day0 && r.t<day0+7*3600);
+  const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
+  const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
+  const sess = sessionAt(nowT);
+  const c15 = m15rows.map(r=>r.c), n15 = c15.length;
+  const lastClose = c15[n15-1];
+  const atr15arr = atr(m15rows,14), a15 = atr15arr[atr15arr.length-1];
+  const vbase = atr15arr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+  const aMed = vbase.length ? vbase[Math.floor(vbase.length/2)] : NaN;
+  const volAlive = isFinite(a15) && isFinite(aMed) && a15>=0.8*aMed;
+  const e21h1 = ema(h1rows.map(r=>r.c),21); const e21h1v = e21h1[e21h1.length-1];
+  const look = m15rows.slice(-12);
+  const lvls = dir==='long' ? [['Asia low',asiaLo],['PDL',PDL]] : [['Asia high',asiaHi],['PDH',PDH]];
+  let swept=null, sweptLvl=NaN, ext=NaN;
+  for (const [nm,lv] of lvls){
+    if (!isFinite(lv)) continue;
+    if (dir==='long' && Math.min(...look.map(r=>r.l)) < lv){ swept=nm; sweptLvl=lv; ext=Math.min(...look.map(r=>r.l)); break; }
+    if (dir==='short' && Math.max(...look.map(r=>r.h)) > lv){ swept=nm; sweptLvl=lv; ext=Math.max(...look.map(r=>r.h)); break; }
+  }
+  const reclaimed = swept && (dir==='long' ? lastClose>sweptLvl : lastClose<sweptLvl);
+  const htfOk = dir==='long' ? lastClose>e21h1v : lastClose<e21h1v;
+  const g=[];
+  g.push(['JS1','Kill zone active (London/NY)', sess.kz?'pass':'veto', sess.name]);
+  g.push(['JS2', `Liquidity sweep of ${dir==='long'?'Asia low / PDL':'Asia high / PDH'} (last 3h)`, swept?'pass':'veto', swept?`swept ${swept} ${px(sweptLvl)} \u00b7 extreme ${px(ext)}`:'no sweep']);
+  g.push(['JS3','Closed 15m bar reclaimed the level', reclaimed?'pass':'veto', swept?`close ${px(lastClose)} vs ${px(sweptLvl)}`:'\u2014']);
+  g.push(['JS4','1H context not fighting you (close vs 1H EMA21)', htfOk?'pass':'veto', `1H EMA21 ${px(e21h1v)}`]);
+  g.push(['JS5','Volatility alive (15m ATR \u2265 0.8\u00d7 24h median)', volAlive?'pass':'veto', `ATR ${px(a15)} \u00b7 med ${px(aMed)}`]);
+  let entry=null, stop=null, t1=null, room=null, risk=null, oppo=null;
+  if (swept && reclaimed){
+    stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;
+    entry = lastClose;
+    risk = Math.abs(entry-stop);
+    const oppoCands = (dir==='long'?[asiaHi,PDH]:[asiaLo,PDL]).filter(isFinite);
+    oppo = oppoCands.length ? (dir==='long'?Math.min(...oppoCands):Math.max(...oppoCands)) : NaN;
+    room = dir==='long' ? oppo-entry : entry-oppo;
+    const rrOk = risk>0 && isFinite(room) && room>=2*risk;
+    g.push(['JS6','2R fits before the opposite liquidity pool', rrOk?'pass':'veto', risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'\u2014']);
+    if (rrOk) t1 = dir==='long'?entry+2*risk:entry-2*risk;
+  } else {
+    g.push(['JS6','2R fits before the opposite pool','na','needs a completed sweep + reclaim first']);
+  }
+  const veto = g.some(x=>x[2]==='veto');
+  return { gates: g, veto, dir, entry, stop, t1, oppo };
+}
+
+function backtestScalpTD(h1rows, m15rows){
+  const lastv = a => a[a.length-1];
+  const MIN_M15 = 60, HORIZON = 80;
+  const results = [];
+  let hIdx = 0;
+  let i = MIN_M15;
+  while (i < m15rows.length - 1){
+    const barT = m15rows[i].t;
+    while (hIdx+1 < h1rows.length && h1rows[hIdx+1].t <= barT) hIdx++;
+    if (hIdx < 55){ i++; continue; }
+    const h1win = h1rows.slice(0, hIdx+1);
+    const c1 = h1win.map(r=>r.c);
+    const e9h=lastv(ema(c1,9)), e21h=lastv(ema(c1,21)), e50h=lastv(ema(c1,50));
+    let dir=null;
+    if (e9h>e21h && e21h>e50h) dir='long'; else if (e9h<e21h && e21h<e50h) dir='short';
+    if (!dir){ i++; continue; }
+    const win15 = m15rows.slice(0, i+1);
+    const c15 = win15.map(r=>r.c);
+    const n = c15.length;
+    if (n<40){ i++; continue; }
+    const e9a = ema(c15,9), e21a = ema(c15,21);
+    const priorWin = win15.slice(n-24, n-7);
+    const localLow = Math.min(...priorWin.map(r=>r.l));
+    const localHigh = Math.max(...priorWin.map(r=>r.h));
+    const recentWin = win15.slice(n-7, n-1);
+    const sweptLiquidity = dir==='long' ? Math.min(...recentWin.map(r=>r.l)) < localLow : Math.max(...recentWin.map(r=>r.h)) > localHigh;
+    const reclaimed = dir==='long' ? (c15[n-1]>e9a[n-1] && e9a[n-1]>e21a[n-1]) : (c15[n-1]<e9a[n-1] && e9a[n-1]<e21a[n-1]);
+    if (!(sweptLiquidity && reclaimed)){ i++; continue; }
+    const r15 = lastv(rsi(c15,14));
+    if (dir==='long' ? !(r15>=40&&r15<=65) : !(r15>=35&&r15<=60)){ i++; continue; }
+    const mins = fundingMinsAt(win15[n-1].t);
+    if (mins<25){ i++; continue; }
+    const atrArr = atr(win15,14);
+    const a = lastv(atrArr);
+    const base = atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+    const aMed = base.length? base[Math.floor(base.length/2)] : NaN;
+    if (!(isFinite(a)&&isFinite(aMed)&&a>=0.8*aMed)){ i++; continue; }
+    const currentBar = win15[n-1];
+    const range = currentBar.h-currentBar.l;
+    const closePos = range>0 ? (currentBar.c-currentBar.l)/range : 0.5;
+    if (dir==='long'&&closePos<0.60){ i++; continue; }
+    if (dir==='short'&&closePos>0.40){ i++; continue; }
+    const entry = c15[n-1];
+    const stop = dir==='long'? localLow-0.25*a : localHigh+0.25*a;
+    const risk = Math.abs(entry-stop);
+    if (!(risk>0)){ i++; continue; }
+    const expectedMove = a*2.5;
+    const maxExcursion = a*4;
+    const dynamicRR = expectedMove/risk;
+    if (!(dynamicRR>=1.5)){ i++; continue; }
+    const t1 = dir==='long'? entry+expectedMove: entry-expectedMove;
+    const t2 = dir==='long'? entry+maxExcursion: entry-maxExcursion;
+    let outcome='unresolved', resolvedAt=null, rMult=0;
+    for (let j=i+1;j<Math.min(m15rows.length, i+1+HORIZON); j++){
+      const bar = m15rows[j];
+      if (dir==='long'){
+        if (bar.l<=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+        if (bar.h>=t2){ outcome='target2'; resolvedAt=j; rMult=(t2-entry)/risk; break; }
+        if (bar.h>=t1){ outcome='target1'; resolvedAt=j; rMult=(t1-entry)/risk; break; }
+      } else {
+        if (bar.h>=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+        if (bar.l<=t2){ outcome='target2'; resolvedAt=j; rMult=(entry-t2)/risk; break; }
+        if (bar.l<=t1){ outcome='target1'; resolvedAt=j; rMult=(entry-t1)/risk; break; }
+      }
+    }
+    results.push({ t: win15[n-1].t, dir, entry, stop, t1, t2, outcome, rMult });
+    i = (resolvedAt!==null?resolvedAt:i+HORIZON)+1;
+  }
+  return results;
+}
+
+function backtestGoldSwingTD(d1rows, h4rows){
+  const lastv = a => a[a.length-1];
+  const MIN_H4 = 210, HORIZON = 180;
+  const results = [];
+  let dIdx = 0;
+  let i = MIN_H4;
+  while (i < h4rows.length - 1){
+    const win4 = h4rows.slice(0, i+1);
+    const t = win4[win4.length-1].t;
+    const c4 = win4.map(r=>r.c);
+    const e9=lastv(ema(c4,9)), e21=lastv(ema(c4,21)), e50=lastv(ema(c4,50));
+    const a4 = lastv(atr(win4,14));
+    const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short':'mixed');
+    if (casc==='mixed'){ i++; continue; }
+    const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
+    if (!spreadOk){ i++; continue; }
+    while (dIdx+1 < d1rows.length && d1rows[dIdx+1].t <= t) dIdx++;
+    if (dIdx < 55){ i++; continue; }
+    const d1win = d1rows.slice(0, dIdx+1);
+    const c1 = d1win.map(r=>r.c);
+    const e50d = lastv(ema(c1,50)), pd = lastv(c1);
+    const dSide = pd>e50d ? 'long':'short';
+    if (casc!==dSide){ i++; continue; }
+    const r4 = lastv(rsi(c4,14));
+    if ((casc==='long'&&r4>70)||(casc==='short'&&r4<30)){ i++; continue; }
+    const r30g = roc(c1,30), r90g = roc(c1,90);
+    if (isFinite(r30g)&&isFinite(r90g)){
+      const want = casc==='long'?1:-1;
+      const agree = (Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
+      if (agree===0){ i++; continue; }
+    }
+    const evG = cusumLast(c4.slice(-120),1);
+    if (evG && evG.barsAgo<=20 && evG.dir!==casc){ i++; continue; }
+    const stop = lastSwing(win4, casc, 30);
+    const entry = lastv(c4);
+    const risk = Math.abs(entry-stop);
+    if (!(risk>0)){ i++; continue; }
+    const recentWin = win4.slice(-120);
+    const room = casc==='long' ? Math.max(...recentWin.map(r=>r.h))-entry : entry-Math.min(...recentWin.map(r=>r.l));
+    const rrOk = risk>0 && room/risk>=2;
+    if (!rrOk){ i++; continue; }
+    const t1 = casc==='long'?entry+2*risk:entry-2*risk;
+    const t2 = casc==='long'?entry+3*risk:entry-3*risk;
+    let outcome='unresolved', resolvedAt=null, rMult=0;
+    for (let j=i+1;j<Math.min(h4rows.length,i+1+HORIZON); j++){
+      const bar=h4rows[j];
+      if (casc==='long'){
+        if (bar.l<=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+        if (bar.h>=t2){outcome='target2';resolvedAt=j;rMult=3;break;}
+        if (bar.h>=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+      } else {
+        if (bar.h>=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+        if (bar.l<=t2){outcome='target2';resolvedAt=j;rMult=3;break;}
+        if (bar.l<=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+      }
+    }
+    results.push({t, dir:casc, entry, stop, t1, t2, outcome, rMult});
+    i = (resolvedAt!==null?resolvedAt:i+HORIZON)+1;
+  }
+  return results;
+}
+
+function backtestJudasTD(d1rows, h1rows, m15rows){
+  const MIN_LOOKBACK = 150, HORIZON = 40;
+  const results = [];
+  let hIdx = 0, dIdx = 0;
+  let i = MIN_LOOKBACK;
+  while (i < m15rows.length - 1){
+    const t = m15rows[i].t;
+    const sess = sessionAt(t);
+    if (!sess.kz){ i++; continue; }
+    const day0now = dayStartOf(t);
+    while (dIdx+1 < d1rows.length && d1rows[dIdx+1].t < day0now) dIdx++;
+    if (d1rows[dIdx].t >= day0now){ i++; continue; }
+    const PDH = d1rows[dIdx].h, PDL = d1rows[dIdx].l;
+    while (hIdx+1 < h1rows.length && h1rows[hIdx+1].t <= t) hIdx++;
+    if (hIdx < 25){ i++; continue; }
+    const h1win = h1rows.slice(0, hIdx+1);
+    const e21h1arr = ema(h1win.map(r=>r.c),21);
+    const e21h1v = e21h1arr[e21h1arr.length-1];
+    const day0 = (t < day0now+7*3600) ? day0now-86400 : day0now;
+    const win15 = m15rows.slice(0, i+1);
+    const asia = win15.filter(r=> r.t>=day0 && r.t<day0+7*3600);
+    const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
+    const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
+    const c15 = win15.map(r=>r.c), n15=c15.length;
+    const lastClose = c15[n15-1];
+    const atr15arr = atr(win15,14);
+    const a15 = atr15arr[atr15arr.length-1];
+    const vbase = atr15arr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+    const aMed = vbase.length? vbase[Math.floor(vbase.length/2)] : NaN;
+    const volAlive = isFinite(a15)&&isFinite(aMed)&&a15>=0.8*aMed;
+    const look = win15.slice(-12);
+    let resolvedAt=null;
+    for (const dir of ['long','short']){
+      const lvls = dir==='long'?[['Asia low',asiaLo],['PDL',PDL]]:[['Asia high',asiaHi],['PDH',PDH]];
+      let swept=null, sweptLvl=NaN, ext=NaN;
+      for (const [nm,lv] of lvls){
+        if (!isFinite(lv)) continue;
+        if (dir==='long' && Math.min(...look.map(r=>r.l)) < lv){ swept=nm; sweptLvl=lv; ext=Math.min(...look.map(r=>r.l)); break; }
+        if (dir==='short' && Math.max(...look.map(r=>r.h)) > lv){ swept=nm; sweptLvl=lv; ext=Math.max(...look.map(r=>r.h)); break; }
+      }
+      if (!swept) continue;
+      const reclaimed = dir==='long' ? lastClose>sweptLvl : lastClose<sweptLvl;
+      if (!reclaimed) continue;
+      const htfOk = dir==='long' ? lastClose>e21h1v : lastClose<e21h1v;
+      if (!htfOk) continue;
+      if (!volAlive) continue;
+      const stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;
+      const entry = lastClose;
+      const risk = Math.abs(entry-stop);
+      if (!(risk>0)) continue;
+      const oppoCands = (dir==='long'?[asiaHi,PDH]:[asiaLo,PDL]).filter(isFinite);
+      const oppo = oppoCands.length ? (dir==='long'?Math.min(...oppoCands):Math.max(...oppoCands)) : NaN;
+      const room = dir==='long' ? oppo-entry : entry-oppo;
+      if (!(isFinite(room) && room>=2*risk)) continue;
+      const t1 = dir==='long'?entry+2*risk:entry-2*risk;
+      let outcome='unresolved', rMult=0;
+      for (let j=i+1;j<Math.min(m15rows.length,i+1+HORIZON); j++){
+        const bar=m15rows[j];
+        if (dir==='long'){
+          if (bar.l<=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+          if (bar.h>=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+        } else {
+          if (bar.h>=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+          if (bar.l<=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+        }
+      }
+      results.push({t, dir, entry, stop, t1, outcome, rMult});
+      if (resolvedAt===null) resolvedAt = i+HORIZON;
+      break;
+    }
+    i = resolvedAt!==null ? resolvedAt+1 : i+1;
+  }
+  return results;
+}
+
+function backtestSummaryHTML2(label, rows, results, note){
+  const fmtD = t => new Date(t*1000).toISOString().slice(0,10);
+  const total = results.length;
+  const wins = results.filter(r=>r.outcome==='target1'||r.outcome==='target2').length;
+  const stops = results.filter(r=>r.outcome==='stop').length;
+  const openCt = results.filter(r=>r.outcome==='unresolved').length;
+  const resolved = results.filter(r=>r.outcome!=='unresolved');
+  const winRate = total ? (wins/total*100) : NaN;
+  const avgR = resolved.length ? (resolved.reduce((a,r)=>a+r.rMult,0)/resolved.length) : NaN;
+  const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
+  const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) — treat as directional evidence, not a reliable win rate.</div>' : '';
+  return '<div class="panel"><h2>'+label+' BACKTEST <span>Twelve Data history · '+rangeNote+'</span></h2>'
+  + '<div class="note">'+note+'</div>'
+  + '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
+  + '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
+  + '<div class="kv"><span class="k">Hit stop first</span><span class="v">'+stops+'</span></div>'
+  + '<div class="kv"><span class="k">Still open at horizon end</span><span class="v">'+openCt+'</span></div>'
+  + '<div class="kv"><span class="k">Avg R (resolved trades)</span><span class="v">'+(isFinite(avgR)?avgR.toFixed(2)+'R':'n/a')+'</span></div>'
+  + smallNote + '</div>';
+}
+
+async function findTickerForBase(base){
+  const B = base.toUpperCase();
+  const dts = await loadTickersDelta();
+  let hit = dts.find(t => searchBase(t.symbol,'delta')===B);
+  if (hit) return {exch:'delta', sym:hit.symbol, fundingPct:hit.fundingPct, mark:hit.mark};
+  const cts = await loadTickersCdcx();
+  hit = cts.find(t => searchBase(t.symbol,'coindcx')===B);
+  if (hit) return {exch:'coindcx', sym:hit.symbol, fundingPct:hit.fundingPct ?? null, mark:hit.mark};
+  return null;
+}
+
+async function evalSwingSingle(sym, exch){
+  const rows = exch==='delta' ? await candlesDelta(sym,'4h',260) : await candlesCdcx(sym,'4h',260);
+  if (rows.length<210) return {error:'not enough 4H history'};
+  const c=rows.map(r=>r.c);
+  const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
+  const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20);
+  const a4=last(atr(rows,14));
+  let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : null);
+  const g=[];
+  const spreadOk = dir && isFinite(a4) && Math.abs(e21-e50)>=0.25*a4;
+  g.push(['G1','4H EMA cascade with real spread', dir&&spreadOk?'pass':'veto', dir?`${dir.toUpperCase()} · spread ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'—'}x ATR`:'no cascade']);
+  if (!dir || !spreadOk) return {gates:g, veto:true};
+  const htfOk = dir==='long'?p>e200:p<e200;
+  g.push(['G2','HTF side (200EMA)', htfOk?'pass':'veto', `price ${px(p)} vs 200EMA ${px(e200)}`]);
+  const rsiVeto = (dir==='long'&&r14>70)||(dir==='short'&&r14<30);
+  g.push(['G3','RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r14,1)}`]);
+  g.push(['G4','Funding clean','na','fetched from ticker separately']);
+  if (!(vz>0.5)){ g.push(['G5','Vol + wick commit','veto',`vol z ${fmt(vz,2)} (need >0.5)`]); return {gates:g, veto:true}; }
+  const currentBar=rows[rows.length-1]; const range=currentBar.h-currentBar.l; const closePos=range>0?(currentBar.c-currentBar.l)/range:0.5;
+  const wickOk = dir==='long'?closePos>=0.60:closePos<=0.40;
+  g.push(['G5','Vol + wick commit', wickOk?'pass':'veto', `vol z ${fmt(vz,2)} · closePos ${fmt(closePos,2)}`]);
+  if (!wickOk) return {gates:g, veto:true};
+  const stop = lastSwing(rows, dir, 30);
+  const distToAnchor = Math.abs(p-e21)/a4;
+  const risk = Math.abs(p-stop);
+  const expectedMove = a4*3.5;
+  const dynamicRR = risk>0 ? expectedMove/risk : NaN;
+  const rrOk = distToAnchor<=1.5 && risk>0 && dynamicRR>=2;
+  g.push(['G6','Structural R:R \u2265 2', rrOk?'pass':'veto', risk>0?`dyn R:R ${fmt(dynamicRR,2)} \u00b7 dist/anchor ${fmt(distToAnchor,2)}`:'no structure']);
+  if (!rrOk) return {gates:g, veto:true, entry:p, stop};
+  const ev = cusumLast(c.slice(-120),1);
+  const cusumVeto = ev && ev.barsAgo<=20 && ev.dir!==dir;
+  g.push(['G7','CUSUM event alignment', cusumVeto?'veto':'pass', ev?`${ev.dir.toUpperCase()} event ${ev.barsAgo} bars ago`:'no recent event']);
+  const veto = g.some(x=>x[2]==='veto');
+  const t2 = dir==='long'?p+a4*4.9:p-a4*4.9;
+  const t1 = dir==='long'?p+expectedMove:p-expectedMove;
+  return {gates:g, veto, dir, entry:p, stop, t1, t2};
+}
+
+async function evalScalpSingle(sym, exch, tickerFundingPct, minsToFunding){
+  const h1 = exch==='delta' ? await candlesDelta(sym,'1h',120) : await candlesCdcx(sym,'1h',120);
+  if (h1.length<60) return {error:'not enough 1H history'};
+  const c1=h1.map(r=>r.c);
+  const e9h=last(ema(c1,9)), e21h=last(ema(c1,21)), e50h=last(ema(c1,50));
+  let dir = e9h>e21h&&e21h>e50h ? 'long' : (e9h<e21h&&e21h<e50h ? 'short' : null);
+  const g=[];
+  g.push(['G1','1H trend', dir?'pass':'veto', dir?dir.toUpperCase():'no clean 1H trend']);
+  if (!dir) return {gates:g, veto:true};
+  const m15 = exch==='delta' ? await candlesDelta(sym,'15m',160) : await candlesCdcx(sym,'15m',160);
+  if (m15.length<60) return {gates:g, veto:true, error:'not enough 15m history'};
+  const c15=m15.map(r=>r.c); const n=c15.length;
+  const e9a=ema(c15,9), e21a=ema(c15,21);
+  const priorWin = m15.slice(n-24,n-7);
+  const localLow = Math.min(...priorWin.map(r=>r.l));
+  const localHigh = Math.max(...priorWin.map(r=>r.h));
+  const recentWin = m15.slice(n-7,n-1);
+  const sweptLiquidity = dir==='long' ? Math.min(...recentWin.map(r=>r.l))<localLow : Math.max(...recentWin.map(r=>r.h))>localHigh;
+  const reclaimed = dir==='long' ? (c15[n-1]>e9a[n-1]&&e9a[n-1]>e21a[n-1]) : (c15[n-1]<e9a[n-1]&&e9a[n-1]<e21a[n-1]);
+  g.push(['G2','Judas sweep + reclaim', sweptLiquidity&&reclaimed?'pass':'veto', sweptLiquidity?(reclaimed?'swept + reclaimed':'swept, not reclaimed yet'):'no sweep of local low/high']);
+  if (!(sweptLiquidity&&reclaimed)) return {gates:g, veto:true};
+  const r15 = last(rsi(c15,14));
+  const rsiOk = dir==='long'?(r15>=40&&r15<=65):(r15>=35&&r15<=60);
+  g.push(['G3','15m RSI band', rsiOk?'pass':'veto', `RSI15 ${fmt(r15,1)}`]);
+  if (!rsiOk) return {gates:g, veto:true};
+  let g4='na', g4d='funding n/a';
+  if (tickerFundingPct!=null){
+    const bad = Math.abs(tickerFundingPct)>0.05-1e-9 || (dir==='long'&&tickerFundingPct>=0.04) || (dir==='short'&&tickerFundingPct<=-0.04);
+    g4 = bad?'veto':'pass'; g4d = `${fmt(tickerFundingPct,4)}%/interval`;
+  }
+  g.push(['G4','Funding clean', g4, g4d]);
+  if (g4==='veto') return {gates:g, veto:true};
+  const settleOk = minsToFunding==null || minsToFunding>=25;
+  g.push(['G5','\u2265 25 min to funding settlement', settleOk?'pass':'veto', minsToFunding!=null?`${fmt(minsToFunding,0)}m to settle`:'n/a']);
+  if (!settleOk) return {gates:g, veto:true};
+  const atrArr=atr(m15,14); const a=last(atrArr);
+  const base=atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+  const aMed=base.length?base[Math.floor(base.length/2)]:NaN;
+  const volAlive = isFinite(a)&&isFinite(aMed)&&a>=0.8*aMed;
+  g.push(['G6','Volatility alive', volAlive?'pass':'veto', `ATR15 ${px(a)} \u00b7 med ${px(aMed)}`]);
+  if (!volAlive) return {gates:g, veto:true};
+  const entry=c15[n-1];
+  const stop = dir==='long'?localLow-0.25*a:localHigh+0.25*a;
+  const risk=Math.abs(entry-stop);
+  const expectedMove=a*2.5, maxExcursion=a*4;
+  const dynamicRR = risk>0?expectedMove/risk:NaN;
+  const rrOk = risk>0 && dynamicRR>=1.5;
+  g.push(['G7','1.5R vol-capped', rrOk?'pass':'veto', risk>0?`dyn R:R ${fmt(dynamicRR,2)}`:'no risk']);
+  const veto = g.some(x=>x[2]==='veto');
+  const t1 = dir==='long'?entry+expectedMove:entry-expectedMove;
+  const t2 = dir==='long'?entry+maxExcursion:entry-maxExcursion;
+  return {gates:g, veto, dir, entry, stop, t1, t2};
+}
+
+async function evalGoldSwing(){
+  const d1 = await getXAUCandles('1d',260);
+  const h4 = await getXAUCandles('4h',300);
+  if (d1.length<60||h4.length<210) return {error:'not enough XAUTUSD history'};
+  const c4=h4.map(r=>r.c), c1=d1.map(r=>r.c);
+  const e9=last(ema(c4,9)), e21=last(ema(c4,21)), e50=last(ema(c4,50));
+  const a4=last(atr(h4,14));
+  const e50d=last(ema(c1,50)), pd=last(c1);
+  const r4=last(rsi(c4,14));
+  const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+  const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
+  const dSide = pd>e50d ? 'long' : 'short';
+  const sg=[];
+  sg.push(['GS1','4H EMA cascade with real spread', casc!=='mixed'&&spreadOk?'pass':'veto', `9/21/50 \u2192 ${casc.toUpperCase()}`]);
+  sg.push(['GS2','1D side agrees', casc!=='mixed'&&casc===dSide?'pass':'veto', `1D \u2192 ${dSide.toUpperCase()}`]);
+  const rsiVeto=(casc==='long'&&r4>70)||(casc==='short'&&r4<30);
+  sg.push(['GS3','4H RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r4,1)}`]);
+  sg.push(['GS4','Funding clean','na','funding n/a on this feed']);
+  const r30g=roc(c1,30), r90g=roc(c1,90);
+  let gs5='na';
+  if (casc!=='mixed' && isFinite(r30g) && isFinite(r90g)){
+    const want=casc==='long'?1:-1;
+    const agree=(Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
+    gs5 = agree===2?'pass':agree===0?'veto':'na';
+  }
+  sg.push(['GS5','TSMOM 30/90d sign', gs5, `30d ${pct(r30g,1)} \u00b7 90d ${pct(r90g,1)}`]);
+  const evG = cusumLast(c4.slice(-120), 1);
+  let gs6='na';
+  if (evG && evG.barsAgo<=20 && casc!=='mixed') gs6 = evG.dir===casc?'pass':'veto';
+  sg.push(['GS6','CUSUM event alignment', gs6, evG?`${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago`:'no recent event']);
+  let entry=null, stop=null, t1=null, t2=null;
+  if (casc!=='mixed'){
+    stop=lastSwing(h4,casc,30); entry=last(c4);
+    const risk=Math.abs(entry-stop);
+    const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
+    const rrOk = risk>0 && room/risk>=2;
+    sg.push(['GS7','Structural R:R \u2265 2', rrOk?'pass':'veto', risk>0?`${fmt(room/risk,2)}R room`:'no structure']);
+    if(rrOk){ t1=casc==='long'?entry+2*risk:entry-2*risk; t2=casc==='long'?entry+3*risk:entry-3*risk; }
+  } else {
+    sg.push(['GS7','Structural R:R \u2265 2','na','no direction']);
+  }
+  const veto = sg.some(x=>x[2]==='veto');
+  return {gates:sg, veto, dir:casc!=='mixed'?casc:null, entry, stop, t1, t2};
+}
+
+function renderStrategy(label, result){
+  if (result.error) return `<div class="panel"><h2>${label}</h2><div class="note warn">${result.error}</div></div>`;
+  const ledger = result.gates.map(g=>gateRow(...g)).join('');
+  const verdict = result.veto ? 'NO TRADE' : (result.dir ? result.dir.toUpperCase()+' VALID' : 'STAND ASIDE');
+  const planHtml = (!result.veto && result.dir && result.entry!=null && result.stop!=null && result.t1!=null)
+    ? `<div class="plan">${planBlock(result.dir, result.entry, result.stop, result.t1, result.t2||result.t1)}</div>`
+    : '';
+  return `<div class="panel"><h2>${label}</h2><div class="ledger">${ledger}</div><div class="verdict ${result.veto?'aside':(result.dir||'aside')}"><div class="vword">${verdict}</div></div>${planHtml}</div>`;
+}
+
+function finderTypeChanged(){
+  const type = document.getElementById('finderType').value;
+  document.getElementById('finderSymWrap').style.display = type==='crypto' ? '' : 'none';
+}
+
+async function runFinder(){
+  const type = document.getElementById('finderType').value;
+  const out = document.getElementById('finderOut');
+  const stat = document.getElementById('finderStat');
+  out.innerHTML=''; stat.textContent='evaluating\u2026';
+  try{
+    if (type==='gold'){
+      const swing = await evalGoldSwing();
+      const d1=await getXAUCandles('1d',60), h1=await getXAUCandles('1h',200), m15=await getXAUCandles('15m',200);
+      const jl = judasSweepCheck('long', d1, h1, m15);
+      const js = judasSweepCheck('short', d1, h1, m15);
+      out.innerHTML = renderStrategy('GOLD SWING', swing) + renderStrategy('JUDAS SWEEP \u2014 LONG', jl) + renderStrategy('JUDAS SWEEP \u2014 SHORT', js)
+        + `<div class="row"><button class="btn" onclick="runFinderGoldBacktest()">RUN BACKTEST CONTEXT</button></div><div id="finderBacktestOut"></div>`;
+      stat.textContent = 'evaluated \u00b7 ' + new Date().toTimeString().slice(0,8);
+    } else {
+      const base = document.getElementById('finderSym').value.trim().toUpperCase();
+      if (!base){ stat.textContent='enter a symbol'; return; }
+      const t = await findTickerForBase(base);
+      if (!t){ out.innerHTML = '<div class="note warn">No match for "'+base+'" on Delta India or CoinDCX futures.</div>'; stat.textContent=''; return; }
+      const mins = tickClock();
+      const swing = await evalSwingSingle(t.sym, t.exch);
+      const scalp = await evalScalpSingle(t.sym, t.exch, t.fundingPct, mins);
+      const d1 = t.exch==='delta'?await candlesDelta(t.sym,'1d',60):await candlesCdcx(t.sym,'1d',60);
+      const h1 = t.exch==='delta'?await candlesDelta(t.sym,'1h',200):await candlesCdcx(t.sym,'1h',200);
+      const m15 = t.exch==='delta'?await candlesDelta(t.sym,'15m',200):await candlesCdcx(t.sym,'15m',200);
+      const jl = judasSweepCheck('long', d1, h1, m15);
+      const js = judasSweepCheck('short', d1, h1, m15);
+      out.innerHTML = `<div class="note">${t.sym} \u00b7 ${t.exch==='delta'?'Delta India':'CoinDCX'} \u00b7 mark ${px(t.mark)}</div>`
+        + renderStrategy('SWING', swing) + renderStrategy('SCALP', scalp) + renderStrategy('JUDAS SWEEP \u2014 LONG', jl) + renderStrategy('JUDAS SWEEP \u2014 SHORT', js)
+        + `<div class="row"><button class="btn" onclick="runFinderCryptoBacktest('${base}')">RUN BACKTEST CONTEXT</button></div><div id="finderBacktestOut"></div>`;
+      stat.textContent = 'evaluated \u00b7 closed bars only \u00b7 ' + new Date().toTimeString().slice(0,8);
+    }
+  }catch(e){
+    stat.textContent = 'evaluation failed: ' + e.message;
+  }
+}
+
+async function runFinderGoldBacktest(){
+  const out = document.getElementById('finderBacktestOut');
+  out.innerHTML = 'running backtest\u2026';
+  try{
+    const d1 = await getXAUCandles('1d',4990);
+    const h4 = await getXAUCandles('4h',4990);
+    const h1 = await getXAUCandles('1h',3000);
+    const m15 = await getXAUCandles('15m',5000);
+    const swingRes = backtestGoldSwingTD(d1, h4);
+    const judasRes = backtestJudasTD(d1, h1, m15);
+    out.innerHTML = backtestSummaryHTML2('GOLD SWING', h4, swingRes, "Replays this app's own gold SWING gates (GS1-GS7) bar-by-bar on real Twelve Data 4H history.")
+      + backtestSummaryHTML2('GOLD JUDAS SWEEP', m15, judasRes, "Replays the kill-zone liquidity-sweep-and-reclaim gates (JS1-JS6) bar-by-bar on real Twelve Data 15m history.");
+  }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
+}
+
+async function runFinderCryptoBacktest(base){
+  const out = document.getElementById('finderBacktestOut');
+  out.innerHTML = 'running backtest\u2026';
+  try{
+    const h1 = await getCryptoCandlesTD(base,'1h',3000);
+    const m15 = await getCryptoCandlesTD(base,'15m',5000);
+    const d1 = await getCryptoCandlesTD(base,'1d',300);
+    const c4rows = await getCryptoCandlesTD(base,'4h',5000);
+    const swingRes = backtestSwingTD(c4rows);
+    const scalpRes = backtestScalpTD(h1, m15);
+    const judasRes = backtestJudasTD(d1, h1, m15);
+    out.innerHTML = backtestSummaryHTML2(base+' SWING', c4rows, swingRes, "Replays this app's SWING gates bar-by-bar. Funding and volume-z gates excluded (Twelve Data doesn't provide historical funding or reliable crypto volume).")
+      + backtestSummaryHTML2(base+' SCALP', m15, scalpRes, "Replays this app's SCALP gates (1H trend, sweep+reclaim, RSI band, funding-window timing, ATR vol-alive, wick commit, R:R) bar-by-bar. Funding rate and volume-z excluded for the same data-availability reason.")
+      + backtestSummaryHTML2(base+' JUDAS SWEEP', m15, judasRes, "Replays the kill-zone liquidity-sweep-and-reclaim gates bar-by-bar.");
+  }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
+}
+
+async function runScalpBacktestUI(){
+  const inp = document.getElementById('scalpBtSym');
+  const btn = document.getElementById('scalpBtRun');
+  const out = document.getElementById('scalpBtOut');
+  const base = (inp.value||'').trim().toUpperCase();
+  if (!base){ out.innerHTML = '<div class="note warn">Enter a symbol.</div>'; return; }
+  btn.disabled = true; out.innerHTML = 'running backtest\u2026';
+  try{
+    const h1 = await getCryptoCandlesTD(base,'1h',3000);
+    const m15 = await getCryptoCandlesTD(base,'15m',5000);
+    if (m15.length<100){ out.innerHTML = '<div class="note warn">Twelve Data has only '+m15.length+' 15m bars for '+base+' \u2014 not enough history.</div>'; return; }
+    const res = backtestScalpTD(h1, m15);
+    out.innerHTML = backtestSummaryHTML2(base+' SCALP', m15, res, "Replays this app's own SCALP gates (1H trend, sweep+reclaim, RSI band, funding-window timing, ATR vol-alive, wick commit, R:R) bar-by-bar on real Twelve Data history. Funding rate and volume-z are excluded \u2014 Twelve Data doesn't provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here.");
+  }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
+  finally{ btn.disabled = false; }
+}
+
+async function runGoldBacktest(){
+  const btn = document.getElementById('goldBtRun');
+  const out = document.getElementById('goldBtOut');
+  btn.disabled = true; out.innerHTML = 'running backtest\u2026';
+  try{
+    const d1 = await getXAUCandles('1d',4990);
+    const h4 = await getXAUCandles('4h',4990);
+    const h1 = await getXAUCandles('1h',3000);
+    const m15 = await getXAUCandles('15m',5000);
+    const swingRes = backtestGoldSwingTD(d1, h4);
+    const judasRes = backtestJudasTD(d1, h1, m15);
+    out.innerHTML = backtestSummaryHTML2('GOLD SWING', h4, swingRes, "Replays this app's own gold SWING gates (GS1\u2013GS7) bar-by-bar on real Twelve Data 4H history.")
+      + backtestSummaryHTML2('GOLD JUDAS SWEEP', m15, judasRes, "Replays the kill-zone liquidity-sweep-and-reclaim gates (JS1\u2013JS6) bar-by-bar on real Twelve Data 15m history \u2014 the same sweep-and-reclaim pattern gold's live SCALP ledger already trades.");
+  }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
+  finally{ btn.disabled = false; }
+}
+
+async function marketPictureCheck(){
+  const assets = [['BTC','BTCUSD'],['ETH','ETHUSD'],['SOL','SOLUSD']];
+  let longs=0, shorts=0, mixed=0; const detail=[];
+  for (const [label, sym] of assets){
+    try{
+      const rows = await candlesDelta(sym, '4h', 260);
+      const c = rows.map(r=>r.c);
+      const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50));
+      let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+      if (dir==='long') longs++; else if (dir==='short') shorts++; else mixed++;
+      detail.push(label+':'+dir);
+    }catch(e){ mixed++; detail.push(label+':err'); }
+  }
+  try{
+    const g = await getXAUCandles('4h',300);
+    const c = g.map(r=>r.c);
+    const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50));
+    let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+    if (dir==='long') longs++; else if (dir==='short') shorts++; else mixed++;
+    detail.push('GOLD:'+dir);
+  }catch(e){ mixed++; detail.push('GOLD:err'); }
+  const total = longs+shorts+mixed;
+  let verdict;
+  if (longs>shorts && longs>=Math.ceil(total/2)+1) verdict='LONG-LEANING';
+  else if (shorts>longs && shorts>=Math.ceil(total/2)+1) verdict='SHORT-LEANING';
+  else verdict='MIXED — no clear lean';
+  return {verdict, longs, shorts, mixed, total, detail};
+}
+
+async function runMarketPictureUI(){
+  const el = document.getElementById('mpVerdict');
+  const detailEl = document.getElementById('mpDetail');
+  if (el) el.textContent = 'checking\u2026';
+  try{
+    const r = await marketPictureCheck();
+    if (el) el.textContent = r.verdict;
+    if (detailEl) detailEl.textContent = '(' + r.detail.join(' \u00b7 ') + ' \u2014 4H EMA cascade breadth across BTC/ETH/SOL/GOLD, informational only, not a trade signal)';
+  }catch(e){
+    if (el) el.textContent = 'unavailable';
+  }
+}
+
+async function hardRefreshAll(){
+  const btn = document.getElementById('hardRefreshBtn');
+  const chip = document.getElementById('hardRefreshStat');
+  if (btn) btn.disabled = true;
+  const tasks = [
+    ['MARKET PICTURE', function(){ return runMarketPictureUI(); }],
+    ['BIAS', function(){ return runBias(); }],
+    ['SWING', function(){ return runScan('swing'); }],
+    ['SCALP', function(){ return runScan('scalp'); }],
+    ['GOLD', function(){ return runGold(); }],
+    ['BEST', function(){ return runBest(); }],
+    ['COIL', function(){ return runCoilScan(); }],
+    ['APEX', function(){ return runApexScan(); }],
+    ['TRAP', function(){ return runTrapScan(); }],
+    ['SMC', function(){ return runSmcScan(); }],
+    ['OB', function(){ return runObScan(); }],
+    ['DIV', function(){ return runDivScan(); }],
+    ['BASIS', function(){ return runBasisScan(); }],
+  ];
+  for (const pair of tasks){
+    const name = pair[0], fn = pair[1];
+    if (chip) chip.textContent = 'refreshing ' + name + '\u2026';
+    try{ await fn(); }catch(e){ console.warn(name+' refresh failed', e); }
+  }
+  if (chip) chip.textContent = 'all tabs refreshed \u00b7 ' + new Date().toTimeString().slice(0,8);
+  if (btn) btn.disabled = false;
+}
+
+runMarketPictureUI();
 </script>
 </body>
 </html>
