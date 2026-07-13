@@ -1,4 +1,4 @@
 {
-  "delta": null,
-  "coindcx": "B-OPEN_USDT|short"
+  "delta": "BIOUSD|short",
+  "coindcx": "B-GTC_USDT|short"
 }
