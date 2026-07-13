@@ -1220,73 +1220,88 @@ async function runApexScan(){
   }
 }
 async function runTrapScan(){
-  const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty'); const statEl=$('trapStat');
-  btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
-  try{
-    if (!S.tickers.length) S.tickers=await getTickers();
-    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=300000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
-    let found=0;
-    for (let i=0;i<uni.length;i++){
-      const t=uni[i];
-      setProg('trapProg',(i+1)/uni.length);
-      statEl.textContent = `hunting ${i+1}/${uni.length} · ${t.symbol}`;
-      try{
-        const rows=await getCandles(t.symbol,'15m',100);
-        if (rows.length<50) continue;
-        const c=rows.map(r=>r.c);
-        const p=c[c.length-1];
-        const currentBar=rows[rows.length-1];
+const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty'); const statEl=$('trapStat');
+btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+try{
+if (!S.tickers.length) S.tickers=await getTickers();
+const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=300000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+let found=0;
+for (let i=0;i<uni.length;i++){
+const t=uni[i];
+setProg('trapProg',(i+1)/uni.length);
+statEl.textContent = `hunting ${i+1}/${uni.length} \u00b7 ${t.symbol}`;
+try{
+const rows=await getCandles(t.symbol,'15m',100);
+if (rows.length<50) continue;
+const c=rows.map(r=>r.c);
+const p=c[c.length-1];
 
-        const a14=last(atr(rows,14));
-        const atrPct=(a14/p)*100;
-        const outerSD=Math.min(4.5, Math.max(2.5, 3.0+(atrPct-0.5)*0.6));
-        const innerSD=Math.min(3.0, Math.max(1.8, 2.0+(atrPct-0.5)*0.3));
+const a14=last(atr(rows,14));
+const atrPct=(a14/p)*100;
+const outerSD=Math.min(4.5, Math.max(2.5, 3.0+(atrPct-0.5)*0.6));
+const innerSD=Math.min(3.0, Math.max(1.8, 2.0+(atrPct-0.5)*0.3));
 
-        const bbOuter=bollinger(c,20,outerSD);
-        const bbInner=bollinger(c,20,innerSD);
-        const e20=bbInner.mid[c.length-1];
-        const r14=last(rsi(c,14));
+const bbOuter=bollinger(c,20,outerSD);
+const bbInner=bollinger(c,20,innerSD);
+const e20=bbInner.mid[c.length-1];
+const rNow=last(rsi(c,14));
 
-        const lOuter=bbOuter.lower[c.length-1];
-        const lInner=bbInner.lower[c.length-1];
-        const uOuter=bbOuter.upper[c.length-1];
-        const uInner=bbInner.upper[c.length-1];
+const lOuter=bbOuter.lower[c.length-1];
+const lInner=bbInner.lower[c.length-1];
+const uOuter=bbOuter.upper[c.length-1];
+const uInner=bbInner.upper[c.length-1];
 
-        let dir=null, stop=NaN;
-        if (currentBar.l<lOuter && p>lInner && r14<35){
-          dir='long'; stop=currentBar.l-(currentBar.l*0.001);
-        } else if (currentBar.h>uOuter && p<uInner && r14>65){
-          dir='short'; stop=currentBar.h+(currentBar.h*0.001);
-        }
-        if (!dir) continue;
+// Sweep can happen on any of the last 4 bars (not just this instant) - the reclaim
+// (close back inside the inner band) is what confirms it right now. Momentum
+// exhaustion (RSI) is checked AT THE SWEEP BAR itself, not after price has
+// already partly recovered - by the time of reclaim RSI has typically normalized.
+const N=4;
+let sweptLowAt=-1, sweptHighAt=-1;
+for (let k=Math.max(0,rows.length-N); k<rows.length; k++){
+if (rows[k].l<lOuter) sweptLowAt=k;
+if (rows[k].h>uOuter) sweptHighAt=k;
+}
+const reclaimLong = sweptLowAt>=0 && p>lInner;
+const reclaimShort = sweptHighAt>=0 && p<uInner;
 
-        const risk=Math.abs(p-stop);
-        if (!(risk>0)) continue;
-        const t1=e20;
-        const room=Math.abs(t1-p);
-        const rr=room/risk;
-        if (rr<1.5) continue;
+let dir=null, stop=NaN, rsiAtSweep=null;
+if (reclaimLong){
+const rAtSweep = last(rsi(c.slice(0,sweptLowAt+1),14));
+if (rAtSweep<35){ dir='long'; stop=rows[sweptLowAt].l-(rows[sweptLowAt].l*0.001); rsiAtSweep=rAtSweep; }
+}
+if (!dir && reclaimShort){
+const rAtSweep = last(rsi(c.slice(0,sweptHighAt+1),14));
+if (rAtSweep>65){ dir='short'; stop=rows[sweptHighAt].h+(rows[sweptHighAt].h*0.001); rsiAtSweep=rAtSweep; }
+}
+if (!dir) continue;
 
-        found++;
-        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir,
-          [['mark',px(p)],['RSI',fmt(r14,1)],['vol (ATR%)',fmt(atrPct,2)+'%'],
-           [fmt(outerSD,1)+' SD pierced', dir==='long'?px(lOuter):px(uOuter)],
-           [fmt(innerSD,1)+' SD reclaimed', dir==='long'?px(lInner):px(uInner)],
-           ['target (mean)',px(t1)]],
-          ['G1 '+fmt(outerSD,1)+' SD extreme','G2 reclaimed '+fmt(innerSD,1)+' SD','G3 momentum exhausted'],
-          `Dynamic mean reversion: bands auto-scaled to ${fmt(outerSD,1)} SD based on this asset's volatility. Stop goes tight behind the wick at ${px(stop)}. Target the mean at ${px(t1)}.`,
-          p, stop, t1));
-      }catch(e){}
-      await sleep(100);
-    }
-    statEl.textContent = `done — ${found} traps found`;
-    if (!found) emptyEl.style.display='block';
-  }catch(e){
-    statEl.textContent = `trap scan failed: ${e.message}`;
-  }finally{
-    setProg('trapProg', null);
-    btn.disabled=false;
-  }
+const risk=Math.abs(p-stop);
+if (!(risk>0)) continue;
+const t1=e20;
+const room=Math.abs(t1-p);
+const rr=room/risk;
+if (rr<1.5) continue;
+
+found++;
+cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir,
+[['mark',px(p)],['RSI now',fmt(rNow,1)],['RSI at sweep',fmt(rsiAtSweep,1)],['vol (ATR%)',fmt(atrPct,2)+'%'],
+[fmt(outerSD,1)+' SD swept ('+(rows.length-1-(dir==='long'?sweptLowAt:sweptHighAt))+'b ago)', dir==='long'?px(rows[sweptLowAt].l):px(rows[sweptHighAt].h)],
+[fmt(innerSD,1)+' SD reclaimed now', dir==='long'?px(lInner):px(uInner)],
+['target (mean)',px(t1)]],
+['G1 '+fmt(outerSD,1)+' SD extreme','G2 reclaimed '+fmt(innerSD,1)+' SD','G3 momentum exhausted at sweep'],
+`Dynamic mean reversion: bands auto-scaled to ${fmt(outerSD,1)} SD based on this asset's volatility. Momentum exhaustion (RSI ${fmt(rsiAtSweep,1)}) is read at the moment of the extreme wick, not after price already reclaimed. Stop goes tight behind the wick at ${px(stop)}. Target the mean at ${px(t1)}.`,
+p, stop, t1));
+}catch(e){}
+await sleep(100);
+}
+statEl.textContent = `done \u2014 ${found} traps found`;
+if (!found) emptyEl.style.display='block';
+}catch(e){
+statEl.textContent = `trap scan failed: ${e.message}`;
+}finally{
+setProg('trapProg', null);
+btn.disabled=false;
+}
 }
 async function runSmcScan(){
   const btn = $('smcRun'); const cardsEl = $('smcCards'); const emptyEl = $('smcEmpty'); const statEl = $('smcStat');
