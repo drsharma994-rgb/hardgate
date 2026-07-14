@@ -772,7 +772,7 @@ async function setExchange(x){
 }
 async function runCoilScan(){
   const btn=$('coilRun'); const cardsEl=$('coilCards'); const emptyEl=$('coilEmpty'); const statEl=$('coilStat');
-  btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+  btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
   try{
     if (!S.tickers.length) S.tickers=await getTickers();
     const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
@@ -802,7 +802,7 @@ async function runCoilScan(){
         const coilLow=Math.min(...recentRows.map(r=>r.l));
         found++;
         coilList.push({symbol: t.symbol, dir: "long", coilLow: coilLow, coilHigh: coilHigh});
-        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol,'long',
+        __cardsHtml.push(cardHTML(t.symbol,'long',
           [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'—'],
            ['BB width',fmt(currentWidth,2)+'% (avg '+fmt(avgWidth,2)+'%)'],['vol z',fmt(vz,2)],
            ['coil low',px(coilLow)],['coil high',px(coilHigh)]],
@@ -818,6 +818,7 @@ async function runCoilScan(){
   }catch(e){
     statEl.textContent=`coil scan failed: ${e.message}`;
   }finally{
+cardsEl.innerHTML = __cardsHtml.join('');
     setProg('coilProg', null);
     btn.disabled=false;
   }
@@ -830,7 +831,7 @@ function saveCoilWatch(list){ try{ localStorage.setItem(COILWATCH_KEY, JSON.stri
 function loadCoilWatch(){ try{ return JSON.parse(localStorage.getItem(COILWATCH_KEY)||"null"); }catch(e){ return null; } }
 async function runExpansionCheck(){
   const btn=$("expRun"); const cardsEl=$("expCards"); const emptyEl=$("expEmpty"); const statEl=$("expStat");
-  btn.disabled=true; cardsEl.innerHTML=""; emptyEl.style.display="none";
+  btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
     const watch = loadCoilWatch();
     if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist — run FIND COILS first"; return; }
@@ -854,7 +855,7 @@ async function runExpansionCheck(){
         if (!(risk>0)) continue;
         const t1 = entry + 2*risk;
         const t2 = entry + 3*risk;
-        cardsEl.insertAdjacentHTML("beforeend", cardHTML(w.symbol,"long",
+        __cardsHtml.push(cardHTML(w.symbol,"long",
           [["mark",px(entry)],["coil high",px(w.coilHigh)],["coil low",px(w.coilLow)],["vol z",fmt(vz,2)],["watch age",fmt((nowSec()-watch.at)/3600,1)+"h"]],
           ["G1 was on coil watchlist","G2 closed above range","G3 vol z>2"],
           planBlock("long",entry,stop,t1,t2), entry, stop, t1));
@@ -865,11 +866,12 @@ async function runExpansionCheck(){
     statEl.textContent = "done — "+found+" expansions triggered";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "expansion check failed: "+e.message; }
-  finally{ setProg("expProg", null); btn.disabled=false; }
+  finally{
+cardsEl.innerHTML = __cardsHtml.join(''); setProg("expProg", null); btn.disabled=false; }
 }
 async function runDivScan(){
   const btn=$("divRun"); const cardsEl=$("divCards"); const emptyEl=$("divEmpty"); const statEl=$("divStat");
-  btn.disabled=true; cardsEl.innerHTML=""; emptyEl.style.display="none";
+  btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
     const uni = S.exchange==="delta" ? S.tickers.filter(function(t){ return t.turnoverUsd>=500000; }).sort(function(a,b){ return b.turnoverUsd-a.turnoverUsd; }) : S.tickers.slice();
@@ -926,7 +928,7 @@ async function runDivScan(){
         if (!(rr>=2)) continue;
         found++;
         const reg = detectRegime(rows);
-        cardsEl.insertAdjacentHTML("beforeend", cardHTML(t.symbol, dir,
+        __cardsHtml.push(cardHTML(t.symbol, dir,
           [["mark",px(t.mark||p)],["type",kindLabel],["RSI 4H",fmt(rv[n-1],1)],["span",(pivB.i-pivA.i)+" bars"],
            ["funding", t.fundingPct!==null?fmt(t.fundingPct,4)+"%":"n/a"],["regime",reg.label]],
           ["G1 pivot structure","G2 span>=10 bars","G3 funding","G4 no opposing CUSUM","G5 R:R>=2"],
@@ -938,11 +940,12 @@ async function runDivScan(){
     statEl.textContent = "done — "+found+" divergences found";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "divergence scan failed: "+e.message; }
-  finally{ setProg("divProg", null); btn.disabled=false; }
+  finally{
+cardsEl.innerHTML = __cardsHtml.join(''); setProg("divProg", null); btn.disabled=false; }
 }
 async function runBasisScan(){
   const btn=$("basisRun"); const cardsEl=$("basisCards"); const emptyEl=$("basisEmpty"); const statEl=$("basisStat");
-  btn.disabled=true; cardsEl.innerHTML=""; emptyEl.style.display="none";
+  btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
     statEl.textContent = "loading Delta India + CoinDCX symbol lists…";
     const res = await Promise.all([ loadTickersDelta().catch(function(){return [];}), loadTickersCdcx().catch(function(){return [];}) ]);
@@ -969,7 +972,7 @@ async function runBasisScan(){
         const nomStop = dir==="long" ? dT.mark*0.995 : dT.mark*1.005;
         const nomT1 = dir==="long" ? dT.mark*1.01 : dT.mark*0.99;
         const planTxt = "Informational only — not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage — it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
-        cardsEl.insertAdjacentHTML("beforeend", cardHTML(b, dir,
+        __cardsHtml.push(cardHTML(b, dir,
           [["Delta mark",px(dT.mark)],["CoinDCX px",px(cPrice)],["basis",fmt(basisPct,3)+"%"],["delta funding", dT.fundingPct!==null?fmt(dT.fundingPct,4)+"%":"n/a"]],
           ["G1 base asset on both venues","G2 |basis|>=0.15%"],
           planTxt, dT.mark, nomStop, nomT1));
@@ -979,12 +982,13 @@ async function runBasisScan(){
     statEl.textContent = "done — "+found+" basis gaps found";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "basis scan failed: "+e.message; }
-  finally{ setProg("basisProg", null); btn.disabled=false; }
+  finally{
+cardsEl.innerHTML = __cardsHtml.join(''); setProg("basisProg", null); btn.disabled=false; }
 }
 
 async function runApexScan(){
   const btn=$('apexRun'); const cardsEl=$('apexCards'); const emptyEl=$('apexEmpty'); const statEl=$('apexStat');
-  btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+  btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
   try{
     if (!S.tickers.length) S.tickers=await getTickers();
     const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT';
@@ -1021,7 +1025,7 @@ async function runApexScan(){
     }
     results.sort((a,b)=>b.spread24-a.spread24);
     results.forEach(r=>{
-      cardsEl.insertAdjacentHTML('beforeend', cardHTML(r.sym,'long',
+      __cardsHtml.push(cardHTML(r.sym,'long',
         [['mark',px(r.mark)],['BTC 24h',pct(btcRet24,2)],['asset 24h',pct(r.ret24,2)],['RS spread',pct(r.spread24,2)],['Nearest OB',nearestOBText(r.rows,'long')],['Liquidity Target',liquidityTargetText(r.rows,'long')]],
         ['G1 BTC headwind','G2 spread ≥5%','G3 1H EMA50 intact'],
         `MANUAL TRIGGER: do not buy yet. Pull up a 15m chart of BTC. The exact minute BTC prints a bullish reclaim or sweeps a local low, buy this asset.`,
@@ -1032,13 +1036,14 @@ async function runApexScan(){
   }catch(e){
     statEl.textContent = `apex scan failed: ${e.message}`;
   }finally{
+cardsEl.innerHTML = __cardsHtml.join('');
     setProg('apexProg', null);
     btn.disabled=false;
   }
 }
 async function runTrapScan(){
 const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty'); const statEl=$('trapStat');
-btn.disabled=true; cardsEl.innerHTML=''; emptyEl.style.display='none';
+btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
 try{
 if (!S.tickers.length) S.tickers=await getTickers();
 const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=300000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
@@ -1100,7 +1105,7 @@ const rr=room/risk;
 if (rr<1.5) continue;
 
 found++;
-cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir,
+__cardsHtml.push(cardHTML(t.symbol, dir,
 [['mark',px(p)],['RSI now',fmt(rNow,1)],['RSI at sweep',fmt(rsiAtSweep,1)],['vol (ATR%)',fmt(atrPct,2)+'%'],
 [fmt(outerSD,1)+' SD swept ('+(rows.length-1-(dir==='long'?sweptLowAt:sweptHighAt))+'b ago)', dir==='long'?px(rows[sweptLowAt].l):px(rows[sweptHighAt].h)],
 [fmt(innerSD,1)+' SD reclaimed now', dir==='long'?px(lInner):px(uInner)],
@@ -1116,13 +1121,14 @@ if (!found) emptyEl.style.display='block';
 }catch(e){
 statEl.textContent = `trap scan failed: ${e.message}`;
 }finally{
+cardsEl.innerHTML = __cardsHtml.join('');
 setProg('trapProg', null);
 btn.disabled=false;
 }
 }
 async function runSmcScan(){
   const btn = $('smcRun'); const cardsEl = $('smcCards'); const emptyEl = $('smcEmpty'); const statEl = $('smcStat');
-  btn.disabled = true; cardsEl.innerHTML = ''; emptyEl.style.display = 'none';
+  btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
     let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
@@ -1164,7 +1170,7 @@ async function runSmcScan(){
         found++;
         const stop = dir === 'long' ? fvg.bottom - (fvg.bottom*0.002) : fvg.top + (fvg.top*0.002);
         const t1 = dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l));
-        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [
+        __cardsHtml.push(cardHTML(t.symbol, dir, [
           ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
           ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
           ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
@@ -1178,13 +1184,14 @@ async function runSmcScan(){
   } catch(e){
     statEl.textContent = `smc scan failed: ${e.message}`;
   } finally {
+cardsEl.innerHTML = __cardsHtml.join('');
     setProg('smcProg', null);
     btn.disabled = false;
   }
 }
 async function runObScan(){
   const btn = $('obRun'); const cardsEl = $('obCards'); const emptyEl = $('obEmpty'); const statEl = $('obStat');
-  btn.disabled = true; cardsEl.innerHTML = ''; emptyEl.style.display = 'none';
+  btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
     let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
@@ -1212,7 +1219,7 @@ async function runObScan(){
         const target = dir === 'long' ? lp.buySide : lp.sellSide;
         const stop = dir === 'long' ? ob.bottom - (ob.bottom*0.002) : ob.top + (ob.top*0.002);
         const t1 = target ? target.level : (dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l)));
-        cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [
+        __cardsHtml.push(cardHTML(t.symbol, dir, [
           ['mark', px(p)], ['OB Age', `${ob.age} bars (4H)`],
           ['OB Top', px(ob.top)], ['OB Bottom', px(ob.bottom)],
           ['Struct Stop', px(stop)], ['Liquidity Target', target ? `${px(target.level)} (x${target.count})` : px(t1)]
@@ -1226,6 +1233,7 @@ async function runObScan(){
   } catch(e){
     statEl.textContent = `order block scan failed: ${e.message}`;
   } finally {
+cardsEl.innerHTML = __cardsHtml.join('');
     setProg('obProg', null);
     btn.disabled = false;
   }
