@@ -1045,7 +1045,7 @@ const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty
 btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
 try{
 if (!S.tickers.length) S.tickers=await getTickers();
-const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=50000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+if (S.alertBusy){ while(S.alertBusy) await sleep(200); } const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=50000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
 let found=0;
 for (let i=0;i<uni.length;i++){
 const t=uni[i];
@@ -1130,7 +1130,7 @@ async function runSmcScan(){
   btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
-    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 100000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    if (S.alertBusy){ while(S.alertBusy) await sleep(200); } let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 100000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
     let found = 0;
     for (let i = 0; i < uni.length; i++){
@@ -1193,7 +1193,7 @@ async function runObScan(){
   btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
-    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 100000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    if (S.alertBusy){ while(S.alertBusy) await sleep(200); } let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 100000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
     let found = 0;
     for (let i = 0; i < uni.length; i++){
