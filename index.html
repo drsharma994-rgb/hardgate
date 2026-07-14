@@ -1419,8 +1419,8 @@ function planTrade(){
   const qty = riskUsd/riskUnit;
   const notional = qty*entry;
   const stopDist = riskUnit/entry;
-  const targetClearance = 1.5;
-  let optimalLev = Math.floor(1/(stopDist*targetClearance+mmr));
+  const targetClearance = 2.0;
+  let optimalLev = Math.floor(notional/eq);
   optimalLev = Math.max(1, Math.min(100, optimalLev));
   $('tLev').value = optimalLev;
   const lev = optimalLev;
@@ -1434,8 +1434,8 @@ function planTrade(){
   const g=[];
   g.push(['P1','Stop on the correct side of entry', dirOk?'pass':'veto', dirOk?'':'stop must be '+(side==='long'?'below':'above')+' entry']);
   g.push(['P2','R:R ≥ 2 to T1', rr>=2?'pass':'veto', `${fmt(rr,2)}R to T1 ${px(t1)} — never move the stop to fix this; move the trade`]);
-  g.push(['P3','Liquidation clearance auto-scaled (>= 1.5x stop)', clearance>=1.45?'pass':'veto',
-    `liq ≈ ${px(liq)} · leverage auto-set to ${lev}x to yield ${fmt(clearance,2)}× stop clearance`]);
+  g.push(['P3','Liquidation clearance (>= 2.0x stop, leverage set by position size)', clearance>=1.95?'pass':'veto',
+    `liq ≈ ${px(liq)} · leverage ${lev}x (set by position size/equity) yields ${fmt(clearance,2)}× stop clearance`]);
   g.push(['P4','Margin sanity (margin ≤ 25% equity)', margin<=eq*0.25?'pass':'veto', `margin $${fmt(margin,2)} of $${fmt(eq,2)}`]);
   const checksDone = [...document.querySelectorAll('#tCheck .ck')].every(c=>c.checked);
   g.push(['P5','Discipline checklist complete', checksDone?'pass':'veto', checksDone?'':'tick every box on the left — SKYAI/HYPE/GOAT were checklist failures, not signal failures']);
