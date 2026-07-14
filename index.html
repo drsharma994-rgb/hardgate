@@ -1046,7 +1046,7 @@ const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty
 btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
 try{
 if (!S.tickers.length) S.tickers=await getTickers();
-const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=300000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=100000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
 let found=0;
 for (let i=0;i<uni.length;i++){
 const t=uni[i];
@@ -1077,7 +1077,7 @@ const uInner=bbInner.upper[c.length-1];
 // (close back inside the inner band) is what confirms it right now. Momentum
 // exhaustion (RSI) is checked AT THE SWEEP BAR itself, not after price has
 // already partly recovered - by the time of reclaim RSI has typically normalized.
-const N=4;
+const N=8;
 let sweptLowAt=-1, sweptHighAt=-1;
 for (let k=Math.max(0,rows.length-N); k<rows.length; k++){
 if (rows[k].l<lOuter) sweptLowAt=k;
@@ -1089,11 +1089,11 @@ const reclaimShort = sweptHighAt>=0 && p<uInner;
 let dir=null, stop=NaN, rsiAtSweep=null;
 if (reclaimLong){
 const rAtSweep = last(rsi(c.slice(0,sweptLowAt+1),14));
-if (rAtSweep<35){ dir='long'; stop=rows[sweptLowAt].l-(rows[sweptLowAt].l*0.001); rsiAtSweep=rAtSweep; }
+if (rAtSweep<40){ dir='long'; stop=rows[sweptLowAt].l-(rows[sweptLowAt].l*0.001); rsiAtSweep=rAtSweep; }
 }
 if (!dir && reclaimShort){
 const rAtSweep = last(rsi(c.slice(0,sweptHighAt+1),14));
-if (rAtSweep>65){ dir='short'; stop=rows[sweptHighAt].h+(rows[sweptHighAt].h*0.001); rsiAtSweep=rAtSweep; }
+if (rAtSweep>60){ dir='short'; stop=rows[sweptHighAt].h+(rows[sweptHighAt].h*0.001); rsiAtSweep=rAtSweep; }
 }
 if (!dir) continue;
 
@@ -1102,7 +1102,7 @@ if (!(risk>0)) continue;
 const t1=e20;
 const room=Math.abs(t1-p);
 const rr=room/risk;
-if (rr<1.5) continue;
+if (rr<1.2) continue;
 
 found++;
 __cardsHtml.push(cardHTML(t.symbol, dir,
@@ -1131,7 +1131,7 @@ async function runSmcScan(){
   btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
-    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
     let found = 0;
     for (let i = 0; i < uni.length; i++){
@@ -1146,7 +1146,7 @@ async function runSmcScan(){
         const p = c[c.length-1];
         const e200 = last(ema(c, 200));
         let fvg = null, dir = null;
-        for (let j = rows.length-30; j < rows.length-1; j++){
+        for (let j = rows.length-60; j < rows.length-1; j++){
           const bar1 = rows[j-2], bar2 = rows[j-1], bar3 = rows[j];
           if (bar1.h < bar3.l && bar2.c > bar2.o){
             let gapHigh = bar3.l, gapLow = bar1.h, mitigated = false;
@@ -1194,7 +1194,7 @@ async function runObScan(){
   btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
-    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
     let found = 0;
     for (let i = 0; i < uni.length; i++){
