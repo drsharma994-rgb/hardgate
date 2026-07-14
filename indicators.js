@@ -62,7 +62,7 @@ function findOrderBlock(rows, dir){
 if (!rows || rows.length < 30) return null;
 const aArr = atr(rows, 14);
 let best = null;
-const start = Math.max(2, rows.length - 40);
+const start = Math.max(2, rows.length - 80);
 for (let j = start; j < rows.length - 1; j++){
 const disp = rows[j], ob = rows[j-1];
 const dispRange = disp.h - disp.l;
