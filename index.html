@@ -421,8 +421,8 @@ table{width:100%;border-collapse:collapse}
       <div class="row" style="margin-bottom:8px">
         <label class="f">EQUITY $<input id="tEq" type="number" value="1000" style="width:90px"></label>
         <label class="f">RISK %<input id="tRisk" type="number" value="1" step="0.25" style="width:70px"></label>
-        <label class="f">AUTO LEVERAGE<input id="tLev" type="number" value="10" step="1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Computed automatically from stop distance for 1.5x liquidation clearance"></label>
-        <label class="f">MMR %<input id="tMmr" type="number" value="0.5" step="0.1" style="width:70px"></label>
+        <label class="f">AUTO LEVERAGE<input id="tLev" type="number" value="10" step="1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Computed automatically as Notional / Equity (position-size-based leverage; P4 margin gate enforces safety)"></label>
+        <label class="f">MMR % (tiered, auto)<input id="tMmr" type="number" value="0.5" step="0.1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Auto-computed from the exchange's real tiered maintenance-margin schedule, based on position notional"></label>
         <label class="f">T1 SCALE-OUT %<input id="tScale" type="number" value="50" step="5" style="width:80px"></label>
       </div>
       <button class="btn" onclick="planTrade()">COMPUTE PLAN</button>
@@ -1407,9 +1407,9 @@ function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return N
     else { const r=await getCandles(sym,'15m',5); if(r.length) $('tEntry').value = last(r).c; }
   }catch(e){ alert('mark pull failed: '+e.message); }
 }
-function planTrade(){
+function getTieredMMR(exchange, notional){ if (exchange==='coindcx'){ if (notional<=50000) return 0.015; if (notional<=100000) return 0.02; if (notional<=500000) return 0.03; if (notional<=1000000) return 0.05; if (notional<=5000000) return 0.06; return 0.10; } if (notional<=100000) return 0.0025; return 0.0025 + 0.0000000125*(notional-100000); } function planTrade(){
   const side=$('tSide').value, entry=+$('tEntry').value, stop=+$('tStop').value;
-  const eq=+$('tEq').value, riskPct=+$('tRisk').value, mmr=(+$('tMmr').value||0.5)/100;
+  const eq=+$('tEq').value, riskPct=+$('tRisk').value;
   const scaleOut=Math.min(100,Math.max(0,+$('tScale').value||50));
   const out=$('tradeOut');
   if (!(entry>0&&stop>0&&eq>0&&riskPct>0)){ out.innerHTML='<div class="empty">Fill entry, stop, equity, and risk %.</div>'; return; }
@@ -1417,7 +1417,7 @@ function planTrade(){
   const riskUnit = Math.abs(entry-stop);
   const riskUsd = eq*riskPct/100;
   const qty = riskUsd/riskUnit;
-  const notional = qty*entry;
+  const notional = qty*entry; const mmr = getTieredMMR(S.exchange, notional); $('tMmr').value = (mmr*100).toFixed(3);
   const stopDist = riskUnit/entry;
   const targetClearance = 2.0;
   let optimalLev = Math.floor(notional/eq);
@@ -1427,7 +1427,7 @@ function planTrade(){
   const margin = notional/lev;
   const liq = side==='long' ? entry*(1 - 1/lev + mmr) : entry*(1 + 1/lev - mmr);
   const liqDist = Math.abs(entry-liq)/entry;
-  const clearance = liqDist/stopDist; // want ≥ 1.5×
+  const clearance = liqDist/stopDist; // want ≥ 2.0×
   const t1 = $('tT1').value ? +$('tT1').value : (side==='long'?entry+2*riskUnit:entry-2*riskUnit);
   const rr = Math.abs(t1-entry)/riskUnit;
 
