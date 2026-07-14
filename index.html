@@ -1727,32 +1727,36 @@ function renderLogBadge(){ const b=$('tabB_log'); if(b){ const n=loadLog().lengt
 async function runCascadeCore(uni){
   const clean=[];
     let breadthBull=0, breadthTotal=0;
-    for (let i=0;i<uni.length;i++){
-      const t=uni[i]; setProg('bestProg',(i+1)/uni.length*0.65);
+    const CHUNK1_SIZE=5;
+    for (let ci=0; ci<uni.length; ci+=CHUNK1_SIZE){
+      const chunk = uni.slice(ci, ci+CHUNK1_SIZE);
+      await Promise.all(chunk.map(async function(t, idxInChunk){
+      const i = ci+idxInChunk; setProg('bestProg',(i+1)/uni.length*0.65);
       $('bestStat').textContent=`gates ${i+1}/${uni.length} · ${t.symbol}`;
       try{
         const rows=await getCandles(t.symbol,'4h',260);
-        if (rows.length<210) continue;
+        if (rows.length<210) return;
         const c=rows.map(r=>r.c);
         const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
         const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20), a4=last(atr(rows,14));
       if (isFinite(e200)){ breadthTotal++; if (p>e200) breadthBull++; }
         let dir=null;
         if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short';
-        if (!dir) continue;
-        if (!(isFinite(a4)&&Math.abs(e21-e50)>=0.25*a4)) continue;
-        if (dir==='long' ? !(p>e200) : !(p<e200)) continue;
-        if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) continue;
+        if (!dir) return;
+        if (!(isFinite(a4)&&Math.abs(e21-e50)>=0.25*a4)) return;
+        if (dir==='long' ? !(p>e200) : !(p<e200)) return;
+        if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) return;
         const fr=t.fundingPct;
         if (fr!==null){
-          if (Math.abs(fr)>0.05-1e-9) continue;
-          if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) continue;
+          if (Math.abs(fr)>0.05-1e-9) return;
+          if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return;
         }
-        if (!(vz > 0.5)) continue; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) continue; if (dir === 'short' && closePos > 0.40) continue;
-        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) continue; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk=Math.abs(entry-stop);
-if (!(risk>0)) continue;
-const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const rr = expectedMove/risk; if (!(rr>=2)) continue; const ev = cusumLast(c.slice(-120),1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) continue; clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,t1,t2,vz,fr,ev});
+        if (!(vz > 0.5)) return; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return;
+        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) return; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk=Math.abs(entry-stop);
+if (!(risk>0)) return;
+const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const rr = expectedMove/risk; if (!(rr>=2)) return; const ev = cusumLast(c.slice(-120),1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) return; clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,t1,t2,vz,fr,ev});
       }catch(e){}
+      }));
       await sleep(60);
     }
     
