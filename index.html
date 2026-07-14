@@ -446,6 +446,7 @@ table{width:100%;border-collapse:collapse}
 
 
 <script src="indicators.js"></script>
+<script src="store.js"></script>
 <script>
 /* =========================================================================
    HARDGATE — gates, not scores.
@@ -558,7 +559,8 @@ setInterval(tickClock, 1000);
    ticker: {symbol, mark, fundingPct(per interval, % units), oiUsd, turnoverUsd, chg24}
    candles(sym, res, count): asc [{t,o,h,l,c,v}]  res in {'15m','1h','4h','1d'} */
 
-let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, mark){ const symEl=$('tSym'); if(symEl && symEl.value===symbol){ const entryEl=$('tEntry'); if(entryEl && document.activeElement!==entryEl){ entryEl.value = mark; } } } function initDeltaWS(){
+let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, mark){ const symEl=$('tSym'); if(symEl && symEl.value===symbol){ const entryEl=$('tEntry'); if(entryEl && document.activeElement!==entryEl){ entryEl.value = mark; } } }
+Store.subscribe('PRICE_UPDATE', function(d){ updateTradePlanPriceUI(d.symbol, d.price); }); function initDeltaWS(){
   try{
     if (deltaWS && (deltaWS.readyState===WebSocket.OPEN || deltaWS.readyState===WebSocket.CONNECTING)) return;
     if (!S.tickers || !S.tickers.length){ setTimeout(initDeltaWS, 500); return; }
@@ -586,7 +588,7 @@ let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, 
             if (S.exchange==='delta'){
               const idx = S.tickers.findIndex(function(t){ return t.symbol===sym; });
               if (idx>=0) S.tickers[idx].mark = mark;
-              updateTradePlanPriceUI(sym, mark);
+              Store.publish('PRICE_UPDATE', { symbol: sym, price: mark });
             }
           });
         } else if (data.type==='funding_rate' && data.sy){
@@ -599,6 +601,7 @@ let wsTickers = {}; let deltaWS = null; function updateTradePlanPriceUI(symbol, 
           if (S.exchange==='delta'){
             const idx = S.tickers.findIndex(function(t){ return t.symbol===sym; });
             if (idx>=0) S.tickers[idx].fundingPct = fr;
+            Store.publish('FUNDING_UPDATE', { symbol: sym, fundingPct: fr });
           }
         }
       }catch(e){}
