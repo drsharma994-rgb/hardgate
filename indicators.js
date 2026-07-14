@@ -129,7 +129,7 @@ let sq=0; for(let k=i-p+1;k<=i;k++) sq+=(vals[k]-m)*(vals[k]-m); const sd=Math.s
 mid[i]=m; upper[i]=m+mult*sd; lower[i]=m-mult*sd; }
 const widthPct=vals.map(function(_,i){ return (isFinite(mid[i])&&mid[i]!==0) ? (upper[i]-lower[i])/mid[i]*100 : NaN; });
 return {mid:mid, upper:upper, lower:lower, widthPct:widthPct}; }
-function adx(rows, p){ p=p||14; const n=rows.length;
+function volRegime(c){ if (!c || c.length<70) return 'NEUTRAL'; const bb=bollinger(c,20,2); const currentWidth=bb.widthPct[c.length-1]; const pastWidths=bb.widthPct.slice(-50).filter(isFinite); if (!pastWidths.length || !isFinite(currentWidth)) return 'NEUTRAL'; const avgWidth=pastWidths.reduce(function(a,b){return a+b;},0)/pastWidths.length; if (currentWidth<avgWidth*0.75) return 'COMPRESSING'; if (currentWidth>avgWidth*1.25) return 'EXPANDING'; return 'NEUTRAL'; } function adx(rows, p){ p=p||14; const n=rows.length;
 const plusDM=new Array(n).fill(0), minusDM=new Array(n).fill(0), tr=new Array(n).fill(0);
 for (let i=1;i<n;i++){ const up=rows[i].h-rows[i-1].h, down=rows[i-1].l-rows[i].l;
 plusDM[i]=(up>down&&up>0)?up:0; minusDM[i]=(down>up&&down>0)?down:0;
