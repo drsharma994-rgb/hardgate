@@ -667,12 +667,12 @@ function dropForming(rows, res){
   return (nowSec() - rows[rows.length-1].t < sec) ? rows.slice(0,-1) : rows;
 }
 async function getCandles(sym, res, count){
-  const key = `${S.exchange}|${sym}|${res}|${count}`;
+  const key = `${S.exchange}|${sym}|${res}`;
   const hit = S.candleCache[key];
-  if (hit && (nowSec()-hit.at) < 60) return hit.rows;
-  let rows = S.exchange==='delta' ? await candlesDelta(sym,res,count) : await candlesCdcx(sym,res,count);
+  const need = Math.max(count, 320); if (hit && (nowSec()-hit.at) < 60 && hit.rows.length >= count) return hit.rows.slice(-count);
+  let rows = S.exchange==='delta' ? await candlesDelta(sym,res,need) : await candlesCdcx(sym,res,need);
   rows = dropForming(rows, res);
-  S.candleCache[key] = {rows, at: nowSec()};
+  S.candleCache[key] = {rows, at: nowSec()}; rows = rows.slice(-count);
   return rows;
 }
 
