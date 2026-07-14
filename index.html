@@ -1772,7 +1772,7 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
        and the TREND family needs a 2-of-3 internal majority. This is the fix
        for triple-counting one fact (TSMOM, 1D side and CUSUM all measure trend).
        Plus two robustness checks: cross-timeframe stability and persistence. */
-    for (let i=0;i<clean.length;i++){
+    const PF_CHUNK=5; for (let ci2=0; ci2<clean.length; ci2+=PF_CHUNK){ const chunk2=clean.slice(ci2,ci2+PF_CHUNK); await Promise.all(chunk2.map(async function(s){ try{ await getCandles(s.t.symbol,'1d',120); await getCandles(s.t.symbol,'2h',160); }catch(e){} })); } for (let i=0;i<clean.length;i++){
       const s=clean[i]; setProg('bestProg',0.65+((i+1)/clean.length)*0.3);
       $('bestStat').textContent=`evidence ${i+1}/${clean.length} · ${s.t.symbol}`;
       const want=s.dir==='long'?1:-1;
