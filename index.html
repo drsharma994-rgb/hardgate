@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HARDGATE â Delta India / CoinDCX Perp Terminal</title>
+<title>HARDGATE Ã¢ÂÂ Delta India / CoinDCX Perp Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -114,22 +114,22 @@ table{width:100%;border-collapse:collapse}
 </head>
 <body>
 <header>
-  <div class="brand">HARDGATE<small>PERP TERMINAL Â· GATES, NOT SCORES</small></div>
+  <div class="brand">HARDGATE<small>PERP TERMINAL ÃÂ· GATES, NOT SCORES</small></div>
   <div class="xtoggle">
     <button id="xDelta" class="on" onclick="setExchange('delta')">DELTA INDIA</button>
     <button id="xCdcx" onclick="setExchange('coindcx')">COINDCX</button>
   </div>
-  <span class="statuschip" id="chipConn"><b>â</b> symbols</span>
-  <span class="statuschip" id="chipFund">next funding <b>â</b></span>
-  <span class="statuschip" id="chipFng">F&amp;G <b>â</b></span>
-  <span class="statuschip" id="chipDom">BTC.D <b>â</b></span>
+  <span class="statuschip" id="chipConn"><b>Ã¢ÂÂ</b> symbols</span>
+  <span class="statuschip" id="chipFund">next funding <b>Ã¢ÂÂ</b></span>
+  <span class="statuschip" id="chipFng">F&amp;G <b>Ã¢ÂÂ</b></span>
+  <span class="statuschip" id="chipDom">BTC.D <b>Ã¢ÂÂ</b></span>
   <div class="spacer"></div>
-  <span class="statuschip" id="chipClock"><b>â</b> IST</span>
-  <button id="hardRefreshBtn" class="statuschip" style="cursor:pointer" onclick="hardRefreshAll()">â³ HARD REFRESH</button>
+  <span class="statuschip" id="chipClock"><b>Ã¢ÂÂ</b> IST</span>
+  <button id="hardRefreshBtn" class="statuschip" style="cursor:pointer" onclick="hardRefreshAll()">Ã¢ÂÂ³ HARD REFRESH</button>
 <span class="statuschip" id="hardRefreshStat"></span>
-<span class="statuschip" id="chipAlert" onclick="toggleAlerts()" style="cursor:pointer"><b>ð</b> ALERTS <b id="alertState">OFF</b></span>
+<span class="statuschip" id="chipAlert" onclick="toggleAlerts()" style="cursor:pointer"><b>Ã°ÂÂÂ</b> ALERTS <b id="alertState">OFF</b></span>
 </header>
-<div id="marketPictureBar" style="padding:8px 16px;text-align:center;border-bottom:1px solid #2a2a2a;font-size:13px;letter-spacing:.04em">MARKET PICTURE: <b id="mpVerdict">â</b> <span id="mpDetail" class="note" style="font-size:11px"></span></div>
+<div id="marketPictureBar" style="padding:8px 16px;text-align:center;border-bottom:1px solid #2a2a2a;font-size:13px;letter-spacing:.04em">MARKET PICTURE: <b id="mpVerdict">Ã¢ÂÂ</b> <span id="mpDetail" class="note" style="font-size:11px"></span></div>
 <nav>
   <button id="tabB_bias" class="on" onclick="showTab('bias')">BIAS</button>
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
@@ -168,7 +168,7 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= SWING ================= -->
 <section id="tab_swing" class="tabpane">
   <div class="panel">
-    <h2>Swing Scanner <span>4H structure Â· 1D-derived bias Â· funding-clean only</span></h2>
+    <h2>Swing Scanner <span>4H structure ÃÂ· 1D-derived bias ÃÂ· funding-clean only</span></h2>
     <div class="row">
       <label class="f">SCAN TOP (BY TURNOVER)<input id="swingN" type="number" value="30" min="5" max="500" style="width:80px"></label>
       <label class="f">MIN 24H TURNOVER $<input id="swingTurn" type="number" value="200000" style="width:110px"></label>
@@ -178,7 +178,7 @@ table{width:100%;border-collapse:collapse}
     </div>
     <div class="prog" id="swingProg"><i></i></div>
   </div>
-  <div class="note" style="margin-bottom:10px">Gates: G1 4H EMA cascade aligned (9&gt;21&gt;50 or inverse) with real spread â |EMA21âEMA50| â¥ 0.25ÃATR, so flat-tape cascades don't count Â· G2 price on correct side of 4H EMA200 (HTF proxy) Â· G3 RSI-14 not exhausted (blocks &gt;70 long / &lt;30 short) Â· G4 |funding| â¤ 0.05% and not paying against you Â· G5 volume expansion vs 20-bar mean Â· G6 structural R:R â¥ 2 from last swing Â· G7 no opposing CUSUM event in last 20 bars (the one feature your own walk-forward validated OOS, AUC â0.58). All gates on CLOSED bars only â nothing repaints. Zero results is a valid, honest result.</div>
+  <div class="note" style="margin-bottom:10px">Gates: G1 4H EMA cascade aligned (9&gt;21&gt;50 or inverse) with real spread Ã¢ÂÂ |EMA21Ã¢ÂÂEMA50| Ã¢ÂÂ¥ 0.25ÃÂATR, so flat-tape cascades don't count ÃÂ· G2 price on correct side of 4H EMA200 (HTF proxy) ÃÂ· G3 RSI-14 not exhausted (blocks &gt;70 long / &lt;30 short) ÃÂ· G4 |funding| Ã¢ÂÂ¤ 0.05% and not paying against you ÃÂ· G5 volume expansion vs 20-bar mean ÃÂ· G6 structural R:R Ã¢ÂÂ¥ 2 from last swing ÃÂ· G7 no opposing CUSUM event in last 20 bars (the one feature your own walk-forward validated OOS, AUC Ã¢ÂÂ0.58). All gates on CLOSED bars only Ã¢ÂÂ nothing repaints. Zero results is a valid, honest result.</div>
   <div class="cards" id="swingCards"></div>
   <div class="empty" id="swingEmpty" style="display:none">No CLEAN swing setups. Standing aside is a position.</div>
 </section>
@@ -186,7 +186,7 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= SCALP ================= -->
 <section id="tab_scalp" class="tabpane">
   <div class="panel">
-    <h2>Scalp Scanner <span>15m trigger inside 1H context Â· ATR targets Â· funding-window aware</span></h2>
+    <h2>Scalp Scanner <span>15m trigger inside 1H context ÃÂ· ATR targets ÃÂ· funding-window aware</span></h2>
     <div class="row">
       <label class="f">SCAN TOP (BY TURNOVER)<input id="scalpN" type="number" value="20" min="5" max="500" style="width:80px"></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="scalpAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
@@ -195,7 +195,7 @@ table{width:100%;border-collapse:collapse}
     </div>
     <div class="prog" id="scalpProg"><i></i></div>
   </div>
-  <div class="note" style="margin-bottom:10px">Gates: G1 1H EMA cascade sets direction Â· G2 15m EMA9/21 pullback-and-reclaim in that direction Â· G3 15m RSI in 40â65 band (long) / 35â60 (short), no chasing exhaustion Â· G4 funding clean Â· G5 â¥ 25 min to funding settlement (00:00/08:00/16:00 UTC = 5:30/13:30/21:30 IST) Â· G6 ATR-based 2R target inside recent range. Scalps are invalid if you can't be filled early â entry is the reclaim close, not a market chase.</div>
+  <div class="note" style="margin-bottom:10px">Gates: G1 1H EMA cascade sets direction ÃÂ· G2 15m EMA9/21 pullback-and-reclaim in that direction ÃÂ· G3 15m RSI in 40Ã¢ÂÂ65 band (long) / 35Ã¢ÂÂ60 (short), no chasing exhaustion ÃÂ· G4 funding clean ÃÂ· G5 Ã¢ÂÂ¥ 25 min to funding settlement (00:00/08:00/16:00 UTC = 5:30/13:30/21:30 IST) ÃÂ· G6 ATR-based 2R target inside recent range. Scalps are invalid if you can't be filled early Ã¢ÂÂ entry is the reclaim close, not a market chase.</div>
   <div class="cards" id="scalpCards"></div>
   <div class="empty" id="scalpEmpty" style="display:none">No CLEAN scalp triggers right now.</div>
 
@@ -208,17 +208,17 @@ table{width:100%;border-collapse:collapse}
 
     <section id="tab_coil" class="tabpane">
     <div class="panel">
-      <h2>Compression Stalker <span>find stored energy before the breakout Â· manual execution</span></h2>
+      <h2>Compression Stalker <span>find stored energy before the breakout ÃÂ· manual execution</span></h2>
       <div class="row">
         <button class="btn" id="coilRun" onclick="runCoilScan()">FIND COILS</button>
         <span class="note" id="coilStat"></span>
       </div>
       <div class="prog" id="coilProg"><i></i></div>
     </div>
-    <div class="note" style="margin-bottom:10px">Gates: G1 Bollinger Band width is â¥ 25% tighter than its 50-bar average (Volatility Squeeze) Â· G2 Volume z-score < -0.5 (Drought/Quiet Accumulation) Â· G3 Price above 4H 200 EMA (Bullish HTF context). Action: Do not buy blindly. Send these to the Trade Plan and wait for a Liquidity Sweep of the local low before manually entering.</div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 Bollinger Band width is Ã¢ÂÂ¥ 25% tighter than its 50-bar average (Volatility Squeeze) ÃÂ· G2 Volume z-score < -0.5 (Drought/Quiet Accumulation) ÃÂ· G3 Price above 4H 200 EMA (Bullish HTF context). Action: Do not buy blindly. Send these to the Trade Plan and wait for a Liquidity Sweep of the local low before manually entering.</div>
     <div class="cards" id="coilCards"></div>
     <div class="empty" id="coilEmpty" style="display:none">No compressed assets found. The market is currently expanded.</div>
-      <div class="note" style="margin:16px 0 10px;border-top:1px solid var(--line);padding-top:14px">Expansion check: after FIND COILS saves a watchlist, run this to see which of those symbols have since closed outside the compression range on a volume spike (G4 closed above coil high, G5 vol z&gt;2). Two-step process by design â run FIND COILS first, check back later.</div>
+      <div class="note" style="margin:16px 0 10px;border-top:1px solid var(--line);padding-top:14px">Expansion check: after FIND COILS saves a watchlist, run this to see which of those symbols have since closed outside the compression range on a volume spike (G4 closed above coil high, G5 vol z&gt;2). Two-step process by design Ã¢ÂÂ run FIND COILS first, check back later.</div>
       <div class="row">
         <button class="btn" id="expRun" onclick="runExpansionCheck()">CHECK EXPANSION</button>
         <span class="note" id="expStat"></span>
@@ -230,42 +230,42 @@ table{width:100%;border-collapse:collapse}
 
   <section id="tab_div" class="tabpane">
     <div class="panel">
-      <h2>RSI Divergence <span>regular + hidden divergence on 4H Â· price vs momentum disagreement</span></h2>
+      <h2>RSI Divergence <span>regular + hidden divergence on 4H ÃÂ· price vs momentum disagreement</span></h2>
       <div class="row">
         <button class="btn" id="divRun" onclick="runDivScan()">FIND DIVERGENCE</button>
         <span class="note" id="divStat"></span>
       </div>
       <div class="prog" id="divProg"><i></i></div>
     </div>
-    <div class="note" style="margin-bottom:10px">Gates: G1 valid pivot structure (price vs RSI disagree over 2 swing points) &middot; G2 span&ge;10 bars between pivots, newest pivot &le;15 bars old &middot; G3 funding not extreme/opposing &middot; G4 no opposing CUSUM event in last 10 bars &middot; G5 R:R&ge;2. Regular divergence favors range/reversal contexts; hidden divergence favors trending continuation â shown as regime context, not a veto.</div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 valid pivot structure (price vs RSI disagree over 2 swing points) &middot; G2 span&ge;10 bars between pivots, newest pivot &le;15 bars old &middot; G3 funding not extreme/opposing &middot; G4 no opposing CUSUM event in last 10 bars &middot; G5 R:R&ge;2. Regular divergence favors range/reversal contexts; hidden divergence favors trending continuation Ã¢ÂÂ shown as regime context, not a veto.</div>
     <div class="cards" id="divCards"></div>
     <div class="empty" id="divEmpty" style="display:none">No qualifying divergence found.</div>
   </section>
 
   <section id="tab_basis" class="tabpane">
     <div class="panel">
-      <h2>Cross-Venue Basis <span>Delta India vs CoinDCX price gap Â· informational, not an executed arbitrage</span></h2>
+      <h2>Cross-Venue Basis <span>Delta India vs CoinDCX price gap ÃÂ· informational, not an executed arbitrage</span></h2>
       <div class="row">
         <button class="btn" id="basisRun" onclick="runBasisScan()">FIND BASIS GAPS</button>
         <span class="note" id="basisStat"></span>
       </div>
       <div class="prog" id="basisProg"><i></i></div>
     </div>
-    <div class="note" style="margin-bottom:10px">Gates: G1 base asset listed on both venues &middot; G2 |basis|&ge;0.15%. CoinDCX's public API exposes no funding-rate field in this app, so this cannot confirm a funding-driven arbitrage â it only flags a price disagreement between venues. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.</div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 base asset listed on both venues &middot; G2 |basis|&ge;0.15%. CoinDCX's public API exposes no funding-rate field in this app, so this cannot confirm a funding-driven arbitrage Ã¢ÂÂ it only flags a price disagreement between venues. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.</div>
     <div class="cards" id="basisCards"></div>
     <div class="empty" id="basisEmpty" style="display:none">No basis gaps found.</div>
   </section>
 
     <section id="tab_apex" class="tabpane">
       <div class="panel">
-        <h2>Apex Leaders <span>relative strength vs BTC Â· manual macro execution</span></h2>
+        <h2>Apex Leaders <span>relative strength vs BTC ÃÂ· manual macro execution</span></h2>
         <div class="row">
           <button class="btn" id="apexRun" onclick="runApexScan()">FIND APEX ASSETS</button>
           <span class="note" id="apexStat"></span>
         </div>
         <div class="prog" id="apexProg"><i></i></div>
       </div>
-      <div class="note" style="margin-bottom:10px">Gates: G1 BTC not bullish (24h return â¤ 1.5%, macro headwind present) Â· G2 Asset is outperforming BTC by â¥ 5% over 24h (the RS spread) Â· G3 Asset holding above its 1H EMA50 (short-term structure intact despite BTC bleeding). Action: Watch Bitcoin, not the altcoin. The minute BTC prints a 15m bullish sweep/reclaim, manually buy the #1 Apex asset.</div>
+      <div class="note" style="margin-bottom:10px">Gates: G1 BTC not bullish (24h return Ã¢ÂÂ¤ 1.5%, macro headwind present) ÃÂ· G2 Asset is outperforming BTC by Ã¢ÂÂ¥ 5% over 24h (the RS spread) ÃÂ· G3 Asset holding above its 1H EMA50 (short-term structure intact despite BTC bleeding). Action: Watch Bitcoin, not the altcoin. The minute BTC prints a 15m bullish sweep/reclaim, manually buy the #1 Apex asset.</div>
       <div class="cards" id="apexCards"></div>
       <div class="empty" id="apexEmpty" style="display:none">No valid Apex setups. Either BTC is currently bullish (no headwind to test against), or no assets are showing true relative strength.</div>
     </section>
@@ -273,42 +273,42 @@ table{width:100%;border-collapse:collapse}
 
     <section id="tab_trap" class="tabpane">
       <div class="panel">
-        <h2>Liquidation Snapback <span>mean reversion Â· fading the extreme</span></h2>
+        <h2>Liquidation Snapback <span>mean reversion ÃÂ· fading the extreme</span></h2>
         <div class="row">
           <button class="btn" id="trapRun" onclick="runTrapScan()">FIND TRAPPED TRADERS</button>
           <span class="note" id="trapStat"></span>
         </div>
         <div class="prog" id="trapProg"><i></i></div>
       </div>
-      <div class="note" style="margin-bottom:10px">Gates: G1 Extreme excursion â price pierced a volatility-scaled outer Bollinger Band (2.5â4.5 SD, wider for higher-ATR% assets) Â· G2 The rejection â candle closed back inside a volatility-scaled inner band (1.8â3.0 SD) Â· G3 Momentum exhaustion (RSI < 30 or > 70). Action: The crowd is trapped at the extreme. You are fading them. Buy/sell the reclaim, stop goes just past the liquidation wick, target the mean.</div>
+      <div class="note" style="margin-bottom:10px">Gates: G1 Extreme excursion Ã¢ÂÂ price pierced a volatility-scaled outer Bollinger Band (2.5Ã¢ÂÂ4.5 SD, wider for higher-ATR% assets) ÃÂ· G2 The rejection Ã¢ÂÂ candle closed back inside a volatility-scaled inner band (1.8Ã¢ÂÂ3.0 SD) ÃÂ· G3 Momentum exhaustion (RSI < 30 or > 70). Action: The crowd is trapped at the extreme. You are fading them. Buy/sell the reclaim, stop goes just past the liquidation wick, target the mean.</div>
       <div class="cards" id="trapCards"></div>
       <div class="empty" id="trapEmpty" style="display:none">No active liquidity traps. The market is currently respecting its boundaries.</div>
     </section>
 
       <section id="tab_smc" class="tabpane">
         <div class="panel">
-          <h2>SMC (FVG) <span>institutional imbalance Â· fair value gaps Â· mitigation taps</span></h2>
+          <h2>SMC (FVG) <span>institutional imbalance ÃÂ· fair value gaps ÃÂ· mitigation taps</span></h2>
           <div class="row">
             <button class="btn" id="smcRun" onclick="runSmcScan()">FIND UNMITIGATED FVGs</button>
             <span class="note" id="smcStat"></span>
           </div>
           <div class="prog" id="smcProg"><i></i></div>
         </div>
-        <div class="note" style="margin-bottom:10px">Gates: G1 Displacement (a valid 3-candle Fair Value Gap was created recently) Â· G2 Unmitigated (the gap has not been fully filled or invalidated by subsequent closes) Â· G3 The Tap (current price has pulled back and is trading inside the FVG zone) Â· G4 HTF Context (aligned with the 4H/200 EMA trend â note: this scan runs on 4H candles, not 1D). Action: the asset is currently sitting in an institutional Point of Interest (POI). Drop to a 5m/15m chart. Wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.</div>
+        <div class="note" style="margin-bottom:10px">Gates: G1 Displacement (a valid 3-candle Fair Value Gap was created recently) ÃÂ· G2 Unmitigated (the gap has not been fully filled or invalidated by subsequent closes) ÃÂ· G3 The Tap (current price has pulled back and is trading inside the FVG zone) ÃÂ· G4 HTF Context (aligned with the 4H/200 EMA trend Ã¢ÂÂ note: this scan runs on 4H candles, not 1D). Action: the asset is currently sitting in an institutional Point of Interest (POI). Drop to a 5m/15m chart. Wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.</div>
         <div class="cards" id="smcCards"></div>
         <div class="empty" id="smcEmpty" style="display:none">No assets are currently tapping an unmitigated 4H FVG.</div>
       </section>
 
       <section id="tab_ob" class="tabpane">
         <div class="panel">
-          <h2>ORDER BLOCKS <span>institutional order blocks Â· equal-high/low liquidity pools</span></h2>
+          <h2>ORDER BLOCKS <span>institutional order blocks ÃÂ· equal-high/low liquidity pools</span></h2>
           <div class="row">
             <button class="btn" id="obRun" onclick="runObScan()">FIND UNMITIGATED ORDER BLOCKS</button>
             <span class="note" id="obStat"></span>
           </div>
           <div class="prog" id="obProg"><i></i></div>
         </div>
-        <div class="note" style="margin-bottom:10px">Gates: G1 Valid Order Block (the last opposite-colored 4H candle before a displacement candle that broke recent structure) Â· G2 Unmitigated (no subsequent candle has fully closed/wicked through the block) Â· G3 Price inside OB (current price has pulled back and is trading inside the block) Â· G4 HTF Context (aligned with the 4H/200 EMA trend). Liquidity Target shows the nearest unswept equal-high/low pool in your direction. Action: drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH), then execute.</div>
+        <div class="note" style="margin-bottom:10px">Gates: G1 Valid Order Block (the last opposite-colored 4H candle before a displacement candle that broke recent structure) ÃÂ· G2 Unmitigated (no subsequent candle has fully closed/wicked through the block) ÃÂ· G3 Price inside OB (current price has pulled back and is trading inside the block) ÃÂ· G4 HTF Context (aligned with the 4H/200 EMA trend). Liquidity Target shows the nearest unswept equal-high/low pool in your direction. Action: drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH), then execute.</div>
         <div class="cards" id="obCards"></div>
         <div class="empty" id="obEmpty" style="display:none">No assets are currently tapping an unmitigated 4H Order Block.</div>
       </section>
@@ -320,14 +320,14 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= GOLD ================= -->
 <section id="tab_gold" class="tabpane">
   <div class="panel">
-    <h2>Gold â XAUTUSD <span>session-aware Â· Asian range + PDH/PDL liquidity Â· sweep-and-reclaim scalps Â· Delta India perp</span></h2>
+    <h2>Gold Ã¢ÂÂ XAUTUSD <span>session-aware ÃÂ· Asian range + PDH/PDL liquidity ÃÂ· sweep-and-reclaim scalps ÃÂ· Delta India perp</span></h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn" id="goldRun" onclick="runGold()">EVALUATE GOLD</button>
-      <span class="statuschip" id="goldSess">session <b>â</b></span>
-      <span class="statuschip" id="goldLvl">PDH <b>â</b> Â· PDL <b>â</b> Â· Asia <b>â</b></span>
+      <span class="statuschip" id="goldSess">session <b>Ã¢ÂÂ</b></span>
+      <span class="statuschip" id="goldLvl">PDH <b>Ã¢ÂÂ</b> ÃÂ· PDL <b>Ã¢ÂÂ</b> ÃÂ· Asia <b>Ã¢ÂÂ</b></span>
       <span class="note" id="goldStat"></span>
     </div>
-    <div class="note">Gold logic: swing side follows the 4H/1D hard gates (same discipline as crypto, no exceptions for the shiny metal). Scalps only fire inside London (12:30â15:30 IST) or NY (17:30â20:30 IST) kill zones, and only on a sweep of the Asian range or prior-day high/low followed by a closed-bar reclaim â the Judas pattern you already trade. Fear &amp; Greed is crypto sentiment and is deliberately NOT applied here. DXY, real yields and the event calendar are your manual homework â no API here will judge them honestly for you.</div>
+    <div class="note">Gold logic: swing side follows the 4H/1D hard gates (same discipline as crypto, no exceptions for the shiny metal). Scalps only fire inside London (12:30Ã¢ÂÂ15:30 IST) or NY (17:30Ã¢ÂÂ20:30 IST) kill zones, and only on a sweep of the Asian range or prior-day high/low followed by a closed-bar reclaim Ã¢ÂÂ the Judas pattern you already trade. Fear &amp; Greed is crypto sentiment and is deliberately NOT applied here. DXY, real yields and the event calendar are your manual homework Ã¢ÂÂ no API here will judge them honestly for you.</div>
     <div class="prog" id="goldProg"><i></i></div>
   </div>
   
@@ -344,14 +344,14 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= BEST ================= -->
 <section id="tab_best" class="tabpane">
   <div class="panel">
-    <h2>Best Setup <span>hard gates are the ticket in Â· ranking = tally of independent aligned confirmations Â· WAIT is a first-class answer</span></h2>
+    <h2>Best Setup <span>hard gates are the ticket in ÃÂ· ranking = tally of independent aligned confirmations ÃÂ· WAIT is a first-class answer</span></h2>
     <div class="row" style="margin-bottom:10px">
       <label class="f">SCAN TOP (BY TURNOVER)<input id="bestN" type="number" value="30" min="5" max="500" style="width:80px"></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="bestAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
       <button class="btn" id="bestRun" onclick="runBest()">FIND BEST</button>
       <span class="note" id="bestStat"></span>
     </div>
-    <div class="note">How this ranks â and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:Râ¥2, no opposing CUSUM). That is binary; nothing "almost" passes. Survivors are then ranked by <b>independent evidence families</b>, not indicator count â because correlated indicators inflate confidence without adding information (your own factor sweeps proved this: zero factors survived deflated Sharpe). F1 TREND needs a 2-of-3 internal majority (TSMOM Â· 1D side Â· CUSUM) and yields ONE point total no matter how many trend indicators agree Â· F2 POSITIONING (funding tailwind) Â· F3 PARTICIPATION (volume z&gt;1) Â· F4 STRUCTURE (Donchian-20 zone or R:Râ¥3). Ties broken by two robustness tests: the cascade must also hold on 2H (a signal living at exactly one timeframe is curve-fit), and must be â¥3 closed bars old (not a flicker). No weighting, no 0â100, no invented probability â and WAIT is a first-class answer.</div>
+    <div class="note">How this ranks Ã¢ÂÂ and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:RÃ¢ÂÂ¥2, no opposing CUSUM). That is binary; nothing "almost" passes. Survivors are then ranked by <b>independent evidence families</b>, not indicator count Ã¢ÂÂ because correlated indicators inflate confidence without adding information (your own factor sweeps proved this: zero factors survived deflated Sharpe). F1 TREND needs a 2-of-3 internal majority (TSMOM ÃÂ· 1D side ÃÂ· CUSUM) and yields ONE point total no matter how many trend indicators agree ÃÂ· F2 POSITIONING (funding tailwind) ÃÂ· F3 PARTICIPATION (volume z&gt;1) ÃÂ· F4 STRUCTURE (Donchian-20 zone or R:RÃ¢ÂÂ¥3). Ties broken by two robustness tests: the cascade must also hold on 2H (a signal living at exactly one timeframe is curve-fit), and must be Ã¢ÂÂ¥3 closed bars old (not a flicker). No weighting, no 0Ã¢ÂÂ100, no invented probability Ã¢ÂÂ and WAIT is a first-class answer.</div>
     <div class="prog" id="bestProg"><i></i></div>
   </div>
   <div id="bestOut"><div class="empty">Run FIND BEST.</div></div>
@@ -374,14 +374,14 @@ table{width:100%;border-collapse:collapse}
 
 <section id="tab_finder" class="tabpane">
 <div class="panel">
-<h2>Find Trade <span>one symbol, every strategy this app knows â SWING, SCALP, and Judas Sweep, gates shown honestly</span></h2>
+<h2>Find Trade <span>one symbol, every strategy this app knows Ã¢ÂÂ SWING, SCALP, and Judas Sweep, gates shown honestly</span></h2>
 <div class="row" style="margin-bottom:10px">
 <label class="f">TYPE<select id="finderType" onchange="finderTypeChanged()"><option value="crypto">CRYPTO</option><option value="gold">GOLD (XAUTUSD)</option></select></label>
 <label class="f" id="finderSymWrap">SYMBOL<input id="finderSym" type="text" placeholder="e.g. BTC" style="width:140px" onkeydown="if(event.key==='Enter') runFinder()"></label>
 <button class="btn" onclick="runFinder()">EVALUATE</button>
 <span class="note" id="finderStat"></span>
 </div>
-<div class="note">Runs this app's existing SWING and SCALP gate ledgers plus a session-gated Judas Sweep check (liquidity sweep of the Asian range / prior-day high-low, kill-zone timed) on one symbol at a time â crypto looks the symbol up on Delta India first, then CoinDCX. Nothing here is a new indicator; it's the same gates used elsewhere in this app, just gathered in one place per-symbol, with an optional Twelve Data backtest for context.</div>
+<div class="note">Runs this app's existing SWING and SCALP gate ledgers plus a session-gated Judas Sweep check (liquidity sweep of the Asian range / prior-day high-low, kill-zone timed) on one symbol at a time Ã¢ÂÂ crypto looks the symbol up on Delta India first, then CoinDCX. Nothing here is a new indicator; it's the same gates used elsewhere in this app, just gathered in one place per-symbol, with an optional Twelve Data backtest for context.</div>
 </div>
 <div id="finderOut"></div>
 </section>
@@ -389,16 +389,16 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= LOG ================= -->
 <section id="tab_log" class="tabpane">
   <div class="panel">
-    <h2>Setup Log <span>every CLEAN setup auto-logs Â· outcomes graded against candle history Â· stored in this browser (localStorage)</span></h2>
+    <h2>Setup Log <span>every CLEAN setup auto-logs ÃÂ· outcomes graded against candle history ÃÂ· stored in this browser (localStorage)</span></h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn" id="logCheck" onclick="checkOutcomes()">CHECK OUTCOMES</button>
       <button class="btn ghost" onclick="exportLog()">EXPORT JSON</button>
       <button class="btn ghost" onclick="clearLog()">CLEAR</button>
       <span class="note" id="logStat"></span>
     </div>
-    <div class="note" id="logSummary">â</div>
+    <div class="note" id="logSummary">Ã¢ÂÂ</div>
     <hr class="sep">
-    <div class="note">Grading rules, stated so the numbers can't flatter you: outcome = first touch of T1 or stop on closed candles after log time. If both print inside the same bar, it counts as <b>SL</b> (conservative â intrabar order is unknowable). No fees, no slippage, no funding paid â so real results will be WORSE than this log. Open &gt;14 days â EXPIRED, excluded from hit rate. Î£R assumes -1R on SL, +R:R on TP1, ignores runners. This is a signal audit, not a PnL statement. Data lives in this browser only â EXPORT before clearing cache or switching devices.</div>
+    <div class="note">Grading rules, stated so the numbers can't flatter you: outcome = first touch of T1 or stop on closed candles after log time. If both print inside the same bar, it counts as <b>SL</b> (conservative Ã¢ÂÂ intrabar order is unknowable). No fees, no slippage, no funding paid Ã¢ÂÂ so real results will be WORSE than this log. Open &gt;14 days Ã¢ÂÂ EXPIRED, excluded from hit rate. ÃÂ£R assumes -1R on SL, +R:R on TP1, ignores runners. This is a signal audit, not a PnL statement. Data lives in this browser only Ã¢ÂÂ EXPORT before clearing cache or switching devices.</div>
   </div>
   <div class="panel" style="overflow-x:auto" id="logTable"></div>
 </section>
@@ -430,7 +430,7 @@ table{width:100%;border-collapse:collapse}
       <div class="checklist" id="tCheck">
         <label><input type="checkbox" class="ck"> Isolated margin selected</label>
         <label><input type="checkbox" class="ck"> Auto top-up is OFF</label>
-        <label><input type="checkbox" class="ck"> Stop is beyond swept liquidity â not reverse-engineered to hit an R:R</label>
+        <label><input type="checkbox" class="ck"> Stop is beyond swept liquidity Ã¢ÂÂ not reverse-engineered to hit an R:R</label>
         <label><input type="checkbox" class="ck"> Position fits venue liquidity (check book depth vs size)</label>
         <label><input type="checkbox" class="ck"> Trade will be logged fixed-R in the tradelog</label>
       </div>
@@ -449,10 +449,10 @@ table{width:100%;border-collapse:collapse}
 <script src="store.js"></script>
 <script>
 /* =========================================================================
-   HARDGATE â gates, not scores.
+   HARDGATE Ã¢ÂÂ gates, not scores.
    No fabricated confluence numbers. Every verdict is a visible pass/veto trail.
    Data: Delta Exchange India public API (primary), CoinDCX public API (best-
-   effort; may be CORS-blocked in browser â status surfaces honestly if so).
+   effort; may be CORS-blocked in browser Ã¢ÂÂ status surfaces honestly if so).
    ========================================================================= */
 'use strict';
 
@@ -479,7 +479,7 @@ const CDCX_PUBLIC_PROXIES = [
 ]; // Public backup proxies tried in order if Render proxy is cold/down (last resort, rate-limited)
 
 /* CoinDCX fetch: try direct (CORS may block), fall back to the Render proxy.
-   Free-tier proxy cold-starts in ~50s after idle â first call may be slow. */
+   Free-tier proxy cold-starts in ~50s after idle Ã¢ÂÂ first call may be slow. */
 
 /* ---------------- lightweight rate-limit tracking (client-side estimate only) ---------------- */
 const RateTrack = { td: [], cdcx: [] };
@@ -493,7 +493,7 @@ function trackCall(bucket){
     if (bucket==='td'){
       const minAgo = arr.filter(function(t){ return now-t<=60000; }).length;
       const el = document.getElementById('goldStat');
-      if (el) el.title = 'Twelve Data usage (client-side estimate): '+arr.length+'/800 today Â· '+minAgo+'/8 this minute';
+      if (el) el.title = 'Twelve Data usage (client-side estimate): '+arr.length+'/800 today ÃÂ· '+minAgo+'/8 this minute';
     } else {
       const el = document.getElementById('chipConn');
       if (el) el.title = 'CoinDCX proxy/API calls in the last 60s: '+arr.length;
@@ -529,14 +529,14 @@ async function cdcxGet(url){
 
 /* ---------------- utils ---------------- */
 const $ = id => document.getElementById(id);
-const fmt = (n, d=2) => (n===null||n===undefined||isNaN(n)) ? 'â' : Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:0});
+const fmt = (n, d=2) => (n===null||n===undefined||isNaN(n)) ? 'Ã¢ÂÂ' : Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:0});
 const px = n => { // adaptive price precision
-  if (n===null||isNaN(n)) return 'â';
+  if (n===null||isNaN(n)) return 'Ã¢ÂÂ';
   const a=Math.abs(n);
   const d = a>=1000?1 : a>=100?2 : a>=1?4 : a>=0.01?6 : 8;
   return Number(n).toLocaleString('en-US',{maximumFractionDigits:d});
 };
-const pct = (n,d=3)=> isFinite(n)? (n>=0?'+':'')+n.toFixed(d)+'%':'â';
+const pct = (n,d=3)=> isFinite(n)? (n>=0?'+':'')+n.toFixed(d)+'%':'Ã¢ÂÂ';
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const nowSec = () => Math.floor(Date.now()/1000);
 function setProg(id, f){ const p=$(id); if(!p) return; p.style.display = f===null?'none':'block'; if(f!==null) p.firstElementChild.style.width=(f*100).toFixed(1)+'%'; }
@@ -637,7 +637,7 @@ async function candlesDelta(sym, res, count){
 }
 
 async function loadTickersCdcx(){
-  // Active USDT-margined futures instruments; ticker detail endpoints vary â we
+  // Active USDT-margined futures instruments; ticker detail endpoints vary Ã¢ÂÂ we
   // rank by what candles give us and mark funding as unavailable rather than faking it.
   const j = await cdcxGet(`${CDCX_API}/exchange/v1/derivatives/futures/data/active_instruments?margin_currency_short_name[]=USDT`);
   const list = Array.isArray(j) ? j : (j.instruments||[]);
@@ -659,7 +659,7 @@ async function candlesRangeRaw(sym, res, start, end){ if (S.exchange==='delta'){
   catch(e){ S.cdcxBlocked=true; throw e; }
 }
 /* Drop the still-forming bar: gates must only ever see CLOSED candles.
-   Evaluating a partial bar repaints â a cascade that exists at 14:37 can
+   Evaluating a partial bar repaints Ã¢ÂÂ a cascade that exists at 14:37 can
    vanish by 16:00. Candle t = bar open time, so forming iff now-t < duration. */
 function dropForming(rows, res){
   const sec = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
@@ -718,27 +718,27 @@ async function getXAUCandles(res, count){
 
 
 
-/* Bollinger Bands (Bollinger, 1980s) â mean +/- mult*stdev over p bars. widthPct is band width
+/* Bollinger Bands (Bollinger, 1980s) Ã¢ÂÂ mean +/- mult*stdev over p bars. widthPct is band width
    relative to the mid-band, used to spot a volatility squeeze right before a breakout. */
 
-/* ADX / DI (Wilder, New Concepts in Technical Trading Systems, 1978) â Wilder-smoothed
+/* ADX / DI (Wilder, New Concepts in Technical Trading Systems, 1978) Ã¢ÂÂ Wilder-smoothed
    directional movement. adx>=20 with DI on your side means a real, aligned trend push,
    not just noise. */
 
-/* Stochastic RSI (Chande & Kroll, 1994) â stochastic oscillator applied to RSI instead of
+/* Stochastic RSI (Chande & Kroll, 1994) Ã¢ÂÂ stochastic oscillator applied to RSI instead of
    price. Flags when momentum is already stretched (>80 long / <20 short) so you are not
    chasing the last bar of a move. */
 
-/* Rolling VWAP deviation â is the last close trading through its own volume-weighted
+/* Rolling VWAP deviation Ã¢ÂÂ is the last close trading through its own volume-weighted
    average price over the lookback, in your direction. A cheap, real-participation check
    that does not depend on any external feed. */
 
-/* Symmetric CUSUM event filter on log returns (LÃ³pez de Prado, AFML ch.2).
-   Threshold h = kÃÏ of the sample. Returns the most recent event {dir, barsAgo}.
+/* Symmetric CUSUM event filter on log returns (LÃÂ³pez de Prado, AFML ch.2).
+   Threshold h = kÃÂÃÂ of the sample. Returns the most recent event {dir, barsAgo}.
    Provenance: `cusum_aligned` was the dominant feature in the user's own
-   meta-label walk-forward (OOS AUC â0.57â0.59) â the only signal in this app
+   meta-label walk-forward (OOS AUC Ã¢ÂÂ0.57Ã¢ÂÂ0.59) Ã¢ÂÂ the only signal in this app
    with venue-specific out-of-sample evidence behind it. */
-/* Consecutive CLOSED bars the EMA cascade order has held â a one-bar cascade
+/* Consecutive CLOSED bars the EMA cascade order has held Ã¢ÂÂ a one-bar cascade
    is a flicker, not a trend. Perturbation-style anti-noise check. */
 
 
@@ -760,15 +760,15 @@ async function setExchange(x){
   S.exchange = x; S.candleCache = {}; if (x!=='delta' && deltaWS){ try{ deltaWS.close(); }catch(e){} deltaWS=null; }
   $('xDelta').classList.toggle('on', x==='delta');
   $('xCdcx').classList.toggle('on', x==='coindcx');
-  $('chipConn').innerHTML = '<b>â¦</b> loading';
+  $('chipConn').innerHTML = '<b>Ã¢ÂÂ¦</b> loading';
   try{
     S.tickers = await getTickers();
     $('chipConn').classList.remove('warn');
     $('chipConn').innerHTML = `<b>${S.tickers.length}</b> ${x==='delta'?'Delta India':'CoinDCX'} perps`;
-    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy Â· ':S.cdcxViaProxy?'via proxy Â· ':''}no funding/turnover fields â gates degrade honestly)</b>`; if (x==='delta') initDeltaWS();
+    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy ÃÂ· ':S.cdcxViaProxy?'via proxy ÃÂ· ':''}no funding/turnover fields Ã¢ÂÂ gates degrade honestly)</b>`; if (x==='delta') initDeltaWS();
   }catch(e){
     $('chipConn').classList.add('warn');
-    $('chipConn').innerHTML = `<b>API blocked</b> â ${x==='coindcx'?'CoinDCX direct + both proxies (Render + backup) failed. If Render just woke from idle it needs ~50s â retry once. Otherwise the backup proxy may be rate-limited; try again shortly.':'Delta unreachable.'}`;
+    $('chipConn').innerHTML = `<b>API blocked</b> Ã¢ÂÂ ${x==='coindcx'?'CoinDCX direct + both proxies (Render + backup) failed. If Render just woke from idle it needs ~50s Ã¢ÂÂ retry once. Otherwise the backup proxy may be rate-limited; try again shortly.':'Delta unreachable.'}`;
     S.tickers = [];
   }
   renderBiasChips();
@@ -784,7 +784,7 @@ async function runCoilScan(){
     for (let i=0;i<uni.length;i++){
       const t=uni[i];
       setProg('coilProg',(i+1)/uni.length);
-      statEl.textContent=`scanning ${i+1}/${uni.length} Â· ${t.symbol}`;
+      statEl.textContent=`scanning ${i+1}/${uni.length} ÃÂ· ${t.symbol}`;
       try{
         const rows=await getCandles(t.symbol,'4h',200);
         if (rows.length<80) continue;
@@ -806,7 +806,7 @@ async function runCoilScan(){
         found++;
         coilList.push({symbol: t.symbol, dir: "long", coilLow: coilLow, coilHigh: coilHigh});
         __cardsHtml.push(cardHTML(t.symbol,'long',
-          [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'â'],
+          [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'Ã¢ÂÂ'],
            ['BB width',fmt(currentWidth,2)+'% (avg '+fmt(avgWidth,2)+'%)'],['vol z',fmt(vz,2)],
            ['coil low',px(coilLow)],['coil high',px(coilHigh)]],
           ['G1 BB squeeze','G2 vol drought','G3 >4H 200 EMA'],
@@ -816,7 +816,7 @@ async function runCoilScan(){
       await sleep(120);
     }
     saveCoilWatch(coilList);
-    statEl.textContent=`done â ${found} coils found`;
+    statEl.textContent=`done Ã¢ÂÂ ${found} coils found`;
     if (!found) emptyEl.style.display='block';
   }catch(e){
     statEl.textContent=`coil scan failed: ${e.message}`;
@@ -837,13 +837,13 @@ async function runExpansionCheck(){
   btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
     const watch = loadCoilWatch();
-    if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist â run FIND COILS first"; return; }
-    if (watch.ex !== S.exchange){ statEl.textContent="saved watchlist is for "+watch.ex.toUpperCase()+" â switch exchange or re-run FIND COILS"; return; }
+    if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist Ã¢ÂÂ run FIND COILS first"; return; }
+    if (watch.ex !== S.exchange){ statEl.textContent="saved watchlist is for "+watch.ex.toUpperCase()+" Ã¢ÂÂ switch exchange or re-run FIND COILS"; return; }
     let found=0;
     for (let i=0;i<watch.list.length;i++){
       const w = watch.list[i];
       setProg("expProg",(i+1)/watch.list.length);
-      statEl.textContent = "checking "+(i+1)+"/"+watch.list.length+" Â· "+w.symbol;
+      statEl.textContent = "checking "+(i+1)+"/"+watch.list.length+" ÃÂ· "+w.symbol;
       try{
         const rows = await getCandles(w.symbol,"4h",60);
         if (rows.length<25) continue;
@@ -866,7 +866,7 @@ async function runExpansionCheck(){
       }catch(e){}
       await sleep(120);
     }
-    statEl.textContent = "done â "+found+" expansions triggered";
+    statEl.textContent = "done Ã¢ÂÂ "+found+" expansions triggered";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "expansion check failed: "+e.message; }
   finally{
@@ -882,7 +882,7 @@ async function runDivScan(){
     for (let i=0;i<uni.length;i++){
       const t = uni[i];
       setProg("divProg",(i+1)/uni.length);
-      statEl.textContent = "scanning "+(i+1)+"/"+uni.length+" Â· "+t.symbol;
+      statEl.textContent = "scanning "+(i+1)+"/"+uni.length+" ÃÂ· "+t.symbol;
       try{
         const rows = await getCandles(t.symbol,"4h",200);
         if (rows.length < 80) continue;
@@ -940,7 +940,7 @@ async function runDivScan(){
       }catch(e){}
       await sleep(120);
     }
-    statEl.textContent = "done â "+found+" divergences found";
+    statEl.textContent = "done Ã¢ÂÂ "+found+" divergences found";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "divergence scan failed: "+e.message; }
   finally{
@@ -950,7 +950,7 @@ async function runBasisScan(){
   const btn=$("basisRun"); const cardsEl=$("basisCards"); const emptyEl=$("basisEmpty"); const statEl=$("basisStat");
   btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
-    statEl.textContent = "loading Delta India + CoinDCX symbol listsâ¦";
+    statEl.textContent = "loading Delta India + CoinDCX symbol listsÃ¢ÂÂ¦";
     const res = await Promise.all([ loadTickersDelta().catch(function(){return [];}), loadTickersCdcx().catch(function(){return [];}) ]);
     const dTick = res[0], cTick = res[1];
     const dMap = {}; dTick.forEach(function(t){ dMap[searchBase(t.symbol,"delta")] = t; });
@@ -960,7 +960,7 @@ async function runBasisScan(){
     for (let i=0;i<bases.length;i++){
       const b = bases[i];
       setProg("basisProg",(i+1)/bases.length);
-      statEl.textContent = "checking "+(i+1)+"/"+bases.length+" Â· "+b;
+      statEl.textContent = "checking "+(i+1)+"/"+bases.length+" ÃÂ· "+b;
       const dT = dMap[b];
       const cSym = cByBase[b][0].symbol;
       try{
@@ -974,7 +974,7 @@ async function runBasisScan(){
         const dir = basisPct>0 ? "short" : "long";
         const nomStop = dir==="long" ? dT.mark*0.995 : dT.mark*1.005;
         const nomT1 = dir==="long" ? dT.mark*1.01 : dT.mark*0.99;
-        const planTxt = "Informational only â not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage â it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
+        const planTxt = "Informational only Ã¢ÂÂ not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage Ã¢ÂÂ it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
         __cardsHtml.push(cardHTML(b, dir,
           [["Delta mark",px(dT.mark)],["CoinDCX px",px(cPrice)],["basis",fmt(basisPct,3)+"%"],["delta funding", dT.fundingPct!==null?fmt(dT.fundingPct,4)+"%":"n/a"]],
           ["G1 base asset on both venues","G2 |basis|>=0.15%"],
@@ -982,7 +982,7 @@ async function runBasisScan(){
       }catch(e){}
       await sleep(150);
     }
-    statEl.textContent = "done â "+found+" basis gaps found";
+    statEl.textContent = "done Ã¢ÂÂ "+found+" basis gaps found";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "basis scan failed: "+e.message; }
   finally{
@@ -1002,7 +1002,7 @@ async function runApexScan(){
     const btcRet24 = ((btcNow-btc24h)/btc24h)*100;
     if (btcRet24>1.5){
       cardsEl.innerHTML = `<div class="empty">BTC is up ${fmt(btcRet24,2)}% in 24h. Relative Strength scans are invalid during macro uptrends because everything goes up. Wait for a BTC pullback to test for true Apex leaders.</div>`;
-      statEl.textContent = `skipped â BTC bullish (+${fmt(btcRet24,2)}%)`;
+      statEl.textContent = `skipped Ã¢ÂÂ BTC bullish (+${fmt(btcRet24,2)}%)`;
       return;
     }
     const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000 && t.symbol!==btcSym) : S.tickers.filter(t=>t.symbol!==btcSym);
@@ -1010,7 +1010,7 @@ async function runApexScan(){
     for (let i=0;i<uni.length;i++){
       const t=uni[i];
       setProg('apexProg',(i+1)/uni.length);
-      statEl.textContent = `measuring ${i+1}/${uni.length} Â· ${t.symbol}`;
+      statEl.textContent = `measuring ${i+1}/${uni.length} ÃÂ· ${t.symbol}`;
       try{
         const rows=await getCandles(t.symbol,'1h',72);
         if (rows.length<50) continue;
@@ -1030,11 +1030,11 @@ async function runApexScan(){
     results.forEach(r=>{
       __cardsHtml.push(cardHTML(r.sym,'long',
         [['mark',px(r.mark)],['BTC 24h',pct(btcRet24,2)],['asset 24h',pct(r.ret24,2)],['RS spread',pct(r.spread24,2)],['Nearest OB',nearestOBText(r.rows,'long')],['Liquidity Target',liquidityTargetText(r.rows,'long')]],
-        ['G1 BTC headwind','G2 spread â¥5%','G3 1H EMA50 intact'],
+        ['G1 BTC headwind','G2 spread Ã¢ÂÂ¥5%','G3 1H EMA50 intact'],
         `MANUAL TRIGGER: do not buy yet. Pull up a 15m chart of BTC. The exact minute BTC prints a bullish reclaim or sweeps a local low, buy this asset.`,
         r.mark, r.e50, r.mark*1.05));
     });
-    statEl.textContent = `done â ${results.length} Apex assets found`;
+    statEl.textContent = `done Ã¢ÂÂ ${results.length} Apex assets found`;
     if (!results.length) emptyEl.style.display='block';
   }catch(e){
  }finally{
@@ -1177,7 +1177,7 @@ async function runSmcScan(){
         const pocSide = vp ? (p > vp.poc ? 'above POC' : 'below POC') : 'n/a';
         __cardsHtml.push(cardHTML(t.symbol, dir, [
           ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
-          ['POC (40b)', vp ? px(vp.poc)+' ('+pocSide+')' : 'n/a'], ['VA', vp ? px(vp.val)+'â'+px(vp.vah) : 'n/a'],
+          ['POC (40b)', vp ? px(vp.poc)+' ('+pocSide+')' : 'n/a'], ['VA', vp ? px(vp.val)+'Ã¢ÂÂ'+px(vp.vah) : 'n/a'],
           ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
           ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
         ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a'), 'G7 BOS confirmed (displacement broke recent structure)'+(fvg.bosOk?' ok':' n/a')],
@@ -1255,7 +1255,7 @@ function showTab(t){
 
 <script>
 /* =========================================================================
-   BIAS TAB â fundamental + technical + sentiment, one visible ledger
+   BIAS TAB Ã¢ÂÂ fundamental + technical + sentiment, one visible ledger
    ========================================================================= */
 const BIAS_QUICK = ['BTCUSD','ETHUSD','SOLUSD','XAUTUSD'];
 function renderBiasChips(){
@@ -1288,7 +1288,7 @@ async function runBias(){
     const e9=last(ema(c4,9)), e21=last(ema(c4,21)), e50=last(ema(c4,50));
     const r4=last(rsi(c4,14)), mh1=last(macdHist(ch));
     const tkr = S.tickers.find(t=>t.symbol===sym);
-    const fr = tkr?.fundingPct ?? null;                      // % per interval â percent units, never *100
+    const fr = tkr?.fundingPct ?? null;                      // % per interval Ã¢ÂÂ percent units, never *100
     const frAnn = fr===null? null : fr*3*365;                // annualized %
     const dailyDir = pd>e50d && (isNaN(e200d) || e50d>e200d) ? 'long' : (pd<e50d && (isNaN(e200d)||e50d<e200d) ? 'short' : 'mixed');
     const casc4 = e9>e21 && e21>e50 ? 'long' : (e9<e21 && e21<e50 ? 'short' : 'mixed');
@@ -1296,21 +1296,21 @@ async function runBias(){
     // ---- gates ----
     const g=[];
     const t1 = dailyDir!=='mixed';
-    g.push(['T1','1D structure (close vs EMA50, EMA50 vs EMA200)', t1?'pass':'veto', `close ${px(pd)} Â· EMA50 ${px(e50d)} Â· EMA200 ${isNaN(e200d)?'n/a':px(e200d)} â ${dailyDir.toUpperCase()}`]);
+    g.push(['T1','1D structure (close vs EMA50, EMA50 vs EMA200)', t1?'pass':'veto', `close ${px(pd)} ÃÂ· EMA50 ${px(e50d)} ÃÂ· EMA200 ${isNaN(e200d)?'n/a':px(e200d)} Ã¢ÂÂ ${dailyDir.toUpperCase()}`]);
     const t2 = casc4!=='mixed' && casc4===dailyDir;
-    g.push(['T2','4H EMA cascade agrees with 1D', t2?'pass':'veto', `EMA9/21/50 â ${casc4.toUpperCase()}`]);
+    g.push(['T2','4H EMA cascade agrees with 1D', t2?'pass':'veto', `EMA9/21/50 Ã¢ÂÂ ${casc4.toUpperCase()}`]);
     const t3 = (dailyDir==='long'&&mh1>0)||(dailyDir==='short'&&mh1<0);
     g.push(['T3','1H MACD momentum aligned (timing only, not a veto)', dailyDir==='mixed'?'na':(t3?'pass':'na'), `hist ${fmt(mh1,4)}`]);
     const t4veto = (dailyDir==='long'&&r4>70)||(dailyDir==='short'&&r4<30);
     g.push(['T4','4H RSI exhaustion guard', t4veto?'veto':'pass', `RSI14 ${fmt(r4,1)} (block: >70 into longs, <30 into shorts)`]);
     let s1='na', s1d='funding unavailable on this feed';
     if (fr!==null){
-      const extreme = Math.abs(fr) > 0.05 - 1e-9; // Delta clamp is Â±0.05% â at clamp = crowded
+      const extreme = Math.abs(fr) > 0.05 - 1e-9; // Delta clamp is ÃÂ±0.05% Ã¢ÂÂ at clamp = crowded
       const against = (dailyDir==='long'&&fr>=0.04)||(dailyDir==='short'&&fr<=-0.04);
       s1 = (extreme||against)?'veto':'pass';
-      s1d = `${fmt(fr,4)}%/interval Â· ann ${fmt(frAnn,1)}% (clamp Â±0.05%)`;
+      s1d = `${fmt(fr,4)}%/interval ÃÂ· ann ${fmt(frAnn,1)}% (clamp ÃÂ±0.05%)`;
     }
-    // rolling funding history (built across runs) â momentum
+    // rolling funding history (built across runs) Ã¢ÂÂ momentum
     let frMom = null;
     if (fr !== null){
       try {
@@ -1325,41 +1325,41 @@ async function runBias(){
       } catch(e){}
     }
     const r30=roc(c1,30), r90=roc(c1,90);
-    let t5='na', t5d=`30d ${pct(r30,1)} Â· 90d ${pct(r90,1)}`;
+    let t5='na', t5d=`30d ${pct(r30,1)} ÃÂ· 90d ${pct(r90,1)}`;
     if (dailyDir!=='mixed' && isFinite(r30) && isFinite(r90)){
       const want = dailyDir==='long'?1:-1;
       const agree = (Math.sign(r30)===want?1:0)+(Math.sign(r90)===want?1:0);
       t5 = agree===2?'pass':agree===0?'veto':'na';
     }
-    g.push(['T5','TSMOM 30/90d sign agreement (MoskowitzâOoiâPedersen 2012)', t5, t5d]);
+    g.push(['T5','TSMOM 30/90d sign agreement (MoskowitzÃ¢ÂÂOoiÃ¢ÂÂPedersen 2012)', t5, t5d]);
     const ev1d = cusumLast(c1.slice(-120), 1);
     let t6='na', t6d='no recent event';
     if (ev1d && ev1d.barsAgo<=10 && dailyDir!=='mixed'){
       t6 = ev1d.dir===dailyDir?'pass':'veto';
       t6d = `${ev1d.dir.toUpperCase()} event ${ev1d.barsAgo} bars ago (1D)`;
     } else if (ev1d){ t6d = `${ev1d.dir.toUpperCase()} event ${ev1d.barsAgo} bars ago (stale)`; }
-    g.push(['T6','CUSUM event alignment â your walk-forward\'s top feature (OOS AUC â0.58)', t6, t6d]);
+    g.push(['T6','CUSUM event alignment Ã¢ÂÂ your walk-forward\'s top feature (OOS AUC Ã¢ÂÂ0.58)', t6, t6d]);
     g.push(['S1','Funding cleanliness (crowding veto)', s1, s1d]);
     let s2='na', s2d='F&G unavailable';
     if (S.fng){ const v=S.fng.v;
       const veto=(dailyDir==='long'&&v>=80)||(dailyDir==='short'&&v<=20);
-      s2 = veto?'veto':'pass'; s2d = `${v} ${S.fng.c} (block fresh longs â¥80, fresh shorts â¤20)`;
+      s2 = veto?'veto':'pass'; s2d = `${v} ${S.fng.c} (block fresh longs Ã¢ÂÂ¥80, fresh shorts Ã¢ÂÂ¤20)`;
     }
     g.push(['S2','Sentiment extreme guard (Fear & Greed)', s2, s2d]);
-    g.push(['F1','Macro context (informational â judge it yourself)', 'na',
-      `BTC.D ${S.dom!==null?S.dom.toFixed(1)+'%':'n/a'}${sym.includes('XAUT')?' Â· gold: check DXY, real yields, event calendar manually':''}`]);
+    g.push(['F1','Macro context (informational Ã¢ÂÂ judge it yourself)', 'na',
+      `BTC.D ${S.dom!==null?S.dom.toFixed(1)+'%':'n/a'}${sym.includes('XAUT')?' ÃÂ· gold: check DXY, real yields, event calendar manually':''}`]);
 
-    // ---- F2/F3 confluence tags (informational only â never veto) ----
+    // ---- F2/F3 confluence tags (informational only Ã¢ÂÂ never veto) ----
     const ha4 = heikinAshi(h4);
     const haDir = ha4 ? (ha4.bull ? 'long' : 'short') : null;
     const haAgree = haDir !== null && dailyDir !== 'mixed' && haDir === dailyDir;
-    g.push(['F2','Heikin Ashi 4H trend confirmation (informational â smooths EMA noise)', 'na',
-      ha4 ? `HA state ${ha4.state}${haDir?(' â '+haDir.toUpperCase()):''}${haAgree?' (agrees with bias)':(dailyDir!=='mixed'?' (fighting bias)':'')}` : 'n/a']);
+    g.push(['F2','Heikin Ashi 4H trend confirmation (informational Ã¢ÂÂ smooths EMA noise)', 'na',
+      ha4 ? `HA state ${ha4.state}${haDir?(' Ã¢ÂÂ '+haDir.toUpperCase()):''}${haAgree?' (agrees with bias)':(dailyDir!=='mixed'?' (fighting bias)':'')}` : 'n/a']);
     const mz1 = macdZeroLine(c1);
     const mzAgree = (dailyDir==='long' && mz1>0) || (dailyDir==='short' && mz1<0);
-    g.push(['F3','1D MACD zero-line filter (informational â no longs below zero, no shorts above)', 'na',
+    g.push(['F3','1D MACD zero-line filter (informational Ã¢ÂÂ no longs below zero, no shorts above)', 'na',
       `MACD line ${mz1>0?'above':mz1<0?'below':'at'} zero${dailyDir!=='mixed'?(mzAgree?' (permits '+dailyDir+')':' (against '+dailyDir+')'):''}`]);
-    g.push(['F4','Funding momentum trend (informational â built across runs)', 'na',
+    g.push(['F4','Funding momentum trend (informational Ã¢ÂÂ built across runs)', 'na',
       frMom ? `slope ${fmt(frMom.slope*100,4)}%/step${frMom.accelerating?', accelerating':''}${(dailyDir==='long'&&frMom.slope>0)||(dailyDir==='short'&&frMom.slope<0)?' (worsening for '+dailyDir+')':''}` : 'building history (need 3+ observations)']);
 
     // ---- F5-F8 Phase 7 confluence tags (informational only - never veto) ----
@@ -1391,11 +1391,11 @@ async function runBias(){
     const verdict = vetoed||dailyDir==='mixed' ? 'aside' : dailyDir;
     const why = verdict==='aside'
       ? 'One or more gates vetoed. The framework has no opinion strong enough to risk capital today on this symbol.'
-      : `1D and 4H agree ${verdict.toUpperCase()}, no veto fired. This is directional bias only â entry still needs a structure trigger (Swing/Scalp tab) and a stop beyond swept liquidity.`;
+      : `1D and 4H agree ${verdict.toUpperCase()}, no veto fired. This is directional bias only Ã¢ÂÂ entry still needs a structure trigger (Swing/Scalp tab) and a stop beyond swept liquidity.`;
 
     out.innerHTML = `
       <div class="panel">
-        <h2>${sym} <span>${S.exchange==='delta'?'Delta India':'CoinDCX'} Â· mark ${tkr?px(tkr.mark):px(pd)} Â· 24h ${tkr&&tkr.chg24!==null?pct(tkr.chg24,2):'â'}</span></h2>
+        <h2>${sym} <span>${S.exchange==='delta'?'Delta India':'CoinDCX'} ÃÂ· mark ${tkr?px(tkr.mark):px(pd)} ÃÂ· 24h ${tkr&&tkr.chg24!==null?pct(tkr.chg24,2):'Ã¢ÂÂ'}</span></h2>
         <div class="ledger">${g.map(x=>gateRow(...x)).join('')}</div>
         <div class="verdict ${verdict}">
           <div class="vword">${verdict==='aside'?'STAND ASIDE':verdict.toUpperCase()}</div>
@@ -1404,27 +1404,27 @@ async function runBias(){
         <div class="note" style="margin-top:8px">This verdict has no backtested expectancy attached until your own tradelog proves one. Treat it as a filter, not a promise.</div>
       </div>`;
   }catch(e){
-    out.innerHTML = `<div class="empty">Fetch failed for ${sym}: ${e.message}. ${S.exchange==='coindcx'?'CoinDCX public API likely CORS-blocked â use Delta or your server proxy.':''}</div>`;
+    out.innerHTML = `<div class="empty">Fetch failed for ${sym}: ${e.message}. ${S.exchange==='coindcx'?'CoinDCX public API likely CORS-blocked Ã¢ÂÂ use Delta or your server proxy.':''}</div>`;
   }finally{ setProg('biasProg',null); $('biasRun').disabled=false; }
 }
 
 /* =========================================================================
-   SCANNERS â swing (4H) and scalp (1H context + 15m trigger)
+   SCANNERS Ã¢ÂÂ swing (4H) and scalp (1H context + 15m trigger)
    ========================================================================= */
 function planBlock(dir, entry, stop, t1, t2){
   const risk = Math.abs(entry-stop);
-  return `entry <b>${px(entry)}</b> Â· stop <b>${px(stop)}</b> (structural) Â· T1 <b>${px(t1)}</b> (${fmt(Math.abs(t1-entry)/risk,1)}R, vol target, scale out) Â· T2 <b>${px(t2)}</b> (${fmt(Math.abs(t2-entry)/risk,1)}R, max excursion, trail rest) Â· risk/unit ${px(risk)}`;
+  return `entry <b>${px(entry)}</b> ÃÂ· stop <b>${px(stop)}</b> (structural) ÃÂ· T1 <b>${px(t1)}</b> (${fmt(Math.abs(t1-entry)/risk,1)}R, vol target, scale out) ÃÂ· T2 <b>${px(t2)}</b> (${fmt(Math.abs(t2-entry)/risk,1)}R, max excursion, trail rest) ÃÂ· risk/unit ${px(risk)}`;
 }
 function cardHTML(sym, dir, mini, gates, plan, entry, stop, t1){
   const symHtml = String(sym).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const onclickJs = `toTrade(${JSON.stringify(sym)},${JSON.stringify(dir)},${entry},${stop},${t1})`;
   const onclickAttr = onclickJs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   return `<div class="card ${dir}">
-    <div class="chead"><span class="sym">${symHtml}</span><span class="dir">${dir.toUpperCase()} Â· CLEAN</span></div>
+    <div class="chead"><span class="sym">${symHtml}</span><span class="dir">${dir.toUpperCase()} ÃÂ· CLEAN</span></div>
     <div class="mini">${mini.map(([k,v])=>`<span class="k">${k}</span><span>${v}</span>`).join('')}</div>
     <div class="gates">${gates.map(g=>`<span class="gpip ok">${g}</span>`).join('')}</div>
     <div class="plan">${plan}</div>
-    <button class="toTrade" onclick="${onclickAttr}">SEND TO TRADE PLAN â</button>
+    <button class="toTrade" onclick="${onclickAttr}">SEND TO TRADE PLAN Ã¢ÂÂ</button>
   </div>`;
 }
 function toTrade(sym,dir,entry,stop,t1){
@@ -1455,11 +1455,11 @@ async function runScan(kind){
 }
 
 /* =========================================================================
-   TRADE PLAN â sizing, liquidation clearance, ticket. No execution here.
+   TRADE PLAN Ã¢ÂÂ sizing, liquidation clearance, ticket. No execution here.
    ========================================================================= */
-function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return NaN; const ma=a.slice(0,n).reduce(function(x,y){return x+y;},0)/n; const mb=b.slice(0,n).reduce(function(x,y){return x+y;},0)/n; let num=0,da=0,db=0; for(let i=0;i<n;i++){ const xa=a[i]-ma, xb=b[i]-mb; num+=xa*xb; da+=xa*xa; db+=xb*xb; } const den=Math.sqrt(da*db); return den>0?num/den:NaN; } async function updatePortfolioHeat(sym,dir){ const elRow=$('portfolioHeatRow'); if(!elRow) return; try{ const base=(sym||'').replace(/USD$/,'').replace(/^B-/,'').replace(/_USDT$/,''); if(base==='BTC'){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">n/a (BTC itself)</span>'; return; } const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT'; const rowsSym = await getCandles(sym,'1d',31); const rowsBtc = await getCandles(btcSym,'1d',31); if(rowsSym.length<25||rowsBtc.length<25){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">not enough history</span>'; return; } const n=Math.min(rowsSym.length,rowsBtc.length); const rs=rowsSym.slice(-n), rb=rowsBtc.slice(-n); const retA=[],retB=[]; for(let i=1;i<n;i++){ retA.push(rs[i].c/rs[i-1].c-1); retB.push(rb[i].c/rb[i-1].c-1); } const r=pearsonCorr(retA,retB); const openLog=loadLog().filter(function(e){return e.status==='open';}); const btcOpen=openLog.find(function(e){return e.sym===btcSym;}); const highCorr=isFinite(r)&&r>0.75; let warn=''; if(highCorr&&btcOpen&&btcOpen.dir===dir){ warn=' <b style="color:var(--gold)">â taking this stacks beta, consider adjusting risk or standing aside</b>'; } 
+function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return NaN; const ma=a.slice(0,n).reduce(function(x,y){return x+y;},0)/n; const mb=b.slice(0,n).reduce(function(x,y){return x+y;},0)/n; let num=0,da=0,db=0; for(let i=0;i<n;i++){ const xa=a[i]-ma, xb=b[i]-mb; num+=xa*xb; da+=xa*xa; db+=xb*xb; } const den=Math.sqrt(da*db); return den>0?num/den:NaN; } async function updatePortfolioHeat(sym,dir){ const elRow=$('portfolioHeatRow'); if(!elRow) return; try{ const base=(sym||'').replace(/USD$/,'').replace(/^B-/,'').replace(/_USDT$/,''); if(base==='BTC'){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">n/a (BTC itself)</span>'; return; } const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT'; const rowsSym = await getCandles(sym,'1d',31); const rowsBtc = await getCandles(btcSym,'1d',31); if(rowsSym.length<25||rowsBtc.length<25){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">not enough history</span>'; return; } const n=Math.min(rowsSym.length,rowsBtc.length); const rs=rowsSym.slice(-n), rb=rowsBtc.slice(-n); const retA=[],retB=[]; for(let i=1;i<n;i++){ retA.push(rs[i].c/rs[i-1].c-1); retB.push(rb[i].c/rb[i-1].c-1); } const r=pearsonCorr(retA,retB); const openLog=loadLog().filter(function(e){return e.status==='open';}); const btcOpen=openLog.find(function(e){return e.sym===btcSym;}); const highCorr=isFinite(r)&&r>0.75; let warn=''; if(highCorr&&btcOpen&&btcOpen.dir===dir){ warn=' <b style="color:var(--gold)">Ã¢ÂÂ taking this stacks beta, consider adjusting risk or standing aside</b>'; } 
     /* Heat v2: correlation vs ALL open setups (cached candles only) */
-    try { const others = openLog.filter(function(e){ return e.sym!==sym && e.sym!==btcSym; }); const clash = []; for (const o of others){ const oc = S.candleCache[S.exchange+'|'+o.sym+'|1d']; if(!oc||!oc.rows||oc.rows.length<25) continue; const os = oc.rows.slice(-(retA.length+1)); const or=[]; for(let k=1;k<os.length;k++) or.push(os[k].c/os[k-1].c-1); const m2 = Math.min(retA.length, or.length); const cc = pearsonCorr(retA.slice(-m2), or.slice(-m2)); if(isFinite(cc) && Math.abs(cc)>0.7){ if(cc>0 && o.dir===dir) clash.push(o.sym+' (+'+cc.toFixed(2)+' same-dir stacks)'); else if(cc<0 && o.dir!==dir) clash.push(o.sym+' ('+cc.toFixed(2)+' inverse+opposite stacks)'); } } if(clash.length){ warn += ' <b style="color:var(--gold)">â correlated open: '+clash.join(', ')+'; consider halving risk</b>'; } } catch(e){} elRow.innerHTML = '<span class="k">Portfolio Heat</span><span class="v">r='+(isFinite(r)?r.toFixed(2):'n/a')+' vs BTC 30d'+warn+'</span>'; }catch(e){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">check failed</span>'; } } function executeTrade(plan){ if (!plan || plan.vetoed){ alert('Cannot execute a vetoed plan.'); return; } if (!EXECUTE_BACKEND_URL || EXECUTE_BACKEND_URL.indexOf('your-secure-backend.com')>=0){ alert('EXECUTE_BACKEND_URL is still a placeholder â set it to your real delta-trader.ts endpoint before this button can do anything.'); return; } const payload = { symbol: plan.sym, side: plan.side, qty: plan.qty, leverage: plan.lev, bracket: { stop: plan.stop, takeProfit: plan.t1 }, timestamp: nowSec() }; if (!confirm('Send this bracket to '+EXECUTE_BACKEND_URL+'? '+JSON.stringify(payload,null,2))) return; fetch(EXECUTE_BACKEND_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); alert('Bracket sent.'); }).catch(function(e){ alert('Execution request failed: '+e.message); }); }  async function pullMark(){
+    try { const others = openLog.filter(function(e){ return e.sym!==sym && e.sym!==btcSym; }); const clash = []; for (const o of others){ const oc = S.candleCache[S.exchange+'|'+o.sym+'|1d']; if(!oc||!oc.rows||oc.rows.length<25) continue; const os = oc.rows.slice(-(retA.length+1)); const or=[]; for(let k=1;k<os.length;k++) or.push(os[k].c/os[k-1].c-1); const m2 = Math.min(retA.length, or.length); const cc = pearsonCorr(retA.slice(-m2), or.slice(-m2)); if(isFinite(cc) && Math.abs(cc)>0.7){ if(cc>0 && o.dir===dir) clash.push(o.sym+' (+'+cc.toFixed(2)+' same-dir stacks)'); else if(cc<0 && o.dir!==dir) clash.push(o.sym+' ('+cc.toFixed(2)+' inverse+opposite stacks)'); } } if(clash.length){ warn += ' <b style="color:var(--gold)">Ã¢ÂÂ correlated open: '+clash.join(', ')+'; consider halving risk</b>'; } } catch(e){} elRow.innerHTML = '<span class="k">Portfolio Heat</span><span class="v">r='+(isFinite(r)?r.toFixed(2):'n/a')+' vs BTC 30d'+warn+'</span>'; }catch(e){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">check failed</span>'; } } function executeTrade(plan){ if (!plan || plan.vetoed){ alert('Cannot execute a vetoed plan.'); return; } if (!EXECUTE_BACKEND_URL || EXECUTE_BACKEND_URL.indexOf('your-secure-backend.com')>=0){ alert('EXECUTE_BACKEND_URL is still a placeholder Ã¢ÂÂ set it to your real delta-trader.ts endpoint before this button can do anything.'); return; } const payload = { symbol: plan.sym, side: plan.side, qty: plan.qty, leverage: plan.lev, bracket: { stop: plan.stop, takeProfit: plan.t1 }, timestamp: nowSec() }; if (!confirm('Send this bracket to '+EXECUTE_BACKEND_URL+'? '+JSON.stringify(payload,null,2))) return; fetch(EXECUTE_BACKEND_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); alert('Bracket sent.'); }).catch(function(e){ alert('Execution request failed: '+e.message); }); }  async function pullMark(){
   const sym=($('tSym').value||'').trim(); if(!sym) return;
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
@@ -1488,29 +1488,29 @@ function getTieredMMR(exchange, notional){ if (exchange==='coindcx'){ if (notion
   const margin = notional/lev;
   const liq = side==='long' ? entry*(1 - 1/lev + mmr) : entry*(1 + 1/lev - mmr);
   const liqDist = Math.abs(entry-liq)/entry;
-  const clearance = liqDist/stopDist; // want â¥ 2.0Ã
+  const clearance = liqDist/stopDist; // want Ã¢ÂÂ¥ 2.0ÃÂ
   const t1 = $('tT1').value ? +$('tT1').value : (side==='long'?entry+2*riskUnit:entry-2*riskUnit);
   const rr = Math.abs(t1-entry)/riskUnit;
 
   const g=[];
   g.push(['P1','Stop on the correct side of entry', dirOk?'pass':'veto', dirOk?'':'stop must be '+(side==='long'?'below':'above')+' entry']);
-  g.push(['P2','R:R â¥ 2 to T1', rr>=2?'pass':'veto', `${fmt(rr,2)}R to T1 ${px(t1)} â never move the stop to fix this; move the trade`]);
+  g.push(['P2','R:R Ã¢ÂÂ¥ 2 to T1', rr>=2?'pass':'veto', `${fmt(rr,2)}R to T1 ${px(t1)} Ã¢ÂÂ never move the stop to fix this; move the trade`]);
   g.push(['P3','Liquidation clearance (>= 2.0x stop, leverage set by position size)', clearance>=1.95?'pass':'veto',
-    `liq â ${px(liq)} Â· leverage ${lev}x (set by position size/equity) yields ${fmt(clearance,2)}Ã stop clearance`]);
-  g.push(['P4','Margin sanity (margin â¤ 25% equity)', margin<=eq*0.25?'pass':'veto', `margin $${fmt(margin,2)} of $${fmt(eq,2)}`]);
+    `liq Ã¢ÂÂ ${px(liq)} ÃÂ· leverage ${lev}x (set by position size/equity) yields ${fmt(clearance,2)}ÃÂ stop clearance`]);
+  g.push(['P4','Margin sanity (margin Ã¢ÂÂ¤ 25% equity)', margin<=eq*0.25?'pass':'veto', `margin $${fmt(margin,2)} of $${fmt(eq,2)}`]);
   const checksDone = [...document.querySelectorAll('#tCheck .ck')].every(c=>c.checked);
-  g.push(['P5','Discipline checklist complete', checksDone?'pass':'veto', checksDone?'':'tick every box on the left â SKYAI/HYPE/GOAT were checklist failures, not signal failures']);
+  g.push(['P5','Discipline checklist complete', checksDone?'pass':'veto', checksDone?'':'tick every box on the left Ã¢ÂÂ SKYAI/HYPE/GOAT were checklist failures, not signal failures']);
 
   const vet = g.some(x=>x[2]==='veto');
   const ticket =
-`${side.toUpperCase()} ${$('tSym').value||'â'}  (${S.exchange==='delta'?'Delta India':'CoinDCX'})
+`${side.toUpperCase()} ${$('tSym').value||'Ã¢ÂÂ'}  (${S.exchange==='delta'?'Delta India':'CoinDCX'})
 entry     ${px(entry)}
 stop      ${px(stop)}   (structural, isolated, auto top-up OFF)
-size      ${fmt(qty,6)} @ ${lev}x  â  notional $${fmt(notional,2)}, margin $${fmt(margin,2)}
-risk      $${fmt(riskUsd,2)}  (${riskPct}% of equity)  Â·  1R = ${px(riskUnit)}
-T1        ${px(t1)}  â  close ${scaleOut}%, stop to breakeven
+size      ${fmt(qty,6)} @ ${lev}x  Ã¢ÂÂ  notional $${fmt(notional,2)}, margin $${fmt(margin,2)}
+risk      $${fmt(riskUsd,2)}  (${riskPct}% of equity)  ÃÂ·  1R = ${px(riskUnit)}
+T1        ${px(t1)}  Ã¢ÂÂ  close ${scaleOut}%, stop to breakeven
 runner    trail remainder behind structure toward ${px(side==='long'?entry+3*riskUnit:entry-3*riskUnit)} (3R)
-liq est   ${px(liq)}  (${fmt(clearance,2)}Ã stop clearance)`;
+liq est   ${px(liq)}  (${fmt(clearance,2)}ÃÂ stop clearance)`;
 
   out.innerHTML = `
     <div class="ledger">${g.map(x=>gateRow(...x)).join('')}</div>
@@ -1520,21 +1520,21 @@ liq est   ${px(liq)}  (${fmt(clearance,2)}Ã stop clearance)`;
     </div>
     <hr class="sep">
     <div class="ticket" id="ticketTxt">${ticket}</div>
-    <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)" ${vet?'disabled title="Fix the vetoed gates before copying this ticket"':''}>COPY TICKET</button><div class="kv" id="portfolioHeatRow" style="margin-top:8px"><span class="k">Portfolio Heat</span><span class="v">checkingâ¦</span></div>`; updatePortfolioHeat($('tSym').value||'', side); if(!vet){ out.insertAdjacentHTML('beforeend', '<button class="btn" style="margin-top:8px" onclick="executeTrade({sym:'+JSON.stringify($('tSym').value)+',side:'+JSON.stringify(side)+',qty:'+qty+',lev:'+lev+',stop:'+stop+',t1:'+t1+',vetoed:false})">EXECUTE BRACKET</button>'); }
+    <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)" ${vet?'disabled title="Fix the vetoed gates before copying this ticket"':''}>COPY TICKET</button><div class="kv" id="portfolioHeatRow" style="margin-top:8px"><span class="k">Portfolio Heat</span><span class="v">checkingÃ¢ÂÂ¦</span></div>`; updatePortfolioHeat($('tSym').value||'', side); if(!vet){ out.insertAdjacentHTML('beforeend', '<button class="btn" style="margin-top:8px" onclick="executeTrade({sym:'+JSON.stringify($('tSym').value)+',side:'+JSON.stringify(side)+',qty:'+qty+',lev:'+lev+',stop:'+stop+',t1:'+t1+',vetoed:false})">EXECUTE BRACKET</button>'); }
 }
 
 /* =============================================================================
-   GOLD â XAUTUSD session + liquidity module.
+   GOLD Ã¢ÂÂ XAUTUSD session + liquidity module.
    Swing: same hard gates as crypto. Scalp: Judas sweep-and-reclaim of Asian
    range / PDH/PDL inside London/NY kill zones only. Closed bars only.
-   F&G deliberately NOT applied â it measures crypto sentiment, not gold.
+   F&G deliberately NOT applied Ã¢ÂÂ it measures crypto sentiment, not gold.
    ============================================================================= */
 const GOLD_SYM = 'XAUTUSD';
 function goldSession(){
   const d = new Date();
   const h = d.getUTCHours() + d.getUTCMinutes()/60;
-  if (h>=7  && h<10) return {name:'LONDON KZ', kz:true};   // 12:30â15:30 IST
-  if (h>=12 && h<15) return {name:'NY KZ', kz:true};        // 17:30â20:30 IST
+  if (h>=7  && h<10) return {name:'LONDON KZ', kz:true};   // 12:30Ã¢ÂÂ15:30 IST
+  if (h>=12 && h<15) return {name:'NY KZ', kz:true};        // 17:30Ã¢ÂÂ20:30 IST
   if (h>=0  && h<7)  return {name:'ASIA (range builds)', kz:false};
   return {name:'OFF-SESSION', kz:false};
 }
@@ -1553,7 +1553,7 @@ async function runGold(){
     const m15= await getXAUCandles('15m',200); setProg('goldProg',0.9);
     if (d1.length<60||h4.length<210||m15.length<40){ $('goldStat').textContent='not enough XAUTUSD history'; return; }
 
-    /* ---- levels: prior-day H/L from last CLOSED daily; Asian range 00:00â07:00 UTC today ---- */
+    /* ---- levels: prior-day H/L from last CLOSED daily; Asian range 00:00Ã¢ÂÂ07:00 UTC today ---- */
     const pdc = d1[d1.length-1];
     const PDH = pdc.h, PDL = pdc.l;
     const day0now = utcDayStart();
@@ -1563,7 +1563,7 @@ async function runGold(){
     const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
     const sess = goldSession();
     $('goldSess').innerHTML = `session <b>${sess.name}</b>`;
-    $('goldLvl').innerHTML  = `PDH <b>${px(PDH)}</b> Â· PDL <b>${px(PDL)}</b> Â· Asia <b>${isFinite(asiaLo)?px(asiaLo):'â'}â${isFinite(asiaHi)?px(asiaHi):'â'}</b>`;
+    $('goldLvl').innerHTML  = `PDH <b>${px(PDH)}</b> ÃÂ· PDL <b>${px(PDL)}</b> ÃÂ· Asia <b>${isFinite(asiaLo)?px(asiaLo):'Ã¢ÂÂ'}Ã¢ÂÂ${isFinite(asiaHi)?px(asiaHi):'Ã¢ÂÂ'}</b>`;
 
     /* ---------------- SWING ledger ---------------- */
     const c4=h4.map(r=>r.c), c1=d1.map(r=>r.c);
@@ -1577,8 +1577,8 @@ async function runGold(){
     const dSide = pd>e50d ? 'long' : 'short';
     const sg=[];
     sg.push(['GS1','4H EMA cascade with real spread (anti-chop)', casc!=='mixed'&&spreadOk?'pass':'veto',
-      `9/21/50 â ${casc.toUpperCase()} Â· |21â50| ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'â'}ÃATR (need â¥0.25)`]);
-    sg.push(['GS2','1D side agrees (close vs 1D EMA50)', casc!=='mixed'&&casc===dSide?'pass':'veto', `1D â ${dSide.toUpperCase()}`]);
+      `9/21/50 Ã¢ÂÂ ${casc.toUpperCase()} ÃÂ· |21Ã¢ÂÂ50| ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'Ã¢ÂÂ'}ÃÂATR (need Ã¢ÂÂ¥0.25)`]);
+    sg.push(['GS2','1D side agrees (close vs 1D EMA50)', casc!=='mixed'&&casc===dSide?'pass':'veto', `1D Ã¢ÂÂ ${dSide.toUpperCase()}`]);
     const rsiVeto=(casc==='long'&&r4>70)||(casc==='short'&&r4<30);
     sg.push(['GS3','4H RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r4,1)}`]);
     let gs4='na', gs4d='funding n/a on this feed';
@@ -1588,38 +1588,38 @@ async function runGold(){
     }
     sg.push(['GS4','Funding clean (crowding veto)', gs4, gs4d]);
     const r30g=roc(c1,30), r90g=roc(c1,90);
-    let gs5='na', gs5d=`30d ${pct(r30g,1)} Â· 90d ${pct(r90g,1)}`;
+    let gs5='na', gs5d=`30d ${pct(r30g,1)} ÃÂ· 90d ${pct(r90g,1)}`;
     if (casc!=='mixed' && isFinite(r30g) && isFinite(r90g)){
       const want=casc==='long'?1:-1;
       const agree=(Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
       gs5 = agree===2?'pass':agree===0?'veto':'na';
     }
-    sg.push(['GS5','TSMOM 30/90d sign â trend persistence incl. commodities (MOP 2012)', gs5, gs5d]);
+    sg.push(['GS5','TSMOM 30/90d sign Ã¢ÂÂ trend persistence incl. commodities (MOP 2012)', gs5, gs5d]);
     const evG = cusumLast(c4.slice(-120), 1);
     let gs6='na', gs6d='no recent event';
     if (evG && evG.barsAgo<=20 && casc!=='mixed'){
       gs6 = evG.dir===casc?'pass':'veto';
       gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (4H)`;
     } else if (evG){ gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (stale)`; }
-    sg.push(['GS6','CUSUM event alignment â your walk-forward\'s top feature (OOS AUC â0.58)', gs6, gs6d]);
+    sg.push(['GS6','CUSUM event alignment Ã¢ÂÂ your walk-forward\'s top feature (OOS AUC Ã¢ÂÂ0.58)', gs6, gs6d]);
     let swingPlanHtml='', sVerdict='aside', nearMissSwing='';
     if (casc!=='mixed'){
       const stop=lastSwing(h4,casc,30), entry=last(c4), risk=Math.abs(entry-stop);
       const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
       const rrOk = risk>0 && room/risk>=2;
-      sg.push(['GS7','Structural R:R â¥ 2 (30-bar swing stop vs 120-bar room)', rrOk?'pass':'veto',
-        risk>0?`${fmt(room/risk,2)}R room Â· stop ${px(stop)}`:'no structure']);
+      sg.push(['GS7','Structural R:R Ã¢ÂÂ¥ 2 (30-bar swing stop vs 120-bar room)', rrOk?'pass':'veto',
+        risk>0?`${fmt(room/risk,2)}R room ÃÂ· stop ${px(stop)}`:'no structure']);
       const vet = sg.some(x=>x[2]==='veto');
       sVerdict = vet?'aside':casc;
-      nearMissSwing = vet ? (' Nearest miss: '+sg.filter(x=>x[2]==='pass').length+'/'+sg.length+' gates cleared â blocked by '+sg.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'. Not a signal, just how close price is.') : '';
+      nearMissSwing = vet ? (' Nearest miss: '+sg.filter(x=>x[2]==='pass').length+'/'+sg.length+' gates cleared Ã¢ÂÂ blocked by '+sg.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'. Not a signal, just how close price is.') : '';
       if(!vet){
         const t1=casc==='long'?entry+2*risk:entry-2*risk, t2=casc==='long'?entry+3*risk:entry-3*risk;
         logSetup(GOLD_SYM, casc, 'gold-swing', entry, stop, t1);
         swingPlanHtml = `<div class="plan">${planBlock(casc,entry,stop,t1,t2)}</div>
-          <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${casc}',${entry},${stop})">SEND TO TRADE PLAN â</button>`;
+          <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${casc}',${entry},${stop})">SEND TO TRADE PLAN Ã¢ÂÂ</button>`;
       }
     } else {
-      sg.push(['GS7','Structural R:R â¥ 2','na','no direction to measure']);
+      sg.push(['GS7','Structural R:R Ã¢ÂÂ¥ 2','na','no direction to measure']);
     }
     let sEvidenceHtml = '';
     try{
@@ -1634,16 +1634,16 @@ async function runGold(){
         const srsiE = stochRsi(c4,14,14);
         const srsiOkE = isFinite(srsiE[nE-1]) && (wantE>0 ? srsiE[nE-1]<80 : srsiE[nE-1]>20);
         const votesE = (bbBreakE?1:0)+(adxAlignedE?1:0)+(srsiOkE?1:0);
-        const detailE = 'BB '+(bbBreakE?'breakout':'no breakout')+' Â· ADX '+fmt(adxE.adx[nE-1],1)+' '+(adxAlignedE?'aligned':'not aligned')+' Â· StochRSI '+fmt(srsiE[nE-1],0)+' '+(srsiOkE?'not exhausted':'exhausted');
-        sEvidenceHtml = '<div class="vwhy" style="margin-top:4px">Context (not a gate) â momentum evidence '+votesE+'/3 aligned with '+casc.toUpperCase()+': '+detailE+'.</div>';
+        const detailE = 'BB '+(bbBreakE?'breakout':'no breakout')+' ÃÂ· ADX '+fmt(adxE.adx[nE-1],1)+' '+(adxAlignedE?'aligned':'not aligned')+' ÃÂ· StochRSI '+fmt(srsiE[nE-1],0)+' '+(srsiOkE?'not exhausted':'exhausted');
+        sEvidenceHtml = '<div class="vwhy" style="margin-top:4px">Context (not a gate) Ã¢ÂÂ momentum evidence '+votesE+'/3 aligned with '+casc.toUpperCase()+': '+detailE+'.</div>';
       }
     }catch(e){}
     $('goldSwingOut').innerHTML = `<div class="ledger">${sg.map(x=>gateRow(...x)).join('')}</div>
       <div class="verdict ${sVerdict==='aside'?'aside':sVerdict}">
         <div class="vword">${sVerdict==='aside'?'STAND ASIDE':sVerdict.toUpperCase()}</div>
         <div class="vwhy">${sVerdict==='aside'
-          ?('Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event â those are your manual checks.'+nearMissSwing)
-          :'All swing gates cleared. Verify DXY, real yields and the event calendar manually before sizing â this ledger cannot see them and will not pretend to.'}</div>
+          ?('Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event Ã¢ÂÂ those are your manual checks.'+nearMissSwing)
+          :'All swing gates cleared. Verify DXY, real yields and the event calendar manually before sizing Ã¢ÂÂ this ledger cannot see them and will not pretend to.'}</div>
       ${sEvidenceHtml}
       </div>${swingPlanHtml}`;
 
@@ -1670,10 +1670,10 @@ async function runGold(){
       const g=[];
       g.push(['GC1','Kill zone active (London/NY)', sess.kz?'pass':'veto', sess.name]);
       g.push(['GC2',`Liquidity sweep of ${dir==='long'?'Asia low / PDL':'Asia high / PDH'} (last 3h)`, swept?'pass':'veto',
-        swept?`swept ${swept} ${px(sweptLvl)} Â· extreme ${px(ext)}`:'no sweep']);
-      g.push(['GC3','Closed 15m bar reclaimed the level', reclaimed?'pass':'veto', swept?`close ${px(lastClose)} vs ${px(sweptLvl)}`:'â']);
+        swept?`swept ${swept} ${px(sweptLvl)} ÃÂ· extreme ${px(ext)}`:'no sweep']);
+      g.push(['GC3','Closed 15m bar reclaimed the level', reclaimed?'pass':'veto', swept?`close ${px(lastClose)} vs ${px(sweptLvl)}`:'Ã¢ÂÂ']);
       g.push(['GC4','1H context not fighting you (close vs 1H EMA21)', htfOk?'pass':'veto', `1H EMA21 ${px(e21h1)}`]);
-      g.push(['GC5','Volatility alive (15m ATR â¥ 0.8Ã 24h median)', volAlive?'pass':'veto', `ATR ${px(a15)} Â· med ${px(aMed)}`]);
+      g.push(['GC5','Volatility alive (15m ATR Ã¢ÂÂ¥ 0.8ÃÂ 24h median)', volAlive?'pass':'veto', `ATR ${px(a15)} ÃÂ· med ${px(aMed)}`]);
       let planHtml='';
       if (swept && reclaimed){
         const stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;   // beyond the sweep extreme, ATR buffer
@@ -1683,12 +1683,12 @@ async function runGold(){
         const room = dir==='long' ? oppo-lastClose : lastClose-oppo;
         const rrOk = risk>0 && isFinite(room) && room>=2*risk;
         g.push(['GC6','2R fits before the opposite liquidity pool', rrOk?'pass':'veto',
-          risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'â']);
+          risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'Ã¢ÂÂ']);
         if (!g.some(x=>x[2]==='veto')){
           const t1=dir==='long'?lastClose+2*risk:lastClose-2*risk;
           logSetup(GOLD_SYM, dir, 'gold-scalp', lastClose, stop, t1);
           planHtml=`<div class="plan">${planBlock(dir,lastClose,stop,t1,oppo)}</div>
-            <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${dir}',${lastClose},${stop})">SEND TO TRADE PLAN â</button>`;
+            <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${dir}',${lastClose},${stop})">SEND TO TRADE PLAN Ã¢ÂÂ</button>`;
         }
       } else {
         g.push(['GC6','2R fits before the opposite pool','na','needs a completed sweep + reclaim first']);
@@ -1707,31 +1707,31 @@ async function runGold(){
           const srsi2 = stochRsi(c15E,14,14);
           const srsiOk2 = isFinite(srsi2[nE2-1]) && (wantE2>0 ? srsi2[nE2-1]<80 : srsi2[nE2-1]>20);
           const votes2 = (bbBreak2?1:0)+(adxAligned2?1:0)+(srsiOk2?1:0);
-          const detail2 = 'BB '+(bbBreak2?'breakout':'no breakout')+' Â· ADX '+fmt(adx2.adx[nE2-1],1)+' '+(adxAligned2?'aligned':'not aligned')+' Â· StochRSI '+fmt(srsi2[nE2-1],0)+' '+(srsiOk2?'not exhausted':'exhausted');
-          cEvidenceHtml = '<div class="vwhy" style="margin-top:2px;font-size:11px">Context (not a gate) â momentum evidence '+votes2+'/3 aligned with '+dir.toUpperCase()+': '+detail2+'.</div>';
+          const detail2 = 'BB '+(bbBreak2?'breakout':'no breakout')+' ÃÂ· ADX '+fmt(adx2.adx[nE2-1],1)+' '+(adxAligned2?'aligned':'not aligned')+' ÃÂ· StochRSI '+fmt(srsi2[nE2-1],0)+' '+(srsiOk2?'not exhausted':'exhausted');
+          cEvidenceHtml = '<div class="vwhy" style="margin-top:2px;font-size:11px">Context (not a gate) Ã¢ÂÂ momentum evidence '+votes2+'/3 aligned with '+dir.toUpperCase()+': '+detail2+'.</div>';
         }
       }catch(e){}
       const vet=g.some(x=>x[2]==='veto');
-    const nearMissScalp = vet ? ('<div class="vwhy">Nearest miss: '+g.filter(x=>x[2]==='pass').length+'/'+g.length+' gates cleared â blocked by '+g.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'.</div>') : '';
+    const nearMissScalp = vet ? ('<div class="vwhy">Nearest miss: '+g.filter(x=>x[2]==='pass').length+'/'+g.length+' gates cleared Ã¢ÂÂ blocked by '+g.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'.</div>') : '';
       return `<div style="margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--${dir==='long'?'long':'short'})">${dir.toUpperCase()} SCENARIO</div>
         <div class="ledger" style="margin-bottom:10px">${g.map(x=>gateRow(...x)).join('')}</div>
         <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}${nearMissScalp}</div>${cEvidenceHtml}</div>${planHtml}`;
     }
     $('goldScalpOut').innerHTML = scalpLedger('long') + scalpLedger('short');
-    $('goldStat').textContent = `evaluated Â· closed bars only Â· ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
+    $('goldStat').textContent = `evaluated ÃÂ· closed bars only ÃÂ· ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
   }catch(e){
     $('goldStat').textContent = 'gold eval failed: '+e.message;
   }finally{ setProg('goldProg',null); setTimeout(()=>{ btn.disabled=false; }, 10000); }
 }
 
 /* =============================================================================
-   SETUP LOG â every CLEAN setup auto-logs; outcomes graded from candle history.
+   SETUP LOG Ã¢ÂÂ every CLEAN setup auto-logs; outcomes graded from candle history.
    Conservative same-bar rule: stop and target in one bar counts as SL.
    localStorage only; EXPORT before clearing browser data.
    ============================================================================= */
 const LOG_KEY='hardgate_log_v1';
 function loadLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
-/* IndexedDB durability layer â localStorage stays the synchronous source of truth,
+/* IndexedDB durability layer Ã¢ÂÂ localStorage stays the synchronous source of truth,
    IDB is a durable mirror (localStorage caps ~5MB and can be evicted). */
 const IDB_DB='hardgate', IDB_STORE='kv';
 function idbOpen(){ return new Promise(function(res,rej){ try{ const rq=indexedDB.open(IDB_DB,1); rq.onupgradeneeded=function(){ rq.result.createObjectStore(IDB_STORE); }; rq.onsuccess=function(){ res(rq.result); }; rq.onerror=function(){ rej(rq.error); }; }catch(e){ rej(e); } }); }
@@ -1749,7 +1749,7 @@ function logSetup(sym,dir,kind,entry,stop,t1){
   saveLog(l); renderLogBadge();
 }
 async function checkOutcomes(){
-  const l=loadLog(); const btn=$('logCheck'); btn.disabled=true; $('logStat').textContent='checkingâ¦';
+  const l=loadLog(); const btn=$('logCheck'); btn.disabled=true; $('logStat').textContent='checkingÃ¢ÂÂ¦';
   let checked=0, skipped=0;
   for (const e of l){
     if (e.status!=='open') continue;
@@ -1762,16 +1762,16 @@ async function checkOutcomes(){
       for (const b of rows){
         const hitSL = e.dir==='long' ? b.l<=e.stop : b.h>=e.stop;
         const hitTP = e.dir==='long' ? b.h>=e.t1  : b.l<=e.t1; if (hitSL && hitTP && res!=='15m'){ try{ const sub = await candlesRangeRaw(e.sym, '15m', b.t, b.t+secPer); let rS=null, rT=null; for (const sb of sub){ const subSL = e.dir==='long' ? sb.l<=e.stop : sb.h>=e.stop; const subTP = e.dir==='long' ? sb.h>=e.t1 : sb.l<=e.t1; if (subSL){ rS='sl'; rT=sb.t; break; } if (subTP){ rS='tp'; rT=sb.t; break; } } if (rS){ e.status=rS; e.doneTs=rT; break; } }catch(err){} }
-        if (hitSL){ e.status='sl'; e.doneTs=b.t; break; }   // same-bar ambiguity â SL, always
+        if (hitSL){ e.status='sl'; e.doneTs=b.t; break; }   // same-bar ambiguity Ã¢ÂÂ SL, always
         if (hitTP){ e.status='tp'; e.doneTs=b.t; break; } if (b.t >= maxTimeAllowed && e.status==='open'){ e.status='time_stop'; e.doneTs=b.t; e.rr=-0.1; break; }
       }
       if (e.status==='open' && age>14*86400) e.status='exp';
       checked++;
-    }catch(err){ /* symbol delisted or fetch failed â stays open */ }
+    }catch(err){ /* symbol delisted or fetch failed Ã¢ÂÂ stays open */ }
     await sleep(60);
   }
   saveLog(l); renderLog();
-  $('logStat').textContent = `checked ${checked} open${skipped?` Â· ${skipped} skipped (other exchange)`:''}`;
+  $('logStat').textContent = `checked ${checked} open${skipped?` ÃÂ· ${skipped} skipped (other exchange)`:''}`;
   btn.disabled=false;
 }
 function renderLog(){
@@ -1780,13 +1780,13 @@ function renderLog(){
         op=l.filter(e=>e.status==='open').length, ex=l.filter(e=>e.status==='exp').length; const tsStop = l.filter(e=>e.status==='time_stop').length;
   const closed=tp+sl;
   const sumR=l.reduce((a,e)=> a + (e.status==='tp' ? (e.rr||2) : e.status==='sl' ? -1 : e.status==='time_stop' ? (e.rr||-0.1) : 0), 0);
-  $('logSummary').innerHTML = `logged <b>${l.length}</b> Â· open <b>${op}</b> Â· TP <b class="pos">${tp}</b> Â· SL <b class="neg">${sl}</b> Â· expired <b>${ex}</b> Â· time-stop <b>${tsStop}</b> Â· hit rate <b>${closed?fmt(tp/closed*100,1)+'%':'â'}</b> Â· Î£R <b class="${sumR>=0?'pos':'neg'}">${fmt(sumR,2)}R</b>${closed>0&&closed<30?' Â· <span style="color:var(--gold)">n='+closed+' closed â far too small to call an edge</span>':''}`;
+  $('logSummary').innerHTML = `logged <b>${l.length}</b> ÃÂ· open <b>${op}</b> ÃÂ· TP <b class="pos">${tp}</b> ÃÂ· SL <b class="neg">${sl}</b> ÃÂ· expired <b>${ex}</b> ÃÂ· time-stop <b>${tsStop}</b> ÃÂ· hit rate <b>${closed?fmt(tp/closed*100,1)+'%':'Ã¢ÂÂ'}</b> ÃÂ· ÃÂ£R <b class="${sumR>=0?'pos':'neg'}">${fmt(sumR,2)}R</b>${closed>0&&closed<30?' ÃÂ· <span style="color:var(--gold)">n='+closed+' closed Ã¢ÂÂ far too small to call an edge</span>':''}`;
   $('logTable').innerHTML = l.length ? `<table><tr><th>time IST</th><th>sym</th><th>kind</th><th>dir</th><th>entry</th><th>stop</th><th>T1</th><th>R:R</th><th>status</th></tr>${
     l.map(e=>{
       const d=new Date((e.ts+19800)*1000).toISOString().slice(5,16).replace('T',' ');
       const st=e.status==='tp'?'<b class="pos">TP</b>':e.status==='sl'?'<b class="neg">SL</b>':e.status==='exp'?'<span style="color:var(--dim)">EXP</span>':e.status==='time_stop'?'<span style="color:var(--dim)">TIME_STOP</span>':'open';
       return `<tr><td>${d}</td><td>${e.sym}</td><td>${e.kind}</td><td>${e.dir.toUpperCase()}</td><td>${px(e.entry)}</td><td>${px(e.stop)}</td><td>${px(e.t1)}</td><td>${fmt(e.rr,2)}</td><td>${st}</td></tr>`;
-    }).join('')}</table>` : '<div class="empty">Nothing logged yet. Run any scan â every CLEAN setup lands here automatically.</div>';
+    }).join('')}</table>` : '<div class="empty">Nothing logged yet. Run any scan Ã¢ÂÂ every CLEAN setup lands here automatically.</div>';
 }
 function exportLog(){
   const blob=new Blob([JSON.stringify(loadLog(),null,2)],{type:'application/json'});
@@ -1796,7 +1796,7 @@ function clearLog(){ if (confirm('Delete the entire setup log? Export first if y
 function renderLogBadge(){ const b=$('tabB_log'); if(b){ const n=loadLog().length; b.textContent = n?`LOG (${n})`:'LOG'; } }
 
 /* =============================================================================
-   BEST â all hard gates first (binary ticket), then rank CLEAN survivors by a
+   BEST Ã¢ÂÂ all hard gates first (binary ticket), then rank CLEAN survivors by a
    visible tally of independent aligned confirmations. Never a weighted score.
    ============================================================================= */
 async function runCascadeCore(uni){
@@ -1807,7 +1807,7 @@ async function runCascadeCore(uni){
       const chunk = uni.slice(ci, ci+CHUNK1_SIZE);
       await Promise.all(chunk.map(async function(t, idxInChunk){
       const i = ci+idxInChunk; setProg('bestProg',(i+1)/uni.length*0.65);
-      $('bestStat').textContent=`gates ${i+1}/${uni.length} Â· ${t.symbol}`;
+      $('bestStat').textContent=`gates ${i+1}/${uni.length} ÃÂ· ${t.symbol}`;
       try{
         const rows=await getCandles(t.symbol,'4h',260);
         if (rows.length<210) return;
@@ -1835,22 +1835,22 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
       await sleep(60);
     }
     
-    /* Evidence FAMILIES for survivors â independence over count.
+    /* Evidence FAMILIES for survivors Ã¢ÂÂ independence over count.
        Correlated indicators are grouped; each family yields at most ONE point,
        and the TREND family needs a 2-of-3 internal majority. This is the fix
        for triple-counting one fact (TSMOM, 1D side and CUSUM all measure trend).
        Plus two robustness checks: cross-timeframe stability and persistence. */
     const PF_CHUNK=5; for (let ci2=0; ci2<clean.length; ci2+=PF_CHUNK){ const chunk2=clean.slice(ci2,ci2+PF_CHUNK); await Promise.all(chunk2.map(async function(s){ try{ await getCandles(s.t.symbol,'1d',120); await getCandles(s.t.symbol,'2h',160); }catch(e){} })); } for (let i=0;i<clean.length;i++){
       const s=clean[i]; setProg('bestProg',0.65+((i+1)/clean.length)*0.3);
-      $('bestStat').textContent=`evidence ${i+1}/${clean.length} Â· ${s.t.symbol}`;
+      $('bestStat').textContent=`evidence ${i+1}/${clean.length} ÃÂ· ${s.t.symbol}`;
       const want=s.dir==='long'?1:-1;
-      /* F1 TREND â members: TSMOM(MOP 2012), 1D side, CUSUM(your OOS top feature). Majority 2/3. */
+      /* F1 TREND Ã¢ÂÂ members: TSMOM(MOP 2012), 1D side, CUSUM(your OOS top feature). Majority 2/3. */
       let mTs=false, mD1=false, tsD='1D fetch failed', d1D='1D fetch failed';
       try{
         const d1=await getCandles(s.t.symbol,'1d',120); const c1=d1.map(r=>r.c);
         const r30=roc(c1,30), r90=roc(c1,90);
         mTs = isFinite(r30)&&isFinite(r90)&&Math.sign(r30)===want&&Math.sign(r90)===want;
-        tsD = `30d ${pct(r30,1)} Â· 90d ${pct(r90,1)}`;
+        tsD = `30d ${pct(r30,1)} ÃÂ· 90d ${pct(r90,1)}`;
         const e50d=last(ema(c1,50));
         mD1 = c1.length>=60 && (s.dir==='long'?last(c1)>e50d:last(c1)<e50d);
         d1D = `1D EMA50 ${px(e50d)}`;
@@ -1858,21 +1858,21 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
       const mCu = !!(s.ev&&s.ev.barsAgo<=20&&s.ev.dir===s.dir);
       const trendVotes=(mTs?1:0)+(mD1?1:0)+(mCu?1:0);
       const f1 = trendVotes>=2;
-      /* F2 POSITIONING â funding tailwind: the crowd pays you to hold. */
+      /* F2 POSITIONING Ã¢ÂÂ funding tailwind: the crowd pays you to hold. */
       const f2 = s.fr!==null && (s.dir==='long'?s.fr<0:s.fr>0);
-      /* F3 PARTICIPATION â strong volume expansion. */
+      /* F3 PARTICIPATION Ã¢ÂÂ strong volume expansion. */
       let vwapOk=false, vwapDetail='n/a';
       try{
         const dv = vwapDev(s.rows,20);
         if (isFinite(dv)){ vwapOk = want>0 ? dv>0 : dv<0; vwapDetail = fmt(dv,2)+'% vs 20-bar VWAP'; }
       }catch(e){}
       const f3 = s.vz>1.0 || vwapOk;
-      /* F4 STRUCTURE â breakout location (Donchian-20, Turtle) or extra room (R:Râ¥3). */
+      /* F4 STRUCTURE Ã¢ÂÂ breakout location (Donchian-20, Turtle) or extra room (R:RÃ¢ÂÂ¥3). */
       const d20 = s.dir==='long' ? Math.max(...s.rows.slice(-20).map(r=>r.h)) : Math.min(...s.rows.slice(-20).map(r=>r.l));
       const mDc = Math.abs(s.entry-d20)/s.entry<=0.015, mRr=s.rr>=3;
       const f4 = mDc||mRr;
-      /* F5 VOLATILITY/MOMENTUM â members: Bollinger(20,2) squeeze-to-breakout, ADX(14) trend
-         strength+direction, StochRSI(14) not-exhausted. Majority 2/3 â grouped as one family
+      /* F5 VOLATILITY/MOMENTUM Ã¢ÂÂ members: Bollinger(20,2) squeeze-to-breakout, ADX(14) trend
+         strength+direction, StochRSI(14) not-exhausted. Majority 2/3 Ã¢ÂÂ grouped as one family
          because all three measure the same underlying fact: is momentum expanding in your
          favor right now, not three independent facts. No claim of profitability; this only
          changes which of the already-gated survivors gets ranked first. */
@@ -1890,10 +1890,10 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
           const srsiOk = isFinite(srsiX[nX-1]) && (want>0 ? srsiX[nX-1]<80 : srsiX[nX-1]>20);
           const votes5 = (bbBreak?1:0)+(adxAligned?1:0)+(srsiOk?1:0);
           f5 = votes5>=2;
-          f5Detail = 'BB '+(bbBreak?'breakout':'no breakout')+' Â· ADX '+fmt(adxX.adx[nX-1],1)+' '+(adxAligned?'aligned':'not aligned')+' Â· StochRSI '+fmt(srsiX[nX-1],0)+' '+(srsiOk?'not exhausted':'exhausted');
+          f5Detail = 'BB '+(bbBreak?'breakout':'no breakout')+' ÃÂ· ADX '+fmt(adxX.adx[nX-1],1)+' '+(adxAligned?'aligned':'not aligned')+' ÃÂ· StochRSI '+fmt(srsiX[nX-1],0)+' '+(srsiOk?'not exhausted':'exhausted');
         }
       }catch(e){}
-      /* R1 ROBUSTNESS â cascade must also hold on 2H: a signal living at exactly
+      /* R1 ROBUSTNESS Ã¢ÂÂ cascade must also hold on 2H: a signal living at exactly
          one timeframe is a curve-fit artifact, not a trend. */
       let r1=false, r1D='2H fetch failed';
       try{
@@ -1902,19 +1902,19 @@ const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='
         r1 = s.dir==='long' ? (a9>a21&&a21>a50) : (a9<a21&&a21<a50);
         r1D = `2H EMA9/21/50 ${r1?'aligned':'NOT aligned'}`;
       }catch(e){}
-      /* R2 ROBUSTNESS â persistence: cascade held â¥3 consecutive closed 4H bars. */
+      /* R2 ROBUSTNESS Ã¢ÂÂ persistence: cascade held Ã¢ÂÂ¥3 consecutive closed 4H bars. */
       const age = cascadeAge(s.rows.map(r=>r.c), s.dir);
       const r2 = age>=3;
       s.fam=[
-['G0','Anti-Chase Guard â price to EMA21 distance', true, `${fmt(s.distToAnchor,2)} ATR (limit â¤ 1.5, entry: ${s.entryType})`],
-        ['F1','TREND family â 2-of-3 majority: TSMOM Â· 1D side Â· CUSUM', f1,
-          `${trendVotes}/3 â TSMOM ${mTs?'â':'â'} (${tsD}) Â· 1D ${mD1?'â':'â'} Â· CUSUM ${mCu?'â':'â'}${s.ev?` (${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago)`:''}`],
-        ['F2','POSITIONING family â funding tailwind (crowd pays you)', f2, s.fr!==null?`${fmt(s.fr,4)}%/interval`:'n/a'],
-        ['F3','PARTICIPATION family â volume z > 1.0 or VWAP side', f3, `z ${fmt(s.vz,2)} Â· ${vwapDetail}`],
-        ['F4','STRUCTURE family â Donchian-20 breakout zone or R:R â¥ 3', f4, `Donchian ${mDc?'â':'â'} (${px(d20)}) Â· R:R ${mRr?'â':'â'} (${fmt(s.rr,2)}R)`],
-        ['F5','VOLATILITY/MOMENTUM family â 2-of-3 majority: Bollinger breakout Â· ADX trend+direction Â· StochRSI not-exhausted', f5, f5Detail],
-        ['R1','ROBUSTNESS â cascade also holds on 2H (anti curve-fit)', r1, r1D],
-        ['R2','ROBUSTNESS â cascade age â¥3 closed 4H bars (anti flicker)', r2, `${age} bars`],
+['G0','Anti-Chase Guard Ã¢ÂÂ price to EMA21 distance', true, `${fmt(s.distToAnchor,2)} ATR (limit Ã¢ÂÂ¤ 1.5, entry: ${s.entryType})`],
+        ['F1','TREND family Ã¢ÂÂ 2-of-3 majority: TSMOM ÃÂ· 1D side ÃÂ· CUSUM', f1,
+          `${trendVotes}/3 Ã¢ÂÂ TSMOM ${mTs?'Ã¢ÂÂ':'Ã¢ÂÂ'} (${tsD}) ÃÂ· 1D ${mD1?'Ã¢ÂÂ':'Ã¢ÂÂ'} ÃÂ· CUSUM ${mCu?'Ã¢ÂÂ':'Ã¢ÂÂ'}${s.ev?` (${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago)`:''}`],
+        ['F2','POSITIONING family Ã¢ÂÂ funding tailwind (crowd pays you)', f2, s.fr!==null?`${fmt(s.fr,4)}%/interval`:'n/a'],
+        ['F3','PARTICIPATION family Ã¢ÂÂ volume z > 1.0 or VWAP side', f3, `z ${fmt(s.vz,2)} ÃÂ· ${vwapDetail}`],
+        ['F4','STRUCTURE family Ã¢ÂÂ Donchian-20 breakout zone or R:R Ã¢ÂÂ¥ 3', f4, `Donchian ${mDc?'Ã¢ÂÂ':'Ã¢ÂÂ'} (${px(d20)}) ÃÂ· R:R ${mRr?'Ã¢ÂÂ':'Ã¢ÂÂ'} (${fmt(s.rr,2)}R)`],
+        ['F5','VOLATILITY/MOMENTUM family Ã¢ÂÂ 2-of-3 majority: Bollinger breakout ÃÂ· ADX trend+direction ÃÂ· StochRSI not-exhausted', f5, f5Detail],
+        ['R1','ROBUSTNESS Ã¢ÂÂ cascade also holds on 2H (anti curve-fit)', r1, r1D],
+        ['R2','ROBUSTNESS Ã¢ÂÂ cascade age Ã¢ÂÂ¥3 closed 4H bars (anti flicker)', r2, `${age} bars`],
       ];
       s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0)+(f5?1:0);
       s.robScore=(r1?1:0)+(r2?1:0);
@@ -1939,7 +1939,7 @@ async function runBest(){
     const universeLabel = scanAll ? `whole ${exLabel} futures universe` : `top ${N} by turnover`;
     const {clean, breadth} = await runCascadeCore(uni);
     if (!clean.length){
-      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade â that verdict is the product working, not failing.</div>`;
+      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade Ã¢ÂÂ that verdict is the product working, not failing.</div>`;
       return;
     }
     const w=clean[0];
@@ -1947,26 +1947,26 @@ async function runBest(){
     const regimeDir = breadth.total>=10 ? (breadthPct<=20?'bear':(breadthPct>=80?'bull':null)) : null;
     if (regimeDir && ((regimeDir==='bear' && w.dir==='long') || (regimeDir==='bull' && w.dir==='short'))){
       $('bestStat').textContent = 'master veto: regime unsafe';
-      out.innerHTML = `<div class="empty"><b style="color:var(--veto)">MASTER VETO: STAND ASIDE</b><br><br>Market breadth only ${fmt(breadthPct,0)}% bullish (${breadth.bull}/${breadth.total} coins above 200-EMA on 4H) â ${regimeDir} regime, ${w.dir} setups here are ${regimeDir==='bear'?'catching falling knives':'fighting a screaming uptrend'}. Scanning canceled to protect capital.</div>`;
+      out.innerHTML = `<div class="empty"><b style="color:var(--veto)">MASTER VETO: STAND ASIDE</b><br><br>Market breadth only ${fmt(breadthPct,0)}% bullish (${breadth.bull}/${breadth.total} coins above 200-EMA on 4H) Ã¢ÂÂ ${regimeDir} regime, ${w.dir} setups here are ${regimeDir==='bear'?'catching falling knives':'fighting a screaming uptrend'}. Scanning canceled to protect capital.</div>`;
       return;
     }
     const t1=w.t1; const t2=w.t2;
     logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
-    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} â ${s.famScore}/5 families Â· ${s.robScore}/2 robustness Â· ${fmt(s.rr,2)}R`).join('<br>') || 'none';
+    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} Ã¢ÂÂ ${s.famScore}/5 families ÃÂ· ${s.robScore}/2 robustness ÃÂ· ${fmt(s.rr,2)}R`).join('<br>') || 'none';
     out.innerHTML = `
       <div class="panel">
-        <h2>${w.t.symbol} <span>${w.dir.toUpperCase()} Â· ${w.entryType} Â· mark ${px(w.t.mark||w.entry)} Â· all 7 hard gates PASSED (ticket in â not part of the ranking)</span></h2>
+        <h2>${w.t.symbol} <span>${w.dir.toUpperCase()} ÃÂ· ${w.entryType} ÃÂ· mark ${px(w.t.mark||w.entry)} ÃÂ· all 7 hard gates PASSED (ticket in Ã¢ÂÂ not part of the ranking)</span></h2>
         <div class="ledger">${w.fam.map(x=>gateRow(x[0], x[1], x[2]?'pass':'na', x[3])).join('')}</div>
         <div class="verdict ${w.dir}">
-          <div class="vword">${w.dir.toUpperCase()} Â· ${w.famScore}/5 FAMILIES Â· ${w.robScore}/2 ROBUST</div>
-          <div class="vwhy">Execution: ${w.entryType}. Ranked #1 of ${clean.length} CLEAN setups by independent evidence families, then robustness, then structural R:R. Families cannot be inflated by correlated indicators â trend counts once no matter how many trend indicators agree. 4/4 + 2/2 is the strongest evidence this framework can honestly claim, and it is still not a promise. Logged to LOG automatically.</div>
+          <div class="vword">${w.dir.toUpperCase()} ÃÂ· ${w.famScore}/5 FAMILIES ÃÂ· ${w.robScore}/2 ROBUST</div>
+          <div class="vwhy">Execution: ${w.entryType}. Ranked #1 of ${clean.length} CLEAN setups by independent evidence families, then robustness, then structural R:R. Families cannot be inflated by correlated indicators Ã¢ÂÂ trend counts once no matter how many trend indicators agree. 4/4 + 2/2 is the strongest evidence this framework can honestly claim, and it is still not a promise. Logged to LOG automatically.</div>
         </div>
-        <div class="plan">${planBlock(w.dir,w.entry,w.stop,t1,t2)}</div><div class="note" style="margin-top:8px">Nearest OB: <b>${nearestOBText(w.rows,w.dir)}</b> Â· Liquidity Target: <b>${liquidityTargetText(w.rows,w.dir)}</b></div>
-        <button class="toTrade" onclick="toTrade('${w.t.symbol}','${w.dir}',${w.entry},${w.stop},${t1})">SEND TO TRADE PLAN â</button>
+        <div class="plan">${planBlock(w.dir,w.entry,w.stop,t1,t2)}</div><div class="note" style="margin-top:8px">Nearest OB: <b>${nearestOBText(w.rows,w.dir)}</b> ÃÂ· Liquidity Target: <b>${liquidityTargetText(w.rows,w.dir)}</b></div>
+        <button class="toTrade" onclick="toTrade('${w.t.symbol}','${w.dir}',${w.entry},${w.stop},${t1})">SEND TO TRADE PLAN Ã¢ÂÂ</button>
         <hr class="sep">
         <div class="note"><b>Runners-up (also CLEAN):</b><br>${others}</div>
       </div>`;
-    $('bestStat').textContent=`done Â· ${clean.length} CLEAN of ${uni.length} scanned (${universeLabel})`;
+    $('bestStat').textContent=`done ÃÂ· ${clean.length} CLEAN of ${uni.length} scanned (${universeLabel})`;
   }catch(e){ out.innerHTML=`<div class="empty">best scan failed: ${e.message}</div>`; }
   finally{ setProg('bestProg',null); btn.disabled=false; }
 }
@@ -2145,9 +2145,9 @@ const resolved = results.filter(function(r){ return r.outcome!=='unresolved'; })
 const winRate = total ? (wins/total*100) : NaN;
 const avgR = resolved.length ? (resolved.reduce(function(a,r){return a+r.rMult;},0)/resolved.length) : NaN;
 const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
-const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) â treat as directional evidence, not a reliable win rate.</div>' : '';
-return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve Data history Â· '+rangeNote+'</span></h2>'
-+ '<div class="note">Replays this app\'s own SWING gates (cascade+spread, HTF side, RSI band, structural R:Râ¥ 2, CUSUM) bar-by-bar on real historical price data. Funding-rate and volume gates are NOT included â Twelve Data does not provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here. This is a frequency count of what already happened, not a prediction or guarantee.</div>'
+const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) Ã¢ÂÂ treat as directional evidence, not a reliable win rate.</div>' : '';
+return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve Data history ÃÂ· '+rangeNote+'</span></h2>'
++ '<div class="note">Replays this app\'s own SWING gates (cascade+spread, HTF side, RSI band, structural R:RÃ¢ÂÂ¥ 2, CUSUM) bar-by-bar on real historical price data. Funding-rate and volume gates are NOT included Ã¢ÂÂ Twelve Data does not provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here. This is a frequency count of what already happened, not a prediction or guarantee.</div>'
 + '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
 + '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
 + '<div class="kv"><span class="k">Hit stop first</span><span class="v">'+stops+'</span></div>'
@@ -2158,11 +2158,11 @@ return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve 
 async function runCryptoBacktest(base, btnId, outId){
 const btn = $(btnId), out = $(outId);
 if (!btn || !out) return;
-btn.disabled = true; btn.textContent = 'RUNNINGâ¦';
+btn.disabled = true; btn.textContent = 'RUNNINGÃ¢ÂÂ¦';
 out.innerHTML = '';
 try{
 const rows = await getCryptoCandlesTD(base, '4h', 5000);
-if (rows.length < 220){ out.innerHTML = '<div class="note warn">Twelve Data only has '+rows.length+' 4H bars for '+base+' â not enough history for a meaningful backtest.</div>'; return; }
+if (rows.length < 220){ out.innerHTML = '<div class="note warn">Twelve Data only has '+rows.length+' 4H bars for '+base+' Ã¢ÂÂ not enough history for a meaningful backtest.</div>'; return; }
 const results = backtestSwingTD(rows);
 out.innerHTML = backtestSummaryHTML(base, rows, results);
 } catch(e){
@@ -2245,7 +2245,7 @@ function initAlerts(){
 
 /* ---------------- dev-only self-tests (console: runSelfTests()) ----------------
    Lightweight fixture checks for the gate logic most prone to silent regressions.
-   Not a full test suite â pins the closePos/sweep formulas and exercises the
+   Not a full test suite Ã¢ÂÂ pins the closePos/sweep formulas and exercises the
    real cusumLast() directly so future edits to these can't silently flip a sign
    or break a divide-by-zero guard without a visible console failure. */
 function runSelfTests(){
@@ -2601,8 +2601,8 @@ function backtestSummaryHTML2(label, rows, results, note){
   const winRate = total ? (wins/total*100) : NaN;
   const avgR = resolved.length ? (resolved.reduce((a,r)=>a+r.rMult,0)/resolved.length) : NaN;
   const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
-  const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) â treat as directional evidence, not a reliable win rate.</div>' : '';
-  return '<div class="panel"><h2>'+label+' BACKTEST <span>Twelve Data history Â· '+rangeNote+'</span></h2>'
+  const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) Ã¢ÂÂ treat as directional evidence, not a reliable win rate.</div>' : '';
+  return '<div class="panel"><h2>'+label+' BACKTEST <span>Twelve Data history ÃÂ· '+rangeNote+'</span></h2>'
   + '<div class="note">'+note+'</div>'
   + '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
   + '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
@@ -2633,7 +2633,7 @@ async function evalSwingSingle(sym, exch){
   let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : null);
   const g=[];
   const spreadOk = dir && isFinite(a4) && Math.abs(e21-e50)>=0.25*a4;
-  g.push(['G1','4H EMA cascade with real spread', dir&&spreadOk?'pass':'veto', dir?`${dir.toUpperCase()} Â· spread ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'â'}x ATR`:'no cascade']);
+  g.push(['G1','4H EMA cascade with real spread', dir&&spreadOk?'pass':'veto', dir?`${dir.toUpperCase()} ÃÂ· spread ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'Ã¢ÂÂ'}x ATR`:'no cascade']);
   if (!dir || !spreadOk) return {gates:g, veto:true};
   const htfOk = dir==='long'?p>e200:p<e200;
   g.push(['G2','HTF side (200EMA)', htfOk?'pass':'veto', `price ${px(p)} vs 200EMA ${px(e200)}`]);
@@ -2643,7 +2643,7 @@ async function evalSwingSingle(sym, exch){
   if (!(vz>0.5)){ g.push(['G5','Vol + wick commit','veto',`vol z ${fmt(vz,2)} (need >0.5)`]); return {gates:g, veto:true}; }
   const currentBar=rows[rows.length-1]; const range=currentBar.h-currentBar.l; const closePos=range>0?(currentBar.c-currentBar.l)/range:0.5;
   const wickOk = dir==='long'?closePos>=0.60:closePos<=0.40;
-  g.push(['G5','Vol + wick commit', wickOk?'pass':'veto', `vol z ${fmt(vz,2)} Â· closePos ${fmt(closePos,2)}`]);
+  g.push(['G5','Vol + wick commit', wickOk?'pass':'veto', `vol z ${fmt(vz,2)} ÃÂ· closePos ${fmt(closePos,2)}`]);
   if (!wickOk) return {gates:g, veto:true};
   const stop = lastSwing(rows, dir, 30);
   const distToAnchor = Math.abs(p-e21)/a4;
@@ -2836,16 +2836,66 @@ async function runFinderCryptoBacktest(base){
     const m15 = await getCryptoCandlesTD(base,'15m',5000);
     const d1 = await getCryptoCandlesTD(base,'1d',300);
     const c4rows = await getCryptoCandlesTD(base,'4h',5000);
-    const swingRes = backtestSwingTD(c4rows);
-    const scalpRes = backtestScalpTD(h1, m15);
-    const judasRes = backtestJudasTD(d1, h1, m15);
+    const [swingRes, scalpRes, judasRes] = await Promise.all([
+      runBacktestWorker('swing', {c4: c4rows}),
+      runBacktestWorker('scalp', {h1: h1, m15: m15}),
+      runBacktestWorker('judas', {d1: d1, h1: h1, m15: m15})
+    ]);
     out.innerHTML = backtestSummaryHTML2(base+' SWING', c4rows, swingRes, "Replays this app's SWING gates bar-by-bar. Funding and volume-z gates excluded (Twelve Data doesn't provide historical funding or reliable crypto volume).")
       + backtestSummaryHTML2(base+' SCALP', m15, scalpRes, "Replays this app's SCALP gates (1H trend, sweep+reclaim, RSI band, funding-window timing, ATR vol-alive, wick commit, R:R) bar-by-bar. Funding rate and volume-z excluded for the same data-availability reason.")
       + backtestSummaryHTML2(base+' JUDAS SWEEP', m15, judasRes, "Replays the kill-zone liquidity-sweep-and-reclaim gates bar-by-bar.");
   }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
 }
 
-async function runScalpBacktestUI(){
+
+// ---- Phase 9: backtest worker runner (off-main-thread compute, sync fallback) ----
+let __btWorker = null, __btSeq = 0, __btPending = {};
+function __btGetWorker(){
+  if (__btWorker) return __btWorker;
+  try {
+    __btWorker = new Worker('backtest-worker.js');
+    __btWorker.onmessage = function(ev){
+      const d = ev.data || {}; const cb = __btPending[d.id];
+      if (!cb) return; delete __btPending[d.id];
+      if (d.ok) cb.resolve(d.res); else cb.reject(new Error(d.error||"worker error"));
+    };
+    __btWorker.onerror = function(){ /* fall back handled per-call */ };
+  } catch (e){ __btWorker = null; }
+  return __btWorker;
+}
+function runBacktestWorker(type, payload){
+  return new Promise(function(resolve, reject){
+    const w = __btGetWorker();
+    // Fallback: no worker available (older browser / CSP) -> run synchronously.
+    if (!w){
+      try {
+        let res;
+        if (type==="scalp") res = backtestScalpTD(payload.h1, payload.m15);
+        else if (type==="swing") res = backtestSwingTD(payload.c4);
+        else if (type==="judas") res = backtestJudasTD(payload.d1, payload.h1, payload.m15);
+        else throw new Error("unknown backtest type");
+        resolve(res);
+      } catch(e){ reject(e); }
+      return;
+    }
+    const id = ++__btSeq;
+    __btPending[id] = { resolve: resolve, reject: reject };
+    // Safety timeout -> fall back to sync if worker never replies.
+    setTimeout(function(){
+      if (!__btPending[id]) return; delete __btPending[id];
+      try {
+        let res;
+        if (type==="scalp") res = backtestScalpTD(payload.h1, payload.m15);
+        else if (type==="swing") res = backtestSwingTD(payload.c4);
+        else if (type==="judas") res = backtestJudasTD(payload.d1, payload.h1, payload.m15);
+        resolve(res);
+      } catch(e){ reject(e); }
+    }, 15000);
+    w.postMessage(Object.assign({ id: id, type: type }, payload));
+  });
+}
+
+    async function runScalpBacktestUI(){
   const inp = document.getElementById('scalpBtSym');
   const btn = document.getElementById('scalpBtRun');
   const out = document.getElementById('scalpBtOut');
@@ -2856,7 +2906,7 @@ async function runScalpBacktestUI(){
     const h1 = await getCryptoCandlesTD(base,'1h',3000);
     const m15 = await getCryptoCandlesTD(base,'15m',5000);
     if (m15.length<100){ out.innerHTML = '<div class="note warn">Twelve Data has only '+m15.length+' 15m bars for '+base+' \u2014 not enough history.</div>'; return; }
-    const res = backtestScalpTD(h1, m15);
+    const res = await runBacktestWorker('scalp', {h1: h1, m15: m15});
     out.innerHTML = backtestSummaryHTML2(base+' SCALP', m15, res, "Replays this app's own SCALP gates (1H trend, sweep+reclaim, RSI band, funding-window timing, ATR vol-alive, wick commit, R:R) bar-by-bar on real Twelve Data history. Funding rate and volume-z are excluded \u2014 Twelve Data doesn't provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here.");
   }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
   finally{ btn.disabled = false; }
@@ -2904,7 +2954,7 @@ async function marketPictureCheck(){
   let verdict;
   if (longs>shorts && longs>=Math.ceil(total/2)+1) verdict='LONG-LEANING';
   else if (shorts>longs && shorts>=Math.ceil(total/2)+1) verdict='SHORT-LEANING';
-  else verdict='MIXED â no clear lean';
+  else verdict='MIXED Ã¢ÂÂ no clear lean';
   return {verdict, longs, shorts, mixed, total, detail};
 }
 
