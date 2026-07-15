@@ -214,3 +214,96 @@ else if (isFinite(adxNow) && adxNow>30 && isFinite(wNow) && isFinite(wPrev) && w
 else if (isFinite(adxNow) && adxNow<20 && isFinite(distMid) && distMid<0.02){ regime="range"; label="RANGE"; }
 return {regime:regime, label:label};
 }
+
+/* ============================================================
+   Phase 6 additions — new confluence indicators
+   Appended helpers: heikinAshi, bollingerPercentB, volumeProfile,
+   fundingMomentum, macdZeroLine. Pure math, no DOM/fetch.
+   ============================================================ */
+
+/* Heikin Ashi trend state. Input: rows [{o,h,l,c}]. Returns last HA
+   candle + a coarse trend state used to CONFIRM (not override) EMA dir.
+   HAclose = (o+h+l+c)/4 ; HAopen = prev( (HAopen+HAclose)/2 ). */
+function heikinAshi(rows){
+  if (!rows || rows.length < 2) return null;
+  let haOpenPrev = (rows[0].o + rows[0].c) / 2;
+  let haCandle = null, prevClose = null;
+  for (let i = 0; i < rows.length; i++){
+    const r = rows[i];
+    const haClose = (r.o + r.h + r.l + r.c) / 4;
+    const haOpen  = i === 0 ? (r.o + r.c) / 2 : (haOpenPrev + prevClose) / 2;
+    const haHigh  = Math.max(r.h, haOpen, haClose);
+    const haLow   = Math.min(r.l, haOpen, haClose);
+    haCandle = { o: haOpen, h: haHigh, l: haLow, c: haClose };
+    haOpenPrev = haOpen; prevClose = haClose;
+  }
+  const bull = haCandle.c > haCandle.o;
+  const noLowerWick = Math.abs(haCandle.o - haCandle.l) / (haCandle.h - haCandle.l || 1e-12) < 0.05;
+  const noUpperWick = Math.abs(haCandle.h - haCandle.c) / (haCandle.h - haCandle.l || 1e-12) < 0.05;
+  let state = 'NEUTRAL';
+  if (bull) state = noLowerWick ? 'STRONG_UP' : 'UP';
+  else      state = noUpperWick ? 'STRONG_DOWN' : 'DOWN';
+  return { candle: haCandle, bull: bull, state: state };
+}
+
+/* Bollinger %B = (price - lower) / (upper - lower). >0.8 breakout zone,
+   <0.2 mean-reversion zone. Input: close array. Returns last %B (number). */
+function bollingerPercentB(closes, p, mult){
+  const bb = bollinger(closes, p || 20, mult || 2);
+  const i = closes.length - 1;
+  const u = bb.upper[i], l = bb.lower[i];
+  if (!isFinite(u) || !isFinite(l) || (u - l) === 0) return NaN;
+  return (closes[i] - l) / (u - l);
+}
+
+/* Volume Profile over the last N bars. Buckets the [min,max] price range,
+   accumulates volume per bucket, returns POC (highest-volume price),
+   plus VAH/VAL bounding ~70% of volume (value area). Input: rows [{h,l,c,v}]. */
+function volumeProfile(rows, lookback, buckets){
+  const n = rows.length; const look = Math.min(lookback || 20, n);
+  if (look < 5) return null;
+  const seg = rows.slice(n - look);
+  let lo = Infinity, hi = -Infinity;
+  for (const r of seg){ if (r.l < lo) lo = r.l; if (r.h > hi) hi = r.h; }
+  if (!isFinite(lo) || !isFinite(hi) || hi <= lo) return null;
+  const B = buckets || 24; const step = (hi - lo) / B;
+  const vol = new Array(B).fill(0);
+  for (const r of seg){
+    const typ = (r.h + r.l + r.c) / 3;
+    let b = Math.floor((typ - lo) / step); if (b < 0) b = 0; if (b >= B) b = B - 1;
+    vol[b] += (r.v || 0);
+  }
+  const total = vol.reduce((a,b) => a + b, 0) || 1;
+  let pocIdx = 0; for (let i = 1; i < B; i++) if (vol[i] > vol[pocIdx]) pocIdx = i;
+  const poc = lo + (pocIdx + 0.5) * step;
+  let loI = pocIdx, hiI = pocIdx, acc = vol[pocIdx];
+  while (acc < total * 0.70 && (loI > 0 || hiI < B - 1)){
+    const down = loI > 0 ? vol[loI - 1] : -1;
+    const up   = hiI < B - 1 ? vol[hiI + 1] : -1;
+    if (up >= down){ hiI++; acc += vol[hiI]; } else { loI--; acc += vol[loI]; }
+  }
+  const val = lo + loI * step;
+  const vah = lo + (hiI + 1) * step;
+  return { poc: poc, vah: vah, val: val, priceInVA: null };
+}
+
+/* Funding-rate momentum. Input: array of recent funding rates (oldest->newest,
+   fraction e.g. 0.0001 = 0.01%). Returns per-settlement slope + accelerating flag.
+   Positive slope means longs increasingly pay shorts (worsening for longs). */
+function fundingMomentum(frSeries){
+  if (!frSeries || frSeries.length < 3) return null;
+  const s = frSeries.slice(-3);
+  const slope = (s[s.length - 1] - s[0]) / (s.length - 1);
+  const accelerating = (s[2] - s[1]) > (s[1] - s[0]);
+  return { now: s[s.length - 1], slope: slope, accelerating: accelerating };
+}
+
+/* MACD zero-line filter. Returns the sign of the MACD LINE (not histogram)
+   on the last bar: +1 above zero (long-permissible), -1 below, 0 flat/NaN. */
+function macdZeroLine(closes, f, s){
+  const ef = ema(closes, f || 12), es = ema(closes, s || 26);
+  const i = closes.length - 1;
+  const line = ef[i] - es[i];
+  if (!isFinite(line)) return 0;
+  return line > 0 ? 1 : (line < 0 ? -1 : 0);
+}
