@@ -827,7 +827,7 @@ cardsEl.innerHTML = __cardsHtml.join('');
 
 
 const COILWATCH_KEY = "hardgate_coilwatch_v1";
-function saveCoilWatch(list){ try{ localStorage.setItem(COILWATCH_KEY, JSON.stringify({at:nowSec(), ex:S.exchange, list:list})); }catch(e){} }
+function saveCoilWatch(list){ try{ const payload={at:nowSec(), ex:S.exchange, list:list}; localStorage.setItem(COILWATCH_KEY, JSON.stringify(payload)); if(typeof idbSet==='function') idbSet(COILWATCH_KEY, payload); }catch(e){} }
 function loadCoilWatch(){ try{ return JSON.parse(localStorage.getItem(COILWATCH_KEY)||"null"); }catch(e){ return null; } }
 async function runExpansionCheck(){
   const btn=$("expRun"); const cardsEl=$("expCards"); const emptyEl=$("expEmpty"); const statEl=$("expStat");
@@ -1096,6 +1096,7 @@ if (rAtSweep>50){ dir='short'; stop=rows[sweptHighAt].h+(rows[sweptHighAt].h*0.0
 }
 if (!dir) continue;
 
+const pctB=bollingerPercentB(c);
 const risk=Math.abs(p-stop);
 if (!(risk>0)) continue;
 const t1=e20;
@@ -1105,7 +1106,7 @@ if (rr<0.3) continue;
 
 found++;
 __cardsHtml.push(cardHTML(t.symbol, dir,
-[['mark',px(p)],['RSI now',fmt(rNow,1)],['RSI at sweep',fmt(rsiAtSweep,1)],['vol (ATR%)',fmt(atrPct,2)+'%'],
+[['mark',px(p)],['RSI now',fmt(rNow,1)],['RSI at sweep',fmt(rsiAtSweep,1)],['%B (BB pos)',fmt(pctB,2)],['vol (ATR%)',fmt(atrPct,2)+'%'],
 [fmt(outerSD,1)+' SD swept ('+(rows.length-1-(dir==='long'?sweptLowAt:sweptHighAt))+'b ago)', dir==='long'?px(rows[sweptLowAt].l):px(rows[sweptHighAt].h)],
 [fmt(innerSD,1)+' SD reclaimed now', dir==='long'?px(lInner):px(uInner)],
 ['target (mean)',px(t1)]],
@@ -1169,8 +1170,11 @@ async function runSmcScan(){
         found++;
         const stop = dir === 'long' ? fvg.bottom - (fvg.bottom*0.002) : fvg.top + (fvg.top*0.002);
         const t1 = dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l));
+        const vp = volumeProfile(rows, 40, 24);
+        const pocSide = vp ? (p > vp.poc ? 'above POC' : 'below POC') : 'n/a';
         __cardsHtml.push(cardHTML(t.symbol, dir, [
           ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
+          ['POC (40b)', vp ? px(vp.poc)+' ('+pocSide+')' : 'n/a'], ['VA', vp ? px(vp.val)+'–'+px(vp.vah) : 'n/a'],
           ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
           ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
         ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a'), 'G7 BOS confirmed (displacement broke recent structure)'+(fvg.bosOk?' ok':' n/a')],
@@ -1303,6 +1307,20 @@ async function runBias(){
       s1 = (extreme||against)?'veto':'pass';
       s1d = `${fmt(fr,4)}%/interval · ann ${fmt(frAnn,1)}% (clamp ±0.05%)`;
     }
+    // rolling funding history (built across runs) → momentum
+    let frMom = null;
+    if (fr !== null){
+      try {
+        const FHK = 'hardgate_frhist_v1';
+        const store = JSON.parse(localStorage.getItem(FHK) || '{}');
+        const arr = (store[sym] || []).slice(-11);
+        const lastSaved = arr.length ? arr[arr.length-1] : null;
+        if (lastSaved === null || Math.abs(lastSaved - fr) > 1e-9) arr.push(fr);
+        store[sym] = arr.slice(-12);
+        localStorage.setItem(FHK, JSON.stringify(store));
+        frMom = fundingMomentum(store[sym].map(function(v){ return v/100; }));
+      } catch(e){}
+    }
     const r30=roc(c1,30), r90=roc(c1,90);
     let t5='na', t5d=`30d ${pct(r30,1)} · 90d ${pct(r90,1)}`;
     if (dailyDir!=='mixed' && isFinite(r30) && isFinite(r90)){
@@ -1327,6 +1345,19 @@ async function runBias(){
     g.push(['S2','Sentiment extreme guard (Fear & Greed)', s2, s2d]);
     g.push(['F1','Macro context (informational — judge it yourself)', 'na',
       `BTC.D ${S.dom!==null?S.dom.toFixed(1)+'%':'n/a'}${sym.includes('XAUT')?' · gold: check DXY, real yields, event calendar manually':''}`]);
+
+    // ---- F2/F3 confluence tags (informational only — never veto) ----
+    const ha4 = heikinAshi(h4);
+    const haDir = ha4 ? (ha4.bull ? 'long' : 'short') : null;
+    const haAgree = haDir !== null && dailyDir !== 'mixed' && haDir === dailyDir;
+    g.push(['F2','Heikin Ashi 4H trend confirmation (informational — smooths EMA noise)', 'na',
+      ha4 ? `HA state ${ha4.state}${haDir?(' → '+haDir.toUpperCase()):''}${haAgree?' (agrees with bias)':(dailyDir!=='mixed'?' (fighting bias)':'')}` : 'n/a']);
+    const mz1 = macdZeroLine(c1);
+    const mzAgree = (dailyDir==='long' && mz1>0) || (dailyDir==='short' && mz1<0);
+    g.push(['F3','1D MACD zero-line filter (informational — no longs below zero, no shorts above)', 'na',
+      `MACD line ${mz1>0?'above':mz1<0?'below':'at'} zero${dailyDir!=='mixed'?(mzAgree?' (permits '+dailyDir+')':' (against '+dailyDir+')'):''}`]);
+    g.push(['F4','Funding momentum trend (informational — built across runs)', 'na',
+      frMom ? `slope ${fmt(frMom.slope*100,4)}%/step${frMom.accelerating?', accelerating':''}${(dailyDir==='long'&&frMom.slope>0)||(dailyDir==='short'&&frMom.slope<0)?' (worsening for '+dailyDir+')':''}` : 'building history (need 3+ observations)']);
 
     const vetoed = g.some(x=>x[2]==='veto');
     const verdict = vetoed||dailyDir==='mixed' ? 'aside' : dailyDir;
@@ -1398,7 +1429,9 @@ async function runScan(kind){
 /* =========================================================================
    TRADE PLAN — sizing, liquidation clearance, ticket. No execution here.
    ========================================================================= */
-function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return NaN; const ma=a.slice(0,n).reduce(function(x,y){return x+y;},0)/n; const mb=b.slice(0,n).reduce(function(x,y){return x+y;},0)/n; let num=0,da=0,db=0; for(let i=0;i<n;i++){ const xa=a[i]-ma, xb=b[i]-mb; num+=xa*xb; da+=xa*xa; db+=xb*xb; } const den=Math.sqrt(da*db); return den>0?num/den:NaN; } async function updatePortfolioHeat(sym,dir){ const elRow=$('portfolioHeatRow'); if(!elRow) return; try{ const base=(sym||'').replace(/USD$/,'').replace(/^B-/,'').replace(/_USDT$/,''); if(base==='BTC'){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">n/a (BTC itself)</span>'; return; } const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT'; const rowsSym = await getCandles(sym,'1d',31); const rowsBtc = await getCandles(btcSym,'1d',31); if(rowsSym.length<25||rowsBtc.length<25){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">not enough history</span>'; return; } const n=Math.min(rowsSym.length,rowsBtc.length); const rs=rowsSym.slice(-n), rb=rowsBtc.slice(-n); const retA=[],retB=[]; for(let i=1;i<n;i++){ retA.push(rs[i].c/rs[i-1].c-1); retB.push(rb[i].c/rb[i-1].c-1); } const r=pearsonCorr(retA,retB); const openLog=loadLog().filter(function(e){return e.status==='open';}); const btcOpen=openLog.find(function(e){return e.sym===btcSym;}); const highCorr=isFinite(r)&&r>0.75; let warn=''; if(highCorr&&btcOpen&&btcOpen.dir===dir){ warn=' <b style="color:var(--gold)">— taking this stacks beta, consider adjusting risk or standing aside</b>'; } elRow.innerHTML = '<span class="k">Portfolio Heat</span><span class="v">r='+(isFinite(r)?r.toFixed(2):'n/a')+' vs BTC 30d'+warn+'</span>'; }catch(e){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">check failed</span>'; } } function executeTrade(plan){ if (!plan || plan.vetoed){ alert('Cannot execute a vetoed plan.'); return; } if (!EXECUTE_BACKEND_URL || EXECUTE_BACKEND_URL.indexOf('your-secure-backend.com')>=0){ alert('EXECUTE_BACKEND_URL is still a placeholder — set it to your real delta-trader.ts endpoint before this button can do anything.'); return; } const payload = { symbol: plan.sym, side: plan.side, qty: plan.qty, leverage: plan.lev, bracket: { stop: plan.stop, takeProfit: plan.t1 }, timestamp: nowSec() }; if (!confirm('Send this bracket to '+EXECUTE_BACKEND_URL+'? '+JSON.stringify(payload,null,2))) return; fetch(EXECUTE_BACKEND_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); alert('Bracket sent.'); }).catch(function(e){ alert('Execution request failed: '+e.message); }); }  async function pullMark(){
+function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return NaN; const ma=a.slice(0,n).reduce(function(x,y){return x+y;},0)/n; const mb=b.slice(0,n).reduce(function(x,y){return x+y;},0)/n; let num=0,da=0,db=0; for(let i=0;i<n;i++){ const xa=a[i]-ma, xb=b[i]-mb; num+=xa*xb; da+=xa*xa; db+=xb*xb; } const den=Math.sqrt(da*db); return den>0?num/den:NaN; } async function updatePortfolioHeat(sym,dir){ const elRow=$('portfolioHeatRow'); if(!elRow) return; try{ const base=(sym||'').replace(/USD$/,'').replace(/^B-/,'').replace(/_USDT$/,''); if(base==='BTC'){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">n/a (BTC itself)</span>'; return; } const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT'; const rowsSym = await getCandles(sym,'1d',31); const rowsBtc = await getCandles(btcSym,'1d',31); if(rowsSym.length<25||rowsBtc.length<25){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">not enough history</span>'; return; } const n=Math.min(rowsSym.length,rowsBtc.length); const rs=rowsSym.slice(-n), rb=rowsBtc.slice(-n); const retA=[],retB=[]; for(let i=1;i<n;i++){ retA.push(rs[i].c/rs[i-1].c-1); retB.push(rb[i].c/rb[i-1].c-1); } const r=pearsonCorr(retA,retB); const openLog=loadLog().filter(function(e){return e.status==='open';}); const btcOpen=openLog.find(function(e){return e.sym===btcSym;}); const highCorr=isFinite(r)&&r>0.75; let warn=''; if(highCorr&&btcOpen&&btcOpen.dir===dir){ warn=' <b style="color:var(--gold)">— taking this stacks beta, consider adjusting risk or standing aside</b>'; } 
+    /* Heat v2: correlation vs ALL open setups (cached candles only) */
+    try { const others = openLog.filter(function(e){ return e.sym!==sym && e.sym!==btcSym; }); const clash = []; for (const o of others){ const oc = S.candleCache[S.exchange+'|'+o.sym+'|1d']; if(!oc||!oc.rows||oc.rows.length<25) continue; const os = oc.rows.slice(-(retA.length+1)); const or=[]; for(let k=1;k<os.length;k++) or.push(os[k].c/os[k-1].c-1); const m2 = Math.min(retA.length, or.length); const cc = pearsonCorr(retA.slice(-m2), or.slice(-m2)); if(isFinite(cc) && Math.abs(cc)>0.7){ if(cc>0 && o.dir===dir) clash.push(o.sym+' (+'+cc.toFixed(2)+' same-dir stacks)'); else if(cc<0 && o.dir!==dir) clash.push(o.sym+' ('+cc.toFixed(2)+' inverse+opposite stacks)'); } } if(clash.length){ warn += ' <b style="color:var(--gold)">— correlated open: '+clash.join(', ')+'; consider halving risk</b>'; } } catch(e){} elRow.innerHTML = '<span class="k">Portfolio Heat</span><span class="v">r='+(isFinite(r)?r.toFixed(2):'n/a')+' vs BTC 30d'+warn+'</span>'; }catch(e){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">check failed</span>'; } } function executeTrade(plan){ if (!plan || plan.vetoed){ alert('Cannot execute a vetoed plan.'); return; } if (!EXECUTE_BACKEND_URL || EXECUTE_BACKEND_URL.indexOf('your-secure-backend.com')>=0){ alert('EXECUTE_BACKEND_URL is still a placeholder — set it to your real delta-trader.ts endpoint before this button can do anything.'); return; } const payload = { symbol: plan.sym, side: plan.side, qty: plan.qty, leverage: plan.lev, bracket: { stop: plan.stop, takeProfit: plan.t1 }, timestamp: nowSec() }; if (!confirm('Send this bracket to '+EXECUTE_BACKEND_URL+'? '+JSON.stringify(payload,null,2))) return; fetch(EXECUTE_BACKEND_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); alert('Bracket sent.'); }).catch(function(e){ alert('Execution request failed: '+e.message); }); }  async function pullMark(){
   const sym=($('tSym').value||'').trim(); if(!sym) return;
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
@@ -1670,7 +1703,14 @@ async function runGold(){
    ============================================================================= */
 const LOG_KEY='hardgate_log_v1';
 function loadLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
-function saveLog(l){ try{ if (l.length>1000) l = l.slice(l.length-1000); localStorage.setItem(LOG_KEY, JSON.stringify(l)); }catch(e){} }
+/* IndexedDB durability layer — localStorage stays the synchronous source of truth,
+   IDB is a durable mirror (localStorage caps ~5MB and can be evicted). */
+const IDB_DB='hardgate', IDB_STORE='kv';
+function idbOpen(){ return new Promise(function(res,rej){ try{ const rq=indexedDB.open(IDB_DB,1); rq.onupgradeneeded=function(){ rq.result.createObjectStore(IDB_STORE); }; rq.onsuccess=function(){ res(rq.result); }; rq.onerror=function(){ rej(rq.error); }; }catch(e){ rej(e); } }); }
+async function idbSet(key,val){ try{ const db=await idbOpen(); await new Promise(function(res,rej){ const tx=db.transaction(IDB_STORE,'readwrite'); tx.objectStore(IDB_STORE).put(val,key); tx.oncomplete=res; tx.onerror=function(){ rej(tx.error); }; }); }catch(e){} }
+async function idbGet(key){ try{ const db=await idbOpen(); return await new Promise(function(res,rej){ const tx=db.transaction(IDB_STORE,'readonly'); const rq=tx.objectStore(IDB_STORE).get(key); rq.onsuccess=function(){ res(rq.result); }; rq.onerror=function(){ rej(rq.error); }; }); }catch(e){ return undefined; } }
+(async function(){ try{ if((JSON.parse(localStorage.getItem(LOG_KEY)||'[]')).length===0){ const backup=await idbGet(LOG_KEY); if(Array.isArray(backup)&&backup.length){ localStorage.setItem(LOG_KEY, JSON.stringify(backup)); if(typeof renderLogBadge==='function') renderLogBadge(); } } }catch(e){} })();
+function saveLog(l){ try{ if (l.length>1000) l = l.slice(l.length-1000); localStorage.setItem(LOG_KEY, JSON.stringify(l)); idbSet(LOG_KEY, l); }catch(e){} }
 function logSetup(sym,dir,kind,entry,stop,t1){
   if (!(isFinite(entry)&&isFinite(stop)&&isFinite(t1)&&Math.abs(entry-stop)>0)) return;
   const l=loadLog();
