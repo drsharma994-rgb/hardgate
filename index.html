@@ -1153,14 +1153,14 @@ async function runSmcScan(){
               if (rows[k].l <= gapLow){ mitigated = true; break; }
               if (rows[k].l < gapHigh) gapHigh = rows[k].l;
             }
-            if (!mitigated && p > e200){ const dispOkL=isFinite(a14arr[j-1])&&(bar2.h-bar2.l)>=1.5*a14arr[j-1]; const priorLowL=Math.min.apply(null, rows.slice(Math.max(0,j-12), Math.max(1,j-2)).map(function(r){return r.l;})); const sweepOkL=bar1.l<priorLowL||bar2.l<priorLowL; fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j, dispOk: dispOkL, sweepOk: sweepOkL }; dir = 'long'; }
+            if (!mitigated && p > e200){ const dispOkL=isFinite(a14arr[j-1])&&(bar2.h-bar2.l)>=1.5*a14arr[j-1]; const priorLowL=Math.min.apply(null, rows.slice(Math.max(0,j-12), Math.max(1,j-2)).map(function(r){return r.l;})); const sweepOkL=bar1.l<priorLowL||bar2.l<priorLowL; fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j, dispOk: dispOkL, sweepOk: sweepOkL, bosOk: (bar2.c > Math.max.apply(null, rows.slice(Math.max(0,j-12), Math.max(1,j-2)).map(function(r){return r.h;}))) }; dir = 'long'; }
           } else if (bar1.l > bar3.h && bar2.c < bar2.o){
             let gapLow = bar3.h, gapHigh = bar1.l, mitigated = false;
             for (let k = j+1; k < rows.length; k++){
               if (rows[k].h >= gapHigh){ mitigated = true; break; }
               if (rows[k].h > gapLow) gapLow = rows[k].h;
             }
-            if (!mitigated && p < e200){ const dispOkS=isFinite(a14arr[j-1])&&(bar2.h-bar2.l)>=1.5*a14arr[j-1]; const priorHighS=Math.max.apply(null, rows.slice(Math.max(0,j-12), Math.max(1,j-2)).map(function(r){return r.h;})); const sweepOkS=bar1.h>priorHighS||bar2.h>priorHighS; fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j, dispOk: dispOkS, sweepOk: sweepOkS }; dir = 'short'; }
+            if (!mitigated && p < e200){ const dispOkS=isFinite(a14arr[j-1])&&(bar2.h-bar2.l)>=1.5*a14arr[j-1]; const priorHighS=Math.max.apply(null, rows.slice(Math.max(0,j-12), Math.max(1,j-2)).map(function(r){return r.h;})); const sweepOkS=bar1.h>priorHighS||bar2.h>priorHighS; fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j, dispOk: dispOkS, sweepOk: sweepOkS, bosOk: (bar2.c < Math.min.apply(null, rows.slice(Math.max(0,j-12), Math.max(1,j-2)).map(function(r){return r.l;}))) }; dir = 'short'; }
           }
         }
         if (!fvg) continue;
@@ -1173,7 +1173,7 @@ async function runSmcScan(){
           ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
           ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
           ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
-        ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a')],
+        ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a'), 'G7 BOS confirmed (displacement broke recent structure)'+(fvg.bosOk?' ok':' n/a')],
         'SMC TAP: price has pulled back into a 4H institutional imbalance. Drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.', p, stop, t1));
       } catch(e) { /* skip this symbol */ }
       await sleep(100);
