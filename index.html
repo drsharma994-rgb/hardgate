@@ -654,11 +654,12 @@ Store.subscribe('PRICE_UPDATE', function(d){ updateTradePlanPriceUI(d.symbol, d.
   }catch(e){}
 }
 
-async function candlesRangeRaw(sym, res, start, end){ if (S.exchange==='delta'){ const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`); const j = await r.json(); const rows = (j.result||[]).map(c=>({t:c.time, o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+c.volume})); rows.sort((a,b)=>a.t-b.t); return rows; } else { const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${start}&to=${end}&resolution=${CDCX_RES[res]}&pcode=f`); const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)})); rows.sort((a,b)=>a.t-b.t); return rows; } } async function getTickers(){
-  if (S.exchange==='delta') return loadTickersDelta();
-  try { const t = await loadTickersCdcx(); S.cdcxBlocked=false; return t; }
-  catch(e){ S.cdcxBlocked=true; throw e; }
-}
+async function candlesRangeRaw(sym, res, start, end){ if (S.exchange==='delta'){ const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`); const j = await r.json(); const rows = (j.result||[]).map(c=>({t:c.time, o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+c.volume})); rows.sort((a,b)=>a.t-b.t); return rows; } else { const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${start}&to=${end}&resolution=${CDCX_RES[res]}&pcode=f`); const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)})); rows.sort((a,b)=>a.t-b.t); return rows; } } async function getTickers(ex){
+        var _ex = (ex === undefined || ex === null) ? S.exchange : ex;
+        if (_ex === 'delta') return loadTickersDelta();
+        try { const t = await loadTickersCdcx(); S.cdcxBlocked = false; return t; }
+        catch(e){ S.cdcxBlocked = true; throw e; }
+      }
 
 async function getXAUCandles(res, count){
   trackCall('td');
