@@ -1,4 +1,4 @@
-/* alerts.js — alert scanning + email-trigger cycle (extracted Phase 22). sendAlertEmail() and initAlerts() intentionally remain inline because they embed EmailJS credentials/boot wiring. */
+/* alerts.js \u2014 alert scanning + email-trigger cycle (extracted Phase 22). sendAlertEmail() and initAlerts() intentionally remain inline because they embed EmailJS credentials/boot wiring. */
 
 function isManualScanBusy(){
   const ids = ['bestRun','swingRun','scalpRun','goldRun','smcRun','obRun','coilRun','apexRun','trapRun','biasRun','divRun','expRun','basisRun'];
