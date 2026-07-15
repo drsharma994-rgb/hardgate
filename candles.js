@@ -1,11 +1,11 @@
-/* candles.js — Candle-access layer: forming-bar guard, rate-limit bucket, cached getCandles.
+/* candles.js \u2014 Candle-access layer: forming-bar guard, rate-limit bucket, cached getCandles.
  * Extracted from index.html (Phase 14). Loads after indicators.js (uses makeTokenBucket at
  * load time to build apiBucket). Becomes globals via classic-script scope: dropForming,
  * apiBucket, getCandles. Call-time deps resolved from inline blocks: nowSec, S,
  * candlesDelta, candlesCdcx.
  */
 /* Drop the still-forming bar: gates must only ever see CLOSED candles.
-   Evaluating a partial bar repaints Ã¢ÂÂ a cascade that exists at 14:37 can
+   Evaluating a partial bar repaints \u2014 a cascade that exists at 14:37 can
    vanish by 16:00. Candle t = bar open time, so forming iff now-t < duration. */
 function dropForming(rows, res){
   const sec = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
