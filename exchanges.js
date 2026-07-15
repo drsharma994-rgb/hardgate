@@ -26,11 +26,32 @@ async function candlesDelta(sym, res, count){
 }
 
 async function loadTickersCdcx(){
-  // Active USDT-margined futures instruments; ticker detail endpoints vary \u2014 we
-  // rank by what candles give us and mark funding as unavailable rather than faking it.
+  // Active USDT-margined futures instruments. The dedicated futures ticker detail
+  // endpoints are unreliable, so we derive 24h turnover, mark price and change from
+  // the public spot /exchange/ticker feed by matching each futures pair (B-XXX_USDT)
+  // to its underlying spot market (XXXUSDT). Symbols with no spot match keep 0 turnover.
   const j = await cdcxGet(`${CDCX_API}/exchange/v1/derivatives/futures/data/active_instruments?margin_currency_short_name[]=USDT`);
   const list = Array.isArray(j) ? j : (j.instruments||[]);
-  return list.map(s=>({ symbol: typeof s==='string'? s : s.symbol, mark: NaN, fundingPct: null, oiUsd: 0, turnoverUsd: 0, chg24: null }));
+  let tickMap = {};
+  try {
+    const raw = await cdcxGet(`${CDCX_PUB}/exchange/ticker`);
+    if (Array.isArray(raw)) { for (const r of raw) { if (r && r.market) tickMap[r.market] = r; } }
+  } catch(e) { tickMap = {}; }
+  return list.map(s => {
+    const symbol = (typeof s === 'string') ? s : s.symbol;
+    const spotKey = String(symbol).replace(/^B-/,'').replace('_','');
+    const tk = tickMap[spotKey];
+    let mark = NaN, turnoverUsd = 0, chg24 = null;
+    if (tk) {
+      const px = parseFloat(tk.last_price);
+      const vol = parseFloat(tk.volume);
+      if (isFinite(px)) mark = px;
+      if (isFinite(px) && isFinite(vol)) turnoverUsd = px * vol;
+      const ch = parseFloat(tk.change_24_hour);
+      if (isFinite(ch)) chg24 = ch;
+    }
+    return { symbol, mark, fundingPct: null, oiUsd: 0, turnoverUsd, chg24 };
+  });
 }
 const CDCX_RES = {'15m':'15','1h':'60','2h':'120','4h':'240','1d':'1D'};
 async function candlesCdcx(sym, res, count){
