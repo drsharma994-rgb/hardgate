@@ -54,6 +54,13 @@ function runSelfTests(){
     assert('cusumLast: flat series does not throw (div/0 guard holds)', evFlat===null || typeof evFlat==='object', JSON.stringify(evFlat));
   })();
 
+  (function(){
+    var src = (typeof getTickers === 'function') ? getTickers.toString() : '';
+    assert('getTickers: accepts an exchange argument (arity >= 1)', (typeof getTickers === 'function') && getTickers.length >= 1, String((typeof getTickers==='function')?getTickers.length:'n/a'));
+    assert('getTickers: signature declares an ex parameter', /function\s+getTickers\s*\(\s*ex\s*\)/.test(src), src.slice(0, src.indexOf(')')+1));
+    assert('getTickers: body references the ex parameter (honors argument, not only S.exchange)', /\bex\b/.test(src.replace(/S\.exchange/g,'')), '');
+  })();
+
   const pass = results.filter(function(r){ return r.pass; }).length;
   console.log('HARDGATE self-tests: '+pass+'/'+results.length+' passed', results);
   return { pass:pass, total:results.length, results:results };
