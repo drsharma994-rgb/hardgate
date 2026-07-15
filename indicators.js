@@ -1,5 +1,5 @@
 /* =========================================================================
-HARDGATE â indicators.js
+HARDGATE \u2014 indicators.js
 Pure math / indicator functions extracted from index.html. No DOM, no fetch.
 Loaded as a plain global script before the main inline <script> so every
 function below remains available as a global, exactly as before this split.
@@ -107,7 +107,7 @@ return { buySide: bestHigh, sellSide: bestLow };
 function nearestOBText(rows, dir){
 try{
 const ob = findOrderBlock(rows, dir);
-return ob ? (px(ob.bottom)+'â'+px(ob.top)+' ('+ob.age+' bars)') : 'none nearby';
+return ob ? (px(ob.bottom)+'\u2013'+px(ob.top)+' ('+ob.age+' bars)') : 'none nearby';
 }catch(e){ return 'n/a'; }
 }
 function liquidityTargetText(rows, dir){
@@ -216,7 +216,7 @@ return {regime:regime, label:label};
 }
 
 /* ============================================================
-   Phase 6 additions â new confluence indicators
+   Phase 6 additions \u2014 new confluence indicators
    Appended helpers: heikinAshi, bollingerPercentB, volumeProfile,
    fundingMomentum, macdZeroLine. Pure math, no DOM/fetch.
    ============================================================ */
