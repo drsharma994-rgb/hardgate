@@ -1,5 +1,5 @@
 /* =========================================================================
-HARDGATE — indicators.js
+HARDGATE â indicators.js
 Pure math / indicator functions extracted from index.html. No DOM, no fetch.
 Loaded as a plain global script before the main inline <script> so every
 function below remains available as a global, exactly as before this split.
@@ -107,7 +107,7 @@ return { buySide: bestHigh, sellSide: bestLow };
 function nearestOBText(rows, dir){
 try{
 const ob = findOrderBlock(rows, dir);
-return ob ? (px(ob.bottom)+'–'+px(ob.top)+' ('+ob.age+' bars)') : 'none nearby';
+return ob ? (px(ob.bottom)+'â'+px(ob.top)+' ('+ob.age+' bars)') : 'none nearby';
 }catch(e){ return 'n/a'; }
 }
 function liquidityTargetText(rows, dir){
@@ -216,7 +216,7 @@ return {regime:regime, label:label};
 }
 
 /* ============================================================
-   Phase 6 additions — new confluence indicators
+   Phase 6 additions â new confluence indicators
    Appended helpers: heikinAshi, bollingerPercentB, volumeProfile,
    fundingMomentum, macdZeroLine. Pure math, no DOM/fetch.
    ============================================================ */
@@ -394,4 +394,28 @@ function preNfp(tsMs, windowMin){
   const nfpMin = 13 * 60 + 30;
   const near = Math.abs(mins - nfpMin) <= w;
   return { standAside: near, minutesTo: nfpMin - mins };
+}
+
+/* RSI divergence detector. Compares the last two price pivots vs RSI at
+   those pivots. Bullish div: price lower-low but RSI higher-low.
+   Bearish div: price higher-high but RSI lower-high. Informational. */
+function rsiDivergence(closes, period){
+  const p = period || 14;
+  if (!closes || closes.length < p + 10) return { type: "NONE" };
+  const r = rsi(closes, p);
+  const lows = [], highs = [];
+  for (let i = 2; i < closes.length - 2; i++){
+    if (closes[i] < closes[i-1] && closes[i] < closes[i-2] && closes[i] < closes[i+1] && closes[i] < closes[i+2]) lows.push(i);
+    if (closes[i] > closes[i-1] && closes[i] > closes[i-2] && closes[i] > closes[i+1] && closes[i] > closes[i+2]) highs.push(i);
+  }
+  let type = "NONE", detail = null;
+  if (lows.length >= 2){
+    const a = lows[lows.length-2], b = lows[lows.length-1];
+    if (closes[b] < closes[a] && isFinite(r[a]) && isFinite(r[b]) && r[b] > r[a]) { type = "BULLISH"; detail = { pIdx: b, rNow: r[b], rPrev: r[a] }; }
+  }
+  if (highs.length >= 2){
+    const a = highs[highs.length-2], b = highs[highs.length-1];
+    if (closes[b] > closes[a] && isFinite(r[a]) && isFinite(r[b]) && r[b] < r[a]) { type = "BEARISH"; detail = { pIdx: b, rNow: r[b], rPrev: r[a] }; }
+  }
+  return { type: type, detail: detail };
 }
