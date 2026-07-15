@@ -120,6 +120,7 @@ table{width:100%;border-collapse:collapse}
     <button id="xCdcx" onclick="setExchange('coindcx')">COINDCX</button>
   </div>
   <span class="statuschip" id="chipConn"><b>&#8212;</b> symbols</span>
+  <span class="statuschip" id="chipCdcxHealth" style="display:none" title="CoinDCX candle data source on the last fetch"></span>
   <span class="statuschip" id="chipFund">next funding <b>&#8212;</b></span>
   <span class="statuschip" id="chipFng">F&amp;G <b>&#8212;</b></span>
   <span class="statuschip" id="chipDom">BTC.D <b>&#8212;</b></span>
@@ -591,6 +592,21 @@ function tickClock(){
   const ms = (8*3600 - secIn8h)*1000;
   const mm = Math.floor(ms/60000), hh=Math.floor(mm/60);
   $('chipFund').innerHTML = `next funding <b>${hh}h ${String(mm%60).padStart(2,'0')}m</b>`;
+  // CoinDCX fetch-health badge: shows the data source of the last candle fetch.
+  (function(){
+    var el = document.getElementById('chipCdcxHealth');
+    if (!el) return;
+    if (typeof S === 'undefined' || S.exchange !== 'coindcx'){ el.style.display = 'none'; return; }
+    el.style.display = '';
+    var v = S.cdcxViaProxy;
+    var label, color;
+    if (v === false || v === 'direct'){ label = 'LIVE'; color = 'var(--long)'; }
+    else if (v === 'render'){ label = 'RENDER'; color = 'var(--long)'; }
+    else if (v === 'public'){ label = 'PROXY'; color = 'var(--gold)'; }
+    else if (v === 'cache'){ label = 'CACHE'; color = 'var(--veto)'; }
+    else { label = '--'; color = 'var(--mut)'; }
+    el.innerHTML = 'CDCX data <b style="color:' + color + '">' + label + '</b>';
+  })();
   return ms/60000; // minutes
 }
 setInterval(tickClock, 1000);
