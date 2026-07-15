@@ -1,9 +1,9 @@
-/* selftest.js — dev-only self-test suite extracted from index.html (Phase 12 modularization).
+/* selftest.js \u2014 dev-only self-test suite extracted from index.html (Phase 12 modularization).
    runSelfTests() is invoked manually from the console; it is not run on load.
    Depends on cusumLast() from indicators.js, so it loads after that file. */
 /* ---------------- dev-only self-tests (console: runSelfTests()) ----------------
    Lightweight fixture checks for the gate logic most prone to silent regressions.
-   Not a full test suite Ã¢ÂÂ pins the closePos/sweep formulas and exercises the
+   Not a full test suite \u2014 pins the closePos/sweep formulas and exercises the
    real cusumLast() directly so future edits to these can't silently flip a sign
    or break a divide-by-zero guard without a visible console failure. */
 function runSelfTests(){
