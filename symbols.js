@@ -1,4 +1,4 @@
-// symbols.js — symbol base-name normalization (extracted from index.html, Phase 16)
+// symbols.js \u2014 symbol base-name normalization (extracted from index.html, Phase 16)
 // Pure function, no dependencies. searchBase(sym, ex) becomes a classic-script global.
 
 function searchBase(sym, ex){
