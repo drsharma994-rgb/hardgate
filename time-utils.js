@@ -1,4 +1,4 @@
-/* time-utils.js — pure time/session helpers extracted from index.html (Phase 11 modularization).
+/* time-utils.js \u2014 pure time/session helpers extracted from index.html (Phase 11 modularization).
    fundingMinsAt / dayStartOf / sessionAt are pure Date math (no DOM/state).
    Loaded after idb.js and BEFORE the main inline script so they remain global. */
 function fundingMinsAt(tSec){
