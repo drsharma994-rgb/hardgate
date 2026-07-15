@@ -1,4 +1,4 @@
-// backtests.js — pure backtest/eval computation helpers (extracted from index.html, Phase 17)
+// backtests.js \u2014 pure backtest/eval computation helpers (extracted from index.html, Phase 17)
 // No DOM / storage / fetch. Call-time deps (ema, rsi, last, px, etc.) come from indicators.js / earlier scripts.
 // Globals: backtestSwingTD, backtestSummaryHTML, judasSweepCheck, backtestScalpTD, backtestGoldSwingTD, backtestJudasTD
 
@@ -60,9 +60,9 @@ const resolved = results.filter(function(r){ return r.outcome!=='unresolved'; })
 const winRate = total ? (wins/total*100) : NaN;
 const avgR = resolved.length ? (resolved.reduce(function(a,r){return a+r.rMult;},0)/resolved.length) : NaN;
 const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
-const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ treat as directional evidence, not a reliable win rate.</div>' : '';
-return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve Data history ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· '+rangeNote+'</span></h2>'
-+ '<div class="note">Replays this app\'s own SWING gates (cascade+spread, HTF side, RSI band, structural R:RÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¥ 2, CUSUM) bar-by-bar on real historical price data. Funding-rate and volume gates are NOT included ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Twelve Data does not provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here. This is a frequency count of what already happened, not a prediction or guarantee.</div>'
+const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) \u2014 treat as directional evidence, not a reliable win rate.</div>' : '';
+return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve Data history \u00B7 '+rangeNote+'</span></h2>'
++ '<div class="note">Replays this app\'s own SWING gates (cascade+spread, HTF side, RSI band, structural R:R\u2265 2, CUSUM) bar-by-bar on real historical price data. Funding-rate and volume gates are NOT included \u2014 Twelve Data does not provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here. This is a frequency count of what already happened, not a prediction or guarantee.</div>'
 + '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
 + '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
 + '<div class="kv"><span class="k">Hit stop first</span><span class="v">'+stops+'</span></div>'
