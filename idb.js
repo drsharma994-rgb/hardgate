@@ -1,4 +1,4 @@
-/* idb.js — IndexedDB durability layer extracted from index.html (Phase 10 modularization).
+/* idb.js \u2014 IndexedDB durability layer extracted from index.html (Phase 10 modularization).
    localStorage remains the synchronous source of truth; IndexedDB is a durable mirror.
    Loaded after store.js and BEFORE the main inline script so idbOpen/idbSet/idbGet are global. */
 const IDB_DB='hardgate', IDB_STORE='kv';
