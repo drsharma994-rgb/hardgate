@@ -307,3 +307,91 @@ function macdZeroLine(closes, f, s){
   if (!isFinite(line)) return 0;
   return line > 0 ? 1 : (line < 0 ? -1 : 0);
 }
+
+/* ===== Phase 7 additions ===== */
+
+/* Token-bucket rate limiter. Create with capacity + refillPerSec.
+   Call take() -> returns ms to wait (0 if a token is available now).
+   Non-blocking: caller decides how to schedule. */
+function makeTokenBucket(capacity, refillPerSec){
+  const cap = capacity || 10;
+  const rate = refillPerSec || 5;
+  let tokens = cap;
+  let last = Date.now();
+  function refill(){
+    const now = Date.now();
+    const gain = ((now - last) / 1000) * rate;
+    if (gain > 0){ tokens = Math.min(cap, tokens + gain); last = now; }
+  }
+  return {
+    take: function(){
+      refill();
+      if (tokens >= 1){ tokens -= 1; return 0; }
+      return Math.ceil((1 - tokens) / rate * 1000);
+    },
+    available: function(){ refill(); return Math.floor(tokens); }
+  };
+}
+
+/* Killzone timing (UTC-based). Returns which session window a timestamp
+   falls in for ICT-style timing. Informational only. */
+function killzone(tsMs){
+  const d = new Date(tsMs || Date.now());
+  const h = d.getUTCHours() + d.getUTCMinutes() / 60;
+  if (h >= 0 && h < 5) return { zone: "ASIA", active: true };
+  if (h >= 7 && h < 10) return { zone: "LONDON", active: true };
+  if (h >= 12 && h < 15) return { zone: "NEWYORK", active: true };
+  return { zone: "OFF", active: false };
+}
+
+/* MTF 3-of-4 alignment. Pass an array of per-timeframe bias signs
+   (+1 up, -1 down, 0 neutral). Returns aligned direction + count. */
+function mtfAlign(biases){
+  if (!biases || !biases.length) return { dir: 0, agree: 0, of: 0, aligned: false };
+  const up = biases.filter(function(b){ return b > 0; }).length;
+  const dn = biases.filter(function(b){ return b < 0; }).length;
+  const of = biases.length;
+  const dir = up > dn ? 1 : (dn > up ? -1 : 0);
+  const agree = Math.max(up, dn);
+  return { dir: dir, agree: agree, of: of, aligned: agree >= Math.min(3, of) };
+}
+
+/* Wick commitment + delta proxy on the last bar. Returns commitment 0..1
+   and which side rejected. Informational only. */
+function wickCommit(bar){
+  if (!bar) return null;
+  const rng = bar.high - bar.low;
+  if (!(rng > 0)) return { commit: 0, reject: "NONE" };
+  const body = Math.abs(bar.close - bar.open);
+  const upWick = bar.high - Math.max(bar.open, bar.close);
+  const dnWick = Math.min(bar.open, bar.close) - bar.low;
+  const commit = body / rng;
+  const reject = upWick > dnWick ? "TOP" : (dnWick > upWick ? "BOTTOM" : "NONE");
+  return { commit: commit, reject: reject };
+}
+
+/* Gold macro context. Given latest DXY change and 10y-yield change (as
+   fractions), returns headwind/tailwind for gold longs. Informational. */
+function goldMacro(dxyChg, yieldChg){
+  const d = dxyChg || 0, y = yieldChg || 0;
+  const score = -(d) - (y);
+  let read = "NEUTRAL";
+  if (score > 0.001) read = "TAILWIND";
+  else if (score < -0.001) read = "HEADWIND";
+  return { read: read, score: score };
+}
+
+/* Pre-NFP stand-aside. NFP releases first Friday of month at 13:30 UTC.
+   Returns true when within +/- windowMin of that time. Informational. */
+function preNfp(tsMs, windowMin){
+  const d = new Date(tsMs || Date.now());
+  const w = windowMin || 60;
+  const isFriday = d.getUTCDay() === 5;
+  const dom = d.getUTCDate();
+  const isFirstFriday = isFriday && dom <= 7;
+  if (!isFirstFriday) return { standAside: false };
+  const mins = d.getUTCHours() * 60 + d.getUTCMinutes();
+  const nfpMin = 13 * 60 + 30;
+  const near = Math.abs(mins - nfpMin) <= w;
+  return { standAside: near, minutesTo: nfpMin - mins };
+}
