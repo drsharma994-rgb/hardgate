@@ -1,4 +1,4 @@
-// coilwatch.js — coil-watchlist persistence (extracted from index.html, Phase 15)
+// coilwatch.js \u2014 coil-watchlist persistence (extracted from index.html, Phase 15)
 // Depends at call-time on: nowSec(), S (global lexical scope), idbSet() (idb.js, loaded earlier).
 // COILWATCH_KEY / saveCoilWatch / loadCoilWatch become classic-script globals.
 
