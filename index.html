@@ -2587,7 +2587,7 @@ async function evalSwingSingle(sym, exch){
   if (!rrOk) return {gates:g, veto:true, entry:p, stop};
   const ev = cusumLast(c.slice(-120),1);
   const cusumVeto = ev && ev.barsAgo<=20 && ev.dir!==dir;
-  g.push(['G7','CUSUM event alignment', cusumVeto?'veto':'pass', ev?`${ev.dir.toUpperCase()} event ${ev.barsAgo} bars ago`:'no recent event']);
+  g.push(['G7','CUSUM event alignment', cusumVeto?'veto':'pass', ev?`${ev.dir.toUpperCase()} event ${ev.barsAgo} bars ago`:'no recent event']); const mh8=last(macdHist(c)); const macdOk=dir==='long'?mh8>0:mh8<0; g.push(['G8','MACD zero-line agree (info)', macdOk?'ok':'na', `hist ${fmt(mh8,4)}`]); const vd9=vwapDev(rows,20); const vwapOk9=isFinite(vd9)?(dir==='long'?vd9>0:vd9<0):false; g.push(['G9','VWAP side agree (info)', isFinite(vd9)?(vwapOk9?'ok':'na'):'na', isFinite(vd9)?`${fmt(vd9,2)}% vs 20-bar VWAP`:'n/a']);
   const veto = g.some(x=>x[2]==='veto');
   const t2 = dir==='long'?p+a4*4.9:p-a4*4.9;
   const t1 = dir==='long'?p+expectedMove:p-expectedMove;
