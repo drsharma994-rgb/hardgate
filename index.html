@@ -1328,6 +1328,17 @@ async function runBias(){
     g.push(['F1','Macro context (informational — judge it yourself)', 'na',
       `BTC.D ${S.dom!==null?S.dom.toFixed(1)+'%':'n/a'}${sym.includes('XAUT')?' · gold: check DXY, real yields, event calendar manually':''}`]);
 
+    // ---- F2/F3 confluence tags (informational only — never veto) ----
+    const ha4 = heikinAshi(h4);
+    const haDir = ha4 ? (ha4.bull ? 'long' : 'short') : null;
+    const haAgree = haDir !== null && dailyDir !== 'mixed' && haDir === dailyDir;
+    g.push(['F2','Heikin Ashi 4H trend confirmation (informational — smooths EMA noise)', 'na',
+      ha4 ? `HA state ${ha4.state}${haDir?(' → '+haDir.toUpperCase()):''}${haAgree?' (agrees with bias)':(dailyDir!=='mixed'?' (fighting bias)':'')}` : 'n/a']);
+    const mz1 = macdZeroLine(c1);
+    const mzAgree = (dailyDir==='long' && mz1>0) || (dailyDir==='short' && mz1<0);
+    g.push(['F3','1D MACD zero-line filter (informational — no longs below zero, no shorts above)', 'na',
+      `MACD line ${mz1>0?'above':mz1<0?'below':'at'} zero${dailyDir!=='mixed'?(mzAgree?' (permits '+dailyDir+')':' (against '+dailyDir+')'):''}`]);
+
     const vetoed = g.some(x=>x[2]==='veto');
     const verdict = vetoed||dailyDir==='mixed' ? 'aside' : dailyDir;
     const why = verdict==='aside'
