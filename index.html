@@ -448,6 +448,7 @@ table{width:100%;border-collapse:collapse}
 <script src="indicators.js"></script>
 <script src="store.js"></script>
 <script src="idb.js"></script>
+<script src="time-utils.js"></script>
 <script>
 /* =========================================================================
    HARDGATE Ã¢ÂÂ gates, not scores.
@@ -2309,25 +2310,6 @@ setInterval(loadMacro, 10*60*1000);
 FIND TRADE tab + SCALP/GOLD Twelve Data backtests + Judas Sweep + Hard Refresh
 + Market Picture -- added 2026-07-13
 ========================================================================= */
-function fundingMinsAt(tSec){
-  const d = new Date(tSec*1000);
-  const secIn8h = (d.getUTCHours()%8)*3600 + d.getUTCMinutes()*60 + d.getUTCSeconds();
-  return (8*3600 - secIn8h)/60;
-}
-
-function dayStartOf(tSec){
-  const d = new Date(tSec*1000);
-  return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())/1000);
-}
-
-function sessionAt(tSec){
-  const d = new Date(tSec*1000);
-  const h = d.getUTCHours() + d.getUTCMinutes()/60;
-  if (h>=7 && h<10) return {name:'LONDON KZ', kz:true};
-  if (h>=12 && h<15) return {name:'NY KZ', kz:true};
-  if (h>=0 && h<7) return {name:'ASIA (range builds)', kz:false};
-  return {name:'OFF-SESSION', kz:false};
-}
 
 function judasSweepCheck(dir, d1rows, h1rows, m15rows){
   const pdc = d1rows[d1rows.length-1];
