@@ -447,6 +447,7 @@ table{width:100%;border-collapse:collapse}
 
 <script src="indicators.js"></script>
 <script src="store.js"></script>
+<script src="idb.js"></script>
 <script>
 /* =========================================================================
    HARDGATE Ã¢ÂÂ gates, not scores.
@@ -1733,10 +1734,6 @@ const LOG_KEY='hardgate_log_v1';
 function loadLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
 /* IndexedDB durability layer Ã¢ÂÂ localStorage stays the synchronous source of truth,
    IDB is a durable mirror (localStorage caps ~5MB and can be evicted). */
-const IDB_DB='hardgate', IDB_STORE='kv';
-function idbOpen(){ return new Promise(function(res,rej){ try{ const rq=indexedDB.open(IDB_DB,1); rq.onupgradeneeded=function(){ rq.result.createObjectStore(IDB_STORE); }; rq.onsuccess=function(){ res(rq.result); }; rq.onerror=function(){ rej(rq.error); }; }catch(e){ rej(e); } }); }
-async function idbSet(key,val){ try{ const db=await idbOpen(); await new Promise(function(res,rej){ const tx=db.transaction(IDB_STORE,'readwrite'); tx.objectStore(IDB_STORE).put(val,key); tx.oncomplete=res; tx.onerror=function(){ rej(tx.error); }; }); }catch(e){} }
-async function idbGet(key){ try{ const db=await idbOpen(); return await new Promise(function(res,rej){ const tx=db.transaction(IDB_STORE,'readonly'); const rq=tx.objectStore(IDB_STORE).get(key); rq.onsuccess=function(){ res(rq.result); }; rq.onerror=function(){ rej(rq.error); }; }); }catch(e){ return undefined; } }
 (async function(){ try{ if((JSON.parse(localStorage.getItem(LOG_KEY)||'[]')).length===0){ const backup=await idbGet(LOG_KEY); if(Array.isArray(backup)&&backup.length){ localStorage.setItem(LOG_KEY, JSON.stringify(backup)); if(typeof renderLogBadge==='function') renderLogBadge(); } } }catch(e){} })();
 function saveLog(l){ try{ if (l.length>1000) l = l.slice(l.length-1000); localStorage.setItem(LOG_KEY, JSON.stringify(l)); idbSet(LOG_KEY, l); }catch(e){} }
 function logSetup(sym,dir,kind,entry,stop,t1){
