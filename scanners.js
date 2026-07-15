@@ -1,4 +1,4 @@
-// scanners.js — market scanner routines (extracted from index.html, Phase 19)
+// scanners.js \u2014 market scanner routines (extracted from index.html, Phase 19)
 // Call-time deps stay elsewhere: $, S, getCandles, getTickers, searchBase, indicators (atr/rsi/bollinger/...), setProg, loadCoilWatch, etc.
 // Globals: runCoilScan, runExpansionCheck, runDivScan, runBasisScan, runApexScan, runTrapScan, runSmcScan, runObScan.
 
@@ -13,7 +13,7 @@ async function runCoilScan(){
     for (let i=0;i<uni.length;i++){
       const t=uni[i];
       setProg('coilProg',(i+1)/uni.length);
-      statEl.textContent=`scanning ${i+1}/${uni.length} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· ${t.symbol}`;
+      statEl.textContent=`scanning ${i+1}/${uni.length} \u00B7 ${t.symbol}`;
       try{
         const rows=await getCandles(t.symbol,'4h',200);
         if (rows.length<80) continue;
@@ -35,7 +35,7 @@ async function runCoilScan(){
         found++;
         coilList.push({symbol: t.symbol, dir: "long", coilLow: coilLow, coilHigh: coilHigh});
         __cardsHtml.push(cardHTML(t.symbol,'long',
-          [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ'],
+          [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'\u2014'],
            ['BB width',fmt(currentWidth,2)+'% (avg '+fmt(avgWidth,2)+'%)'],['vol z',fmt(vz,2)],
            ['coil low',px(coilLow)],['coil high',px(coilHigh)]],
           ['G1 BB squeeze','G2 vol drought','G3 >4H 200 EMA'],
@@ -45,7 +45,7 @@ async function runCoilScan(){
       await sleep(120);
     }
     saveCoilWatch(coilList);
-    statEl.textContent=`done ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ${found} coils found`;
+    statEl.textContent=`done \u2014 ${found} coils found`;
     if (!found) emptyEl.style.display='block';
   }catch(e){
     statEl.textContent=`coil scan failed: ${e.message}`;
@@ -63,13 +63,13 @@ async function runExpansionCheck(){
   btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
     const watch = loadCoilWatch();
-    if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ run FIND COILS first"; return; }
-    if (watch.ex !== S.exchange){ statEl.textContent="saved watchlist is for "+watch.ex.toUpperCase()+" ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ switch exchange or re-run FIND COILS"; return; }
+    if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist \u2014 run FIND COILS first"; return; }
+    if (watch.ex !== S.exchange){ statEl.textContent="saved watchlist is for "+watch.ex.toUpperCase()+" \u2014 switch exchange or re-run FIND COILS"; return; }
     let found=0;
     for (let i=0;i<watch.list.length;i++){
       const w = watch.list[i];
       setProg("expProg",(i+1)/watch.list.length);
-      statEl.textContent = "checking "+(i+1)+"/"+watch.list.length+" ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· "+w.symbol;
+      statEl.textContent = "checking "+(i+1)+"/"+watch.list.length+" \u00B7 "+w.symbol;
       try{
         const rows = await getCandles(w.symbol,"4h",60);
         if (rows.length<25) continue;
@@ -92,7 +92,7 @@ async function runExpansionCheck(){
       }catch(e){}
       await sleep(120);
     }
-    statEl.textContent = "done ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ "+found+" expansions triggered";
+    statEl.textContent = "done \u2014 "+found+" expansions triggered";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "expansion check failed: "+e.message; }
   finally{
@@ -108,7 +108,7 @@ async function runDivScan(){
     for (let i=0;i<uni.length;i++){
       const t = uni[i];
       setProg("divProg",(i+1)/uni.length);
-      statEl.textContent = "scanning "+(i+1)+"/"+uni.length+" ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· "+t.symbol;
+      statEl.textContent = "scanning "+(i+1)+"/"+uni.length+" \u00B7 "+t.symbol;
       try{
         const rows = await getCandles(t.symbol,"4h",200);
         if (rows.length < 80) continue;
@@ -166,7 +166,7 @@ async function runDivScan(){
       }catch(e){}
       await sleep(120);
     }
-    statEl.textContent = "done ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ "+found+" divergences found";
+    statEl.textContent = "done \u2014 "+found+" divergences found";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "divergence scan failed: "+e.message; }
   finally{
@@ -176,7 +176,7 @@ async function runBasisScan(){
   const btn=$("basisRun"); const cardsEl=$("basisCards"); const emptyEl=$("basisEmpty"); const statEl=$("basisStat");
   btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
-    statEl.textContent = "loading Delta India + CoinDCX symbol listsÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¦";
+    statEl.textContent = "loading Delta India + CoinDCX symbol lists\u2026";
     const res = await Promise.all([ loadTickersDelta().catch(function(){return [];}), loadTickersCdcx().catch(function(){return [];}) ]);
     const dTick = res[0], cTick = res[1];
     const dMap = {}; dTick.forEach(function(t){ dMap[searchBase(t.symbol,"delta")] = t; });
@@ -186,7 +186,7 @@ async function runBasisScan(){
     for (let i=0;i<bases.length;i++){
       const b = bases[i];
       setProg("basisProg",(i+1)/bases.length);
-      statEl.textContent = "checking "+(i+1)+"/"+bases.length+" ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· "+b;
+      statEl.textContent = "checking "+(i+1)+"/"+bases.length+" \u00B7 "+b;
       const dT = dMap[b];
       const cSym = cByBase[b][0].symbol;
       try{
@@ -200,7 +200,7 @@ async function runBasisScan(){
         const dir = basisPct>0 ? "short" : "long";
         const nomStop = dir==="long" ? dT.mark*0.995 : dT.mark*1.005;
         const nomT1 = dir==="long" ? dT.mark*1.01 : dT.mark*0.99;
-        const planTxt = "Informational only ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
+        const planTxt = "Informational only \u2014 not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage \u2014 it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
         __cardsHtml.push(cardHTML(b, dir,
           [["Delta mark",px(dT.mark)],["CoinDCX px",px(cPrice)],["basis",fmt(basisPct,3)+"%"],["delta funding", dT.fundingPct!==null?fmt(dT.fundingPct,4)+"%":"n/a"]],
           ["G1 base asset on both venues","G2 |basis|>=0.15%"],
@@ -208,7 +208,7 @@ async function runBasisScan(){
       }catch(e){}
       await sleep(150);
     }
-    statEl.textContent = "done ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ "+found+" basis gaps found";
+    statEl.textContent = "done \u2014 "+found+" basis gaps found";
     if (!found) emptyEl.style.display="block";
   }catch(e){ statEl.textContent = "basis scan failed: "+e.message; }
   finally{
@@ -228,7 +228,7 @@ async function runApexScan(){
     const btcRet24 = ((btcNow-btc24h)/btc24h)*100;
     if (btcRet24>1.5){
       cardsEl.innerHTML = `<div class="empty">BTC is up ${fmt(btcRet24,2)}% in 24h. Relative Strength scans are invalid during macro uptrends because everything goes up. Wait for a BTC pullback to test for true Apex leaders.</div>`;
-      statEl.textContent = `skipped ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ BTC bullish (+${fmt(btcRet24,2)}%)`;
+      statEl.textContent = `skipped \u2014 BTC bullish (+${fmt(btcRet24,2)}%)`;
       return;
     }
     const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000 && t.symbol!==btcSym) : S.tickers.filter(t=>t.symbol!==btcSym);
@@ -236,7 +236,7 @@ async function runApexScan(){
     for (let i=0;i<uni.length;i++){
       const t=uni[i];
       setProg('apexProg',(i+1)/uni.length);
-      statEl.textContent = `measuring ${i+1}/${uni.length} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· ${t.symbol}`;
+      statEl.textContent = `measuring ${i+1}/${uni.length} \u00B7 ${t.symbol}`;
       try{
         const rows=await getCandles(t.symbol,'1h',72);
         if (rows.length<50) continue;
@@ -256,11 +256,11 @@ async function runApexScan(){
     results.forEach(r=>{
       __cardsHtml.push(cardHTML(r.sym,'long',
         [['mark',px(r.mark)],['BTC 24h',pct(btcRet24,2)],['asset 24h',pct(r.ret24,2)],['RS spread',pct(r.spread24,2)],['Nearest OB',nearestOBText(r.rows,'long')],['Liquidity Target',liquidityTargetText(r.rows,'long')]],
-        ['G1 BTC headwind','G2 spread ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¥5%','G3 1H EMA50 intact'],
+        ['G1 BTC headwind','G2 spread \u22655%','G3 1H EMA50 intact'],
         `MANUAL TRIGGER: do not buy yet. Pull up a 15m chart of BTC. The exact minute BTC prints a bullish reclaim or sweeps a local low, buy this asset.`,
         r.mark, r.e50, r.mark*1.05));
     });
-    statEl.textContent = `done ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ${results.length} Apex assets found`;
+    statEl.textContent = `done \u2014 ${results.length} Apex assets found`;
     if (!results.length) emptyEl.style.display='block';
   }catch(e){
  }finally{
@@ -403,7 +403,7 @@ async function runSmcScan(){
         const pocSide = vp ? (p > vp.poc ? 'above POC' : 'below POC') : 'n/a';
         __cardsHtml.push(cardHTML(t.symbol, dir, [
           ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
-          ['POC (40b)', vp ? px(vp.poc)+' ('+pocSide+')' : 'n/a'], ['VA', vp ? px(vp.val)+'ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ'+px(vp.vah) : 'n/a'],
+          ['POC (40b)', vp ? px(vp.poc)+' ('+pocSide+')' : 'n/a'], ['VA', vp ? px(vp.val)+'\u2013'+px(vp.vah) : 'n/a'],
           ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
           ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
         ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a'), 'G7 BOS confirmed (displacement broke recent structure)'+(fvg.bosOk?' ok':' n/a')],
