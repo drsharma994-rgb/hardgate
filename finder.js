@@ -1,4 +1,4 @@
-// finder.js — strategy finder & single-symbol evaluators (extracted from index.html, Phase 20)
+// finder.js \u2014 strategy finder & single-symbol evaluators (extracted from index.html, Phase 20)
 // Call-time deps stay elsewhere: $, S, getCandles, getXAUCandles, searchBase, indicators, etc.
 // Globals: findTickerForBase, evalSwingSingle, evalScalpSingle, evalGoldSwing, renderStrategy, finderTypeChanged, runFinder.
 
@@ -23,7 +23,7 @@ async function evalSwingSingle(sym, exch){
   let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : null);
   const g=[];
   const spreadOk = dir && isFinite(a4) && Math.abs(e21-e50)>=0.25*a4;
-  g.push(['G1','4H EMA cascade with real spread', dir&&spreadOk?'pass':'veto', dir?`${dir.toUpperCase()} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· spread ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ'}x ATR`:'no cascade']);
+  g.push(['G1','4H EMA cascade with real spread', dir&&spreadOk?'pass':'veto', dir?`${dir.toUpperCase()} \u00B7 spread ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'\u2014'}x ATR`:'no cascade']);
   if (!dir || !spreadOk) return {gates:g, veto:true};
   const htfOk = dir==='long'?p>e200:p<e200;
   g.push(['G2','HTF side (200EMA)', htfOk?'pass':'veto', `price ${px(p)} vs 200EMA ${px(e200)}`]);
@@ -33,7 +33,7 @@ async function evalSwingSingle(sym, exch){
   if (!(vz>0.5)){ g.push(['G5','Vol + wick commit','veto',`vol z ${fmt(vz,2)} (need >0.5)`]); return {gates:g, veto:true}; }
   const currentBar=rows[rows.length-1]; const range=currentBar.h-currentBar.l; const closePos=range>0?(currentBar.c-currentBar.l)/range:0.5;
   const wickOk = dir==='long'?closePos>=0.60:closePos<=0.40;
-  g.push(['G5','Vol + wick commit', wickOk?'pass':'veto', `vol z ${fmt(vz,2)} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· closePos ${fmt(closePos,2)}`]);
+  g.push(['G5','Vol + wick commit', wickOk?'pass':'veto', `vol z ${fmt(vz,2)} \u00B7 closePos ${fmt(closePos,2)}`]);
   if (!wickOk) return {gates:g, veto:true};
   const stop = lastSwing(rows, dir, 30);
   const distToAnchor = Math.abs(p-e21)/a4;
