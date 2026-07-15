@@ -2641,7 +2641,7 @@ async function evalScalpSingle(sym, exch, tickerFundingPct, minsToFunding){
   const expectedMove=a*2.5, maxExcursion=a*4;
   const dynamicRR = risk>0?expectedMove/risk:NaN;
   const rrOk = risk>0 && dynamicRR>=1.5;
-  g.push(['G7','1.5R vol-capped', rrOk?'pass':'veto', risk>0?`dyn R:R ${fmt(dynamicRR,2)}`:'no risk']);
+  g.push(['G7','1.5R vol-capped', rrOk?'pass':'veto', risk>0?`dyn R:R ${fmt(dynamicRR,2)}`:'no risk']); const vzS9=volZ(m15,20); const volExp9=isFinite(vzS9)&&vzS9>1.0; g.push(['G9','Volume expansion (info)', isFinite(vzS9)?(volExp9?'ok':'na'):'na', isFinite(vzS9)?`vol z ${fmt(vzS9,2)}`:'n/a']);
   const veto = g.some(x=>x[2]==='veto');
   const t1 = dir==='long'?entry+expectedMove:entry-expectedMove;
   const t2 = dir==='long'?entry+maxExcursion:entry-maxExcursion;
