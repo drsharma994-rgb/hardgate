@@ -1173,7 +1173,7 @@ async function runSmcScan(){
           ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
           ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
           ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
-        ]['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a')],
+        ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned', 'G5 Displacement magnitude (>=1.5x ATR)'+(fvg.dispOk?' ok':' n/a'), 'G6 Liquidity swept before impulse (breaker context)'+(fvg.sweepOk?' ok':' n/a')],
         'SMC TAP: price has pulled back into a 4H institutional imbalance. Drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.', p, stop, t1));
       } catch(e) { /* skip this symbol */ }
       await sleep(100);
