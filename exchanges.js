@@ -1,4 +1,4 @@
-// exchanges.js — Delta/CoinDCX ticker & candle fetchers (extracted from index.html, Phase 18)
+// exchanges.js \u2014 Delta/CoinDCX ticker & candle fetchers (extracted from index.html, Phase 18)
 // Call-time deps stay inline/earlier: DELTA, CDCX_API, CDCX_PUB, cdcxGet, nowSec, fetch.
 // Globals: loadTickersDelta, DELTA_RES, candlesDelta, loadTickersCdcx, CDCX_RES, candlesCdcx.
 
@@ -26,7 +26,7 @@ async function candlesDelta(sym, res, count){
 }
 
 async function loadTickersCdcx(){
-  // Active USDT-margined futures instruments; ticker detail endpoints vary ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ we
+  // Active USDT-margined futures instruments; ticker detail endpoints vary \u2014 we
   // rank by what candles give us and mark funding as unavailable rather than faking it.
   const j = await cdcxGet(`${CDCX_API}/exchange/v1/derivatives/futures/data/active_instruments?margin_currency_short_name[]=USDT`);
   const list = Array.isArray(j) ? j : (j.instruments||[]);
