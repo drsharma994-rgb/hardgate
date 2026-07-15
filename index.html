@@ -142,6 +142,7 @@ table{width:100%;border-collapse:collapse}
     <button id="tabB_ob" onclick="showTab('ob')">ORDER BLOCKS</button>
   <button id="tabB_div" onclick="showTab('div')">DIVERGENCE</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
+  <button id="tabB_supergold" onclick="showTab('supergold')">SUPER GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
   <button id="tabB_basis" onclick="showTab('basis')">BASIS</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
@@ -342,6 +343,53 @@ table{width:100%;border-collapse:collapse}
   </div>
 </section>
 
+<!-- ================= SUPER GOLD ================= -->
+<section id="tab_supergold" class="tabpane">
+  <div class="panel">
+    <h2>SUPER GOLD <span>XM 360 - XAUUSD - all gold indicators - no paid feeds</span></h2>
+    <div class="note warn" style="margin-bottom:10px">This is a user-supplied strategy module. The gate verdicts, risk guidance, and the SEND TO TRADE PLAN handoff are not validated or endorsed - verify DXY, yields, the economic calendar, and broker spread manually before acting. The ledger cannot see everything.</div>
+    <div class="row" style="margin-bottom:10px">
+      <button id="superGoldRun" class="btn" onclick="runSuperGold()">EVALUATE SUPER GOLD</button>
+      <span id="sgSess" class="statuschip">session -</span>
+      <span id="sgNfp" class="statuschip">NFP -</span>
+      <span id="sgDxy" class="statuschip">DXY -</span>
+      <span id="sgTnx" class="statuschip">TNX -</span>
+      <span class="spacer"></span>
+      <span id="sgStat" class="statuschip"></span>
+    </div>
+    <div class="prog" id="sgProg"><i></i></div>
+    <div class="grid2">
+      <div>
+        <label class="f" style="margin-bottom:6px">DXY Direction (eyeball DXY 4H chart on TradingView)
+          <select id="sgDxySelect" onchange="runSuperGold()">
+            <option value="n/a">Select DXY trend...</option>
+            <option value="bullish">BULLISH (bad for gold longs)</option>
+            <option value="bearish">BEARISH (good for gold longs)</option>
+          </select>
+        </label>
+      </div>
+      <div>
+        <label class="f" style="margin-bottom:6px">TNX / 10Y Yield Direction (eyeball TNX on TradingView)
+          <select id="sgTnxSelect" onchange="runSuperGold()">
+            <option value="n/a">Select TNX trend...</option>
+            <option value="rising">RISING (bad for gold longs)</option>
+            <option value="falling">FALLING (good for gold longs)</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div id="sgSwingOut"></div>
+    <div id="sgScalpOut"></div>
+  </div>
+  <div id="sgMacroOut"></div>
+  <div class="panel">
+    <h2>BACKTEST NOTE <span>Twelve Data removed - free alternatives</span></h2>
+    <div class="note warn">Twelve Data was a paid subscription and is not used here. To backtest, export XM 360 MT4/MT5 history as CSV and replay the gates locally, use a free rate-limited source such as Yahoo Finance 1h data, or scroll back on TradingView XAUUSD manually. The gate logic in this module is the same code the live evaluation uses.</div>
+  </div>
+</section>
+
 <!-- ================= BEST ================= -->
 <section id="tab_best" class="tabpane">
   <div class="panel">
@@ -467,6 +515,7 @@ table{width:100%;border-collapse:collapse}
   <script src="marketpicture.js"></script>
   <script src="best.js"></script>
   <script src="backtest-ui.js"></script>
+  <script src="gold-super.js"></script>
 <script>
 /* =========================================================================
    HARDGATE \u2014 gates, not scores.
@@ -772,7 +821,7 @@ async function setExchange(x){
   renderBiasChips();
 }
 function showTab(t){
-  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','best','basis','search','log','trade','finder'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','supergold','best','basis','search','log','trade','finder'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
