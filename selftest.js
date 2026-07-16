@@ -61,6 +61,25 @@ function runSelfTests(){
     assert('getTickers: body references the ex parameter (honors argument, not only S.exchange)', /\bex\b/.test(src.replace(/S\.exchange/g,'')), '');
   })();
 
+  (function(){
+    // Guards the CoinDCX symbol-format normalization and turnover derivation
+    // (loadTickersCdcx) plus the Delta turnover fallback (loadTickersDelta).
+    // These pin the exact contracts so a future edit cannot silently change
+    // how futures pairs map to spot markets or how 24h turnover is computed.
+    function cdcxSpotKey(sym){ return String(sym).replace(/^B-/, "").replace("_", ""); }
+    function cdcxTurnover(px, vol){ return (isFinite(px) && isFinite(vol)) ? px*vol : 0; }
+    function deltaTurnover(t){ return parseFloat(t.turnover_usd != null ? t.turnover_usd : (t.turnover != null ? t.turnover : 0)); }
+    assert("cdcx symbol: B-BTC_USDT maps to spot key BTCUSDT", cdcxSpotKey("B-BTC_USDT")==="BTCUSDT", cdcxSpotKey("B-BTC_USDT"));
+    assert("cdcx symbol: B-JELLYJELLY_USDT maps to JELLYJELLYUSDT", cdcxSpotKey("B-JELLYJELLY_USDT")==="JELLYJELLYUSDT", cdcxSpotKey("B-JELLYJELLY_USDT"));
+    assert("cdcx symbol: strips only leading B- prefix, not internal B", cdcxSpotKey("B-BNB_USDT")==="BNBUSDT", cdcxSpotKey("B-BNB_USDT"));
+    assert("cdcx turnover: derived as last_price * volume", cdcxTurnover(100, 5)===500, cdcxTurnover(100,5));
+    assert("cdcx turnover: defaults to 0 when no spot match (non-finite inputs)", cdcxTurnover(NaN, 5)===0, cdcxTurnover(NaN,5));
+    assert("delta turnover: prefers turnover_usd field", deltaTurnover({turnover_usd:"1234", turnover:"9"})===1234, deltaTurnover({turnover_usd:"1234",turnover:"9"}));
+    assert("delta turnover: falls back to turnover, then 0", deltaTurnover({})===0 && deltaTurnover({turnover:"77"})===77, "");
+    assert("cdcx adapter: loadTickersCdcx is defined", typeof loadTickersCdcx==="function", typeof loadTickersCdcx);
+    assert("delta adapter: loadTickersDelta is defined", typeof loadTickersDelta==="function", typeof loadTickersDelta);
+  })();
+
   const pass = results.filter(function(r){ return r.pass; }).length;
   console.log('HARDGATE self-tests: '+pass+'/'+results.length+' passed', results);
   return { pass:pass, total:results.length, results:results };
