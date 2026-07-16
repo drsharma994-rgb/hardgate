@@ -322,25 +322,48 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= GOLD ================= -->
 <section id="tab_gold" class="tabpane">
   <div class="panel">
-    <h2>Gold &#8212; XAUTUSD <span>session-aware &#183; Asian range + PDH/PDL liquidity &#183; sweep-and-reclaim scalps &#183; Delta India perp</span></h2>
+    <h2>GOLD v3.0 <span>XM 360 &#183; XAUTUSD &#183; always-on &#183; 37+ indicators &#183; free Delta India data &#183; integration only, not endorsed</span></h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn" id="goldRun" onclick="runGold()">EVALUATE GOLD</button>
-      <span class="statuschip" id="goldSess">session <b>&#8212;</b></span>
-      <span class="statuschip" id="goldLvl">PDH <b>&#8212;</b> &#183; PDL <b>&#8212;</b> &#183; Asia <b>&#8212;</b></span>
-      <span class="note" id="goldStat"></span>
+      <span id="goldSess" class="statuschip">session <b>&#8212;</b></span>
+      <span id="goldNfp" class="statuschip">NFP <b>&#8212;</b></span>
+      <span id="goldDxy" class="statuschip">DXY <b>&#8212;</b></span>
+      <span id="goldTnx" class="statuschip">TNX <b>&#8212;</b></span>
+      <span id="goldLvl" class="statuschip">PDH <b>&#8212;</b> &#183; PDL <b>&#8212;</b></span>
+      <span class="spacer"></span>
+      <span id="goldStat" class="statuschip"></span>
     </div>
-    <div class="note">Gold logic: swing side follows the 4H/1D hard gates (same discipline as crypto, no exceptions for the shiny metal). Scalps only fire inside London (12:30&#8211;15:30 IST) or NY (17:30&#8211;20:30 IST) kill zones, and only on a sweep of the Asian range or prior-day high/low followed by a closed-bar reclaim &#8212; the Judas pattern you already trade. Fear &amp; Greed is crypto sentiment and is deliberately NOT applied here. DXY, real yields and the event calendar are your manual homework &#8212; no API here will judge them honestly for you.</div>
     <div class="prog" id="goldProg"><i></i></div>
+    <div class="grid2">
+      <div>
+        <label class="f" style="margin-bottom:6px">DXY Direction (TradingView 4H)
+          <select id="goldDxySelect" onchange="updateGoldDxy()">
+            <option value="n/a">Select DXY trend...</option>
+            <option value="bullish">BULLISH (bad for gold longs)</option>
+            <option value="bearish">BEARISH (good for gold longs)</option>
+          </select>
+        </label>
+      </div>
+      <div>
+        <label class="f" style="margin-bottom:6px">TNX / 10Y Yield (TradingView)
+          <select id="goldTnxSelect" onchange="updateGoldTnx()">
+            <option value="n/a">Select TNX trend...</option>
+            <option value="rising">RISING (bad for gold longs)</option>
+            <option value="falling">FALLING (good for gold longs)</option>
+          </select>
+        </label>
+      </div>
+    </div>
   </div>
-  
-<div class="row" style="margin-top:10px">
-<button class="btn" id="goldBtRun" onclick="runGoldBacktest()">BACKTEST (Twelve Data)</button>
-</div>
-<div id="goldBtOut"></div>
-<div class="grid2">
-    <div class="panel"><h2>Swing Ledger <span>4H structure</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
-    <div class="panel"><h2>Scalp Ledger <span>15m sweep-and-reclaim in kill zone</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+  <div class="grid2">
+    <div class="panel"><h2>Gold Swing <span>Daily/4H &#183; 37 gates &#183; score-based</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+    <div class="panel"><h2>Gold Scalp <span>1H/15m &#183; 20 gates &#183; always shows both sides</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
   </div>
+  <div class="grid2">
+    <div class="panel"><h2>Gold Breakout <span>Bollinger squeeze + expansion</span></h2><div id="goldBreakoutOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+    <div class="panel"><h2>Gold Mean Reversion <span>Band touch + reversal candle</span></h2><div id="goldMeanRevOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+  </div>
+  <div id="goldMacroOut"></div>
 </section>
 
 <!-- ================= SUPER GOLD ================= -->
