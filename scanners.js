@@ -7,7 +7,7 @@ async function runCoilScan(){
   btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
   try{
     if (!S.tickers.length) S.tickers=await getTickers();
-    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=100000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
     let found=0;
     let coilList = [];
     for (let i=0;i<uni.length;i++){
@@ -103,7 +103,7 @@ async function runDivScan(){
   btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
-    const uni = S.exchange==="delta" ? S.tickers.filter(function(t){ return t.turnoverUsd>=500000; }).sort(function(a,b){ return b.turnoverUsd-a.turnoverUsd; }) : S.tickers.slice();
+    const uni = S.exchange==="delta" ? S.tickers.filter(function(t){ return t.turnoverUsd>=100000; }).sort(function(a,b){ return b.turnoverUsd-a.turnoverUsd; }) : S.tickers.slice();
     let found=0;
     for (let i=0;i<uni.length;i++){
       const t = uni[i];
@@ -231,7 +231,7 @@ async function runApexScan(){
       statEl.textContent = `skipped \u2014 BTC bullish (+${fmt(btcRet24,2)}%)`;
       return;
     }
-    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000 && t.symbol!==btcSym) : S.tickers.filter(t=>t.symbol!==btcSym);
+    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=100000 && t.symbol!==btcSym) : S.tickers.filter(t=>t.symbol!==btcSym);
     let results=[];
     for (let i=0;i<uni.length;i++){
       const t=uni[i];
