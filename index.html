@@ -1217,7 +1217,9 @@ async function hardRefreshAll(){
   const btn = document.getElementById('hardRefreshBtn');
   const chip = document.getElementById('hardRefreshStat');
   if (btn) btn.disabled = true;
-  const tasks = [
+  const _swAll=document.getElementById('swingAll'); if(_swAll) _swAll.checked=true;
+    const _scAll=document.getElementById('scalpAll'); if(_scAll) _scAll.checked=true;
+    const tasks = [
     ['MARKET PICTURE', function(){ return runMarketPictureUI(); }],
     ['BIAS', function(){ return runBias(); }],
     ['SWING', function(){ return runScan('swing'); }],
