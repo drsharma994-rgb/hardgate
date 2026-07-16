@@ -274,7 +274,7 @@ async function runSuperGold(){
     var bbOk=false, bbSqueeze=false, bbDetail="n/a";
     if(c4.length>=40){ var bb=bollingerBB(c4,20,2); bbOk=isFinite(bb.pctB)&&((casc==="long"&&bb.pctB>0.2)||(casc==="short"&&bb.pctB<0.8)); bbSqueeze=bb.squeeze; bbDetail="%B "+fmt(bb.pctB,2)+(bbSqueeze?" · SQUEEZE":" · expanded"); }
     var stochOk=false, stochDetail="n/a";
-    if(c4.length>=40){ var stx=stochastic(c4,h4h,h4l,14,3,3); var kNow=_last(stx.k), dNow=_last(stx.d); stochOk=isFinite(kNow)&&isFinite(dNow)&&((casc==="long"&&kNow>dNow)||(casc==="short"&&kNow<dNow)); stochDetail="Stoch K "+fmt(kNow,1)+" / D "+fmt(dNow,1); }
+    if(c4.length>=40){ var stx=stochastic(c4,h4h,h4l,14,3,3); var kNow2=_last(stx.k), dNow=_last(stx.d); stochOk=isFinite(kNow2)&&isFinite(dNow)&&((casc==="long"&&kNow2>dNow)||(casc==="short"&&kNow2<dNow)); stochDetail="Stoch K "+fmt(kNow2,1)+" / D "+fmt(dNow,1); }
     var fishOk=false, fishDetail="n/a";
     if(c4.length>=30){ var ft=fisherTransform(c4,10); var fNow=_last(ft), fPrev=ft[ft.length-2]; fishOk=(casc==="long"&&fNow>fPrev)||(casc==="short"&&fNow<fPrev); fishDetail="Fisher "+fmt(fNow,2)+" slope "+(fNow>fPrev?"up":"down"); }
     var lrsOk=false, lrsDetail="n/a";
