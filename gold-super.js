@@ -4,6 +4,23 @@
    Data: getCandles (Delta India XAUTUSD). DXY/TNX are manual dropdowns. */
 (function(){
 'use strict';
+
+/* =================== NEW: AUTOMATED MACRO (Yahoo Finance) =================== */
+async function getAutomatedMacro(ticker){
+  var url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?range=10d&interval=1d';
+  var proxyUrl='https://api.allorigins.win/raw?url='+encodeURIComponent(url);
+  try{
+    var r=await fetch(proxyUrl);
+    if(!r.ok) return 'n/a';
+    var j=await r.json();
+    var quote=j&&j.chart&&j.chart.result&&j.chart.result[0]&&j.chart.result[0].indicators&&j.chart.result[0].indicators.quote&&j.chart.result[0].indicators.quote[0];
+    if(!quote||!quote.close) return 'n/a';
+    var closes=quote.close.filter(function(c){return c!==null;});
+    if(closes.length<5) return 'n/a';
+    var cur=closes[closes.length-1], past=closes[closes.length-5];
+    return cur>past?'up':'down';
+  }catch(e){ if(typeof console!=='undefined') console.warn('Macro fetch failed for '+ticker,e); return 'n/a'; }
+}
 var _last = (typeof last==='function') ? last : function(a){ return a && a.length ? a[a.length-1] : NaN; };
 var _ema = (typeof ema==='function') ? ema : function(src,n){ var out=[],k=2/(n+1),e=src[0]; for(var i=0;i<src.length;i++){ e=isFinite(src[i])?src[i]*k+e*(1-k):e; out.push(e);} return out; };
 var _rsi = (typeof rsi==='function') ? rsi : function(src,n){ var out=[]; for(var i=0;i<src.length;i++) out.push(NaN); return out; };
@@ -184,6 +201,17 @@ async function runSuperGold(){
     if($("sgSess")) $("sgSess").innerHTML="session <b>"+sess.name+"</b>";
     var nfp=isNFPWeek();
     if($("sgNfp")) $("sgNfp").innerHTML="NFP <b>"+(nfp?"THIS WEEK":"clear")+"</b>";
+    /* NEW: auto-fill DXY/TNX dropdowns from Yahoo Finance when left unset (manual override preserved) */
+    try{
+      var _dxyEl=$("sgDxySelect"), _tnxEl=$("sgTnxSelect");
+      var _dxyUnset=!_dxyEl||_dxyEl.value===''||_dxyEl.value==='n/a';
+      var _tnxUnset=!_tnxEl||_tnxEl.value===''||_tnxEl.value==='n/a';
+      if(_dxyUnset||_tnxUnset){
+        var _macro=await Promise.all([_dxyUnset?getAutomatedMacro('DX-Y.NYB'):Promise.resolve(null),_tnxUnset?getAutomatedMacro('^TNX'):Promise.resolve(null)]);
+        if(_dxyEl&&_macro[0]&&_macro[0]!=='n/a') _dxyEl.value=(_macro[0]==='up'?'bullish':'bearish');
+        if(_tnxEl&&_macro[1]&&_macro[1]!=='n/a') _tnxEl.value=(_macro[1]==='up'?'rising':'falling');
+      }
+    }catch(_e){ if(typeof console!=='undefined') console.warn('Auto-macro skipped',_e); }
     var dxySelect=$("sgDxySelect"); var dxyDir=dxySelect?dxySelect.value:"n/a";
     if($("sgDxy")) $("sgDxy").innerHTML="DXY <b>"+dxyDir.toUpperCase()+"</b>";
     var tnxSelect=$("sgTnxSelect"); var tnxDir=tnxSelect?tnxSelect.value:"n/a";
@@ -272,7 +300,7 @@ async function runSuperGold(){
     var timeNote=(lfix?"London Fix active - expect volatility":"")+(nyClose?" NY Close active - expect volatility":"");
     /* ---- NEW v3.0 indicators ---- */
     var bbOk=false, bbSqueeze=false, bbDetail="n/a";
-    if(c4.length>=40){ var bb=bollingerBB(c4,20,2); bbOk=isFinite(bb.pctB)&&((casc==="long"&&bb.pctB>0.2)||(casc==="short"&&bb.pctB<0.8)); bbSqueeze=bb.squeeze; bbDetail="%B "+fmt(bb.pctB,2)+(bbSqueeze?" · SQUEEZE":" · expanded"); }
+    if(c4.length>=40){ var bb=bollingerBB(c4,20,2); bbOk=isFinite(bb.pctB)&&((casc==="long"&&bb.pctB>0.2)||(casc==="short"&&bb.pctB<0.8)); bbSqueeze=bb.squeeze; bbDetail="%B "+fmt(bb.pctB,2)+(bbSqueeze?" Â· SQUEEZE":" Â· expanded"); }
     var stochOk=false, stochDetail="n/a";
     if(c4.length>=40){ var stx=stochastic(c4,h4h,h4l,14,3,3); var kNow2=_last(stx.k), dNow=_last(stx.d); stochOk=isFinite(kNow2)&&isFinite(dNow)&&((casc==="long"&&kNow2>dNow)||(casc==="short"&&kNow2<dNow)); stochDetail="Stoch K "+fmt(kNow2,1)+" / D "+fmt(dNow,1); }
     var fishOk=false, fishDetail="n/a";
@@ -280,12 +308,12 @@ async function runSuperGold(){
     var lrsOk=false, lrsDetail="n/a";
     if(c4.length>=30){ var lrs=linearRegSlope(c4,20); var sNow=_last(lrs); lrsOk=isFinite(sNow)&&((casc==="long"&&sNow>0)||(casc==="short"&&sNow<0)); lrsDetail="LReg slope "+fmt(sNow,4); }
     var divOk=false, divDetail="n/a";
-    if(c4.length>=60){ var rArr=_rsi(c4,14); var div=rsiDivergenceSG(c4,rArr,14); var reg=div.regular, hid=div.hidden; divOk=(casc==="long"&&(reg==="bull"||hid==="bull"))||(casc==="short"&&(reg==="bear"||hid==="bear")); divDetail="reg "+(reg||"none")+" · hid "+(hid||"none"); }
+    if(c4.length>=60){ var rArr=_rsi(c4,14); var div=rsiDivergenceSG(c4,rArr,14); var reg=div.regular, hid=div.hidden; divOk=(casc==="long"&&(reg==="bull"||hid==="bull"))||(casc==="short"&&(reg==="bear"||hid==="bear")); divDetail="reg "+(reg||"none")+" Â· hid "+(hid||"none"); }
     var atrStopOk=false, atrStopDetail="n/a", atrStopVal=NaN;
     if(h4.length>=20){ var ats=atrTrailingStop(h4,14,3); var tNow=ats.trend; atrStopOk=(casc==="long"&&tNow===1)||(casc==="short"&&tNow===-1); atrStopVal=ats.stop[ats.stop.length-1]; atrStopDetail="ATR-TS "+px(atrStopVal)+" trend "+(tNow===1?"UP":"DOWN"); }
     /* ---- build gate ledger ---- */
     var sg=[];
-    sg.push(["S1","Weekly EMA9/21 structure",wStruct!=="mixed"&&wStruct===dSide?"pass":"veto",wStruct.toUpperCase()+" · 1D "+dSide.toUpperCase()]);
+    sg.push(["S1","Weekly EMA9/21 structure",wStruct!=="mixed"&&wStruct===dSide?"pass":"veto",wStruct.toUpperCase()+" Â· 1D "+dSide.toUpperCase()]);
     sg.push(["S2","4H EMA cascade spread",casc!=="mixed"&&spreadOk?"pass":"veto",casc.toUpperCase()]);
     sg.push(["S3","1D side agrees",casc!=="mixed"&&casc===dSide?"pass":"veto",dSide.toUpperCase()]);
     sg.push(["S4","Heikin Ashi",haOk?"pass":"veto",haDetail]);
@@ -310,7 +338,7 @@ async function runSuperGold(){
     sg.push(["S23","OBV",obvOk?"pass":"veto",obvDetail]);
     sg.push(["S24","Awesome Oscillator",aoOk?"pass":"veto",aoDetail]);
     sg.push(["S25","Aroon",aroonOk?"pass":"veto",aroonDetail]);
-    sg.push(["S26","TSMOM 30/90d",tsmom,"30d "+pct(r30v,1)+" · 90d "+pct(r90v,1)]);
+    sg.push(["S26","TSMOM 30/90d",tsmom,"30d "+pct(r30v,1)+" Â· 90d "+pct(r90v,1)]);
     sg.push(["S27","CUSUM",cusum,evG?evG.dir.toUpperCase()+" "+evG.barsAgo+" bars ago":"no event"]);
     sg.push(["S28","Volatility regime",vreg.regime!=="unknown"?"pass":"na",vreg.label]);
     sg.push(["S29","NFP/Event stand-aside",!eventWin.active?"pass":"veto",eventWin.active?eventWin.event+" - no new positions":"calendar clear"]);
@@ -359,7 +387,7 @@ async function runSuperGold(){
     if($("sgSwingOut")) $("sgSwingOut").innerHTML="<div class=\"note warn\" style=\"margin-bottom:8px\">Integration only - trading logic, scoring and broker handoff are NOT endorsed. Verify everything manually.</div>"
       +"<div class=\"ledger\">"+sg.map(function(x){return gateRow(x[0],x[1],x[2],x[3]);}).join("")+"</div>"
       +"<div class=\"verdict "+verdictColor+"\"><div class=\"vword\">"+verdictLabel+"</div>"
-      +"<div class=\"vwhy\">Score: "+fmt(score,0)+"pct · "+passCount+" pass · "+vetoCount+" veto · "+naCount+" n/a · "+verdictWhy+"</div></div>"
+      +"<div class=\"vwhy\">Score: "+fmt(score,0)+"pct Â· "+passCount+" pass Â· "+vetoCount+" veto Â· "+naCount+" n/a Â· "+verdictWhy+"</div></div>"
       +swingPlanHtml;
     setProg("sgProg",0.65);
     /* ================= SCALP ================= */
@@ -388,13 +416,13 @@ async function runSuperGold(){
     if(m15.length>=20){ var cc15=cci(m15,20); var cc15Now=_last(cc15); cci15Ok=(casc==="long"&&cc15Now>100)||(casc==="short"&&cc15Now<-100)?true:(((casc==="long"&&cc15Now<-100)||(casc==="short"&&cc15Now>100))?false:true); cci15Detail="CCI(15m) "+fmt(cc15Now,1); }
     /* NEW v3.0 scalp indicators */
     var bb15Ok=false, bb15Detail="n/a";
-    if(c15.length>=40){ var bb15=bollingerBB(c15,20,2); bb15Ok=isFinite(bb15.pctB)&&((casc==="long"&&bb15.pctB>0.2)||(casc==="short"&&bb15.pctB<0.8)); bb15Detail="BB %B "+fmt(bb15.pctB,2)+(bb15.squeeze?" · squeeze":""); }
+    if(c15.length>=40){ var bb15=bollingerBB(c15,20,2); bb15Ok=isFinite(bb15.pctB)&&((casc==="long"&&bb15.pctB>0.2)||(casc==="short"&&bb15.pctB<0.8)); bb15Detail="BB %B "+fmt(bb15.pctB,2)+(bb15.squeeze?" Â· squeeze":""); }
     var stoch15Ok=false, stoch15Detail="n/a";
     if(c15.length>=40){ var stx15=stochastic(c15,m15h,m15l,14,3,3); var k15=_last(stx15.k), d15=_last(stx15.d); stoch15Ok=isFinite(k15)&&isFinite(d15)&&((casc==="long"&&k15>d15)||(casc==="short"&&k15<d15)); stoch15Detail="Stoch K "+fmt(k15,1)+" / D "+fmt(d15,1); }
     var fish15Ok=false, fish15Detail="n/a";
     if(c15.length>=30){ var ft15=fisherTransform(c15,10); var f15Now=_last(ft15), f15Prev=ft15[ft15.length-2]; fish15Ok=(casc==="long"&&f15Now>f15Prev)||(casc==="short"&&f15Now<f15Prev); fish15Detail="Fisher(15m) "+fmt(f15Now,2)+" slope "+(f15Now>f15Prev?"up":"down"); }
     var pat15Ok=false, pat15Detail="n/a";
-    if(m15.length>=3){ var pat=candlePattern(m15); var eng=pat.engulfing, pin=pat.pinBar; pat15Ok=(casc==="long"&&(eng==="bull"||pin))||(casc==="short"&&(eng==="bear"||pin)); pat15Detail=(eng?eng+" engulf":"")+(eng&&pin?" · ":"")+(pin?"pin bar":"none"); }
+    if(m15.length>=3){ var pat=candlePattern(m15); var eng=pat.engulfing, pin=pat.pinBar; pat15Ok=(casc==="long"&&(eng==="bull"||pin))||(casc==="short"&&(eng==="bear"||pin)); pat15Detail=(eng?eng+" engulf":"")+(eng&&pin?" Â· ":"")+(pin?"pin bar":"none"); }
     var or15Ok=false, or15Detail="n/a";
     if(sess.kz){ var or=sess.name==="LONDON KZ"?openingRange(m15,180,60):(sess.name==="NY KZ"?openingRange(m15,360,60):null); if(or){ or15Ok=(casc==="long"&&lastClose>or.hi)||(casc==="short"&&lastClose<or.lo); or15Detail="OR hi "+px(or.hi)+" lo "+px(or.lo); } }
     function sgScalpLedger(dir){
@@ -457,7 +485,7 @@ async function runSuperGold(){
       return "<div style=\"margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--"+(dir==="long"?"long":"short")+")\">"+scalpLabel+"</div>"
         +"<div class=\"ledger\" style=\"margin-bottom:10px\">"+g.map(function(x){return gateRow(x[0],x[1],x[2],x[3]);}).join("")+"</div>"
         +"<div class=\"verdict "+scalpColor+"\" style=\"margin:0 0 16px\"><div class=\"vword\" style=\"font-size:16px\">"+scalpLabel+"</div>"
-        +"<div class=\"vwhy\" style=\"font-size:10px\">Score "+fmt(scoreC,0)+"pct · "+passC+" pass · "+vetoC+" veto</div></div>"+planHtml;
+        +"<div class=\"vwhy\" style=\"font-size:10px\">Score "+fmt(scoreC,0)+"pct Â· "+passC+" pass Â· "+vetoC+" veto</div></div>"+planHtml;
     }
     if($("sgScalpOut")) $("sgScalpOut").innerHTML=sgScalpLedger("long")+sgScalpLedger("short");
     setProg("sgProg",0.85);
@@ -477,7 +505,7 @@ async function runSuperGold(){
       +"<div class=\"kv\"><span class=\"k\">Pivot</span><span class=\"v\">PP "+px(piv.pp)+" R1 "+px(piv.r1)+" S1 "+px(piv.s1)+"</span></div>"
       +"<div class=\"kv\"><span class=\"k\">Camarilla</span><span class=\"v\">H4 "+px(cam.h4)+" L4 "+px(cam.l4)+"</span></div>"
       +"<div class=\"kv\"><span class=\"k\">Spread</span><span class=\"v\">Verify &lt; 35 pips on XM 360</span></div></div>";
-    if(st) st.textContent="evaluated · score "+fmt(score,0)+"pct · "+new Date().toTimeString().slice(0,5)+" IST";
+    if(st) st.textContent="evaluated Â· score "+fmt(score,0)+"pct Â· "+new Date().toTimeString().slice(0,5)+" IST";
   }catch(e){
     if(st) st.textContent="Super Gold eval failed: "+e.message;
     console.error(e);
