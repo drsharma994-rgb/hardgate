@@ -1,4 +1,4 @@
-/* store.js \u2014 lightweight Publish/Subscribe event store.
+/* store.js — lightweight Publish/Subscribe event store.
  *
  * Part of the vanilla-JS architecture refactor (2/4): decouples state
  * mutations (WebSocket ticks, API polling, manual refresh) from UI updates.

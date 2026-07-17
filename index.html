@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HARDGATE &#8212; Delta India / CoinDCX Perp Terminal</title>
+<title>HARDGATE — Delta India / CoinDCX Perp Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -114,23 +114,22 @@ table{width:100%;border-collapse:collapse}
 </head>
 <body>
 <header>
-  <div class="brand">HARDGATE<small>PERP TERMINAL &#183; GATES, NOT SCORES</small></div>
+  <div class="brand">HARDGATE<small>PERP TERMINAL · GATES, NOT SCORES</small></div>
   <div class="xtoggle">
     <button id="xDelta" class="on" onclick="setExchange('delta')">DELTA INDIA</button>
     <button id="xCdcx" onclick="setExchange('coindcx')">COINDCX</button>
   </div>
-  <span class="statuschip" id="chipConn"><b>&#8212;</b> symbols</span>
-  <span class="statuschip" id="chipCdcxHealth" style="display:none" title="CoinDCX candle data source on the last fetch"></span>
-  <span class="statuschip" id="chipFund">next funding <b>&#8212;</b></span>
-  <span class="statuschip" id="chipFng">F&amp;G <b>&#8212;</b></span>
-  <span class="statuschip" id="chipDom">BTC.D <b>&#8212;</b></span>
+  <span class="statuschip" id="chipConn"><b>—</b> symbols</span>
+  <span class="statuschip" id="chipFund">next funding <b>—</b></span>
+  <span class="statuschip" id="chipFng">F&amp;G <b>—</b></span>
+  <span class="statuschip" id="chipDom">BTC.D <b>—</b></span>
   <div class="spacer"></div>
-  <span class="statuschip" id="chipClock"><b>&#8212;</b> IST</span>
-  <button id="hardRefreshBtn" class="statuschip" style="cursor:pointer" onclick="hardRefreshAll()">&#10227; HARD REFRESH</button>
+  <span class="statuschip" id="chipClock"><b>—</b> IST</span>
+  <button id="hardRefreshBtn" class="statuschip" style="cursor:pointer" onclick="hardRefreshAll()">⟳ HARD REFRESH</button>
 <span class="statuschip" id="hardRefreshStat"></span>
-<span class="statuschip" id="chipAlert" onclick="toggleAlerts()" style="cursor:pointer"><b>&#128276;</b> ALERTS <b id="alertState">OFF</b></span>
+<span class="statuschip" id="chipAlert" onclick="toggleAlerts()" style="cursor:pointer"><b>🔔</b> ALERTS <b id="alertState">OFF</b></span>
 </header>
-<div id="marketPictureBar" style="padding:8px 16px;text-align:center;border-bottom:1px solid #2a2a2a;font-size:13px;letter-spacing:.04em">MARKET PICTURE: <b id="mpVerdict">&#8212;</b> <span id="mpDetail" class="note" style="font-size:11px"></span></div>
+<div id="marketPictureBar" style="padding:8px 16px;text-align:center;border-bottom:1px solid #2a2a2a;font-size:13px;letter-spacing:.04em">MARKET PICTURE: <b id="mpVerdict">—</b> <span id="mpDetail" class="note" style="font-size:11px"></span></div>
 <nav>
   <button id="tabB_bias" class="on" onclick="showTab('bias')">BIAS</button>
   <button id="tabB_swing" onclick="showTab('swing')">SWING SCAN</button>
@@ -142,7 +141,6 @@ table{width:100%;border-collapse:collapse}
     <button id="tabB_ob" onclick="showTab('ob')">ORDER BLOCKS</button>
   <button id="tabB_div" onclick="showTab('div')">DIVERGENCE</button>
   <button id="tabB_gold" onclick="showTab('gold')">GOLD</button>
-  <button id="tabB_supergold" onclick="showTab('supergold')">SUPER GOLD</button>
   <button id="tabB_best" onclick="showTab('best')">BEST</button>
   <button id="tabB_basis" onclick="showTab('basis')">BASIS</button>
   <button id="tabB_search" onclick="showTab('search')">SEARCH</button>
@@ -170,7 +168,7 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= SWING ================= -->
 <section id="tab_swing" class="tabpane">
   <div class="panel">
-    <h2>Swing Scanner <span>4H structure &#183; 1D-derived bias &#183; funding-clean only</span></h2>
+    <h2>Swing Scanner <span>4H structure · 1D-derived bias · funding-clean only</span></h2>
     <div class="row">
       <label class="f">SCAN TOP (BY TURNOVER)<input id="swingN" type="number" value="30" min="5" max="500" style="width:80px"></label>
       <label class="f">MIN 24H TURNOVER $<input id="swingTurn" type="number" value="200000" style="width:110px"></label>
@@ -180,7 +178,7 @@ table{width:100%;border-collapse:collapse}
     </div>
     <div class="prog" id="swingProg"><i></i></div>
   </div>
-  <div class="note" style="margin-bottom:10px">Gates: G1 4H EMA cascade aligned (9&gt;21&gt;50 or inverse) with real spread &#8212; |EMA21&#8722;EMA50| &#8805; 0.25&#215;ATR, so flat-tape cascades don't count &#183; G2 price on correct side of 4H EMA200 (HTF proxy) &#183; G3 RSI-14 not exhausted (blocks &gt;70 long / &lt;30 short) &#183; G4 |funding| &#8804; 0.05% and not paying against you &#183; G5 volume expansion vs 20-bar mean &#183; G6 structural R:R &#8805; 2 from last swing &#183; G7 no opposing CUSUM event in last 20 bars (the one feature your own walk-forward validated OOS, AUC &#8776;0.58). All gates on CLOSED bars only &#8212; nothing repaints. Zero results is a valid, honest result.</div>
+  <div class="note" style="margin-bottom:10px">Gates: G1 4H EMA cascade aligned (9&gt;21&gt;50 or inverse) with real spread — |EMA21−EMA50| ≥ 0.25×ATR, so flat-tape cascades don't count · G2 price on correct side of 4H EMA200 (HTF proxy) · G3 RSI-14 not exhausted (blocks &gt;70 long / &lt;30 short) · G4 |funding| ≤ 0.05% and not paying against you · G5 volume expansion vs 20-bar mean · G6 structural R:R ≥ 2 from last swing · G7 no opposing CUSUM event in last 20 bars (the one feature your own walk-forward validated OOS, AUC ≈0.58). All gates on CLOSED bars only — nothing repaints. Zero results is a valid, honest result.</div>
   <div class="cards" id="swingCards"></div>
   <div class="empty" id="swingEmpty" style="display:none">No CLEAN swing setups. Standing aside is a position.</div>
 </section>
@@ -188,7 +186,7 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= SCALP ================= -->
 <section id="tab_scalp" class="tabpane">
   <div class="panel">
-    <h2>Scalp Scanner <span>15m trigger inside 1H context &#183; ATR targets &#183; funding-window aware</span></h2>
+    <h2>Scalp Scanner <span>15m trigger inside 1H context · ATR targets · funding-window aware</span></h2>
     <div class="row">
       <label class="f">SCAN TOP (BY TURNOVER)<input id="scalpN" type="number" value="20" min="5" max="500" style="width:80px"></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="scalpAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
@@ -197,7 +195,7 @@ table{width:100%;border-collapse:collapse}
     </div>
     <div class="prog" id="scalpProg"><i></i></div>
   </div>
-  <div class="note" style="margin-bottom:10px">Gates: G1 1H EMA cascade sets direction &#183; G2 15m EMA9/21 pullback-and-reclaim in that direction &#183; G3 15m RSI in 40&#8211;65 band (long) / 35&#8211;60 (short), no chasing exhaustion &#183; G4 funding clean &#183; G5 &#8805; 25 min to funding settlement (00:00/08:00/16:00 UTC = 5:30/13:30/21:30 IST) &#183; G6 ATR-based 2R target inside recent range. Scalps are invalid if you can't be filled early &#8212; entry is the reclaim close, not a market chase.</div>
+  <div class="note" style="margin-bottom:10px">Gates: G1 1H EMA cascade sets direction · G2 15m EMA9/21 pullback-and-reclaim in that direction · G3 15m RSI in 40–65 band (long) / 35–60 (short), no chasing exhaustion · G4 funding clean · G5 ≥ 25 min to funding settlement (00:00/08:00/16:00 UTC = 5:30/13:30/21:30 IST) · G6 ATR-based 2R target inside recent range. Scalps are invalid if you can't be filled early — entry is the reclaim close, not a market chase.</div>
   <div class="cards" id="scalpCards"></div>
   <div class="empty" id="scalpEmpty" style="display:none">No CLEAN scalp triggers right now.</div>
 
@@ -210,17 +208,17 @@ table{width:100%;border-collapse:collapse}
 
     <section id="tab_coil" class="tabpane">
     <div class="panel">
-      <h2>Compression Stalker <span>find stored energy before the breakout &#183; manual execution</span></h2>
+      <h2>Compression Stalker <span>find stored energy before the breakout · manual execution</span></h2>
       <div class="row">
         <button class="btn" id="coilRun" onclick="runCoilScan()">FIND COILS</button>
         <span class="note" id="coilStat"></span>
       </div>
       <div class="prog" id="coilProg"><i></i></div>
     </div>
-    <div class="note" style="margin-bottom:10px">Gates: G1 Bollinger Band width is &#8805; 25% tighter than its 50-bar average (Volatility Squeeze) &#183; G2 Volume z-score < -0.5 (Drought/Quiet Accumulation) &#183; G3 Price above 4H 200 EMA (Bullish HTF context). Action: Do not buy blindly. Send these to the Trade Plan and wait for a Liquidity Sweep of the local low before manually entering.</div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 Bollinger Band width is ≥ 25% tighter than its 50-bar average (Volatility Squeeze) · G2 Volume z-score < -0.5 (Drought/Quiet Accumulation) · G3 Price above 4H 200 EMA (Bullish HTF context). Action: Do not buy blindly. Send these to the Trade Plan and wait for a Liquidity Sweep of the local low before manually entering.</div>
     <div class="cards" id="coilCards"></div>
     <div class="empty" id="coilEmpty" style="display:none">No compressed assets found. The market is currently expanded.</div>
-      <div class="note" style="margin:16px 0 10px;border-top:1px solid var(--line);padding-top:14px">Expansion check: after FIND COILS saves a watchlist, run this to see which of those symbols have since closed outside the compression range on a volume spike (G4 closed above coil high, G5 vol z&gt;2). Two-step process by design &#8212; run FIND COILS first, check back later.</div>
+      <div class="note" style="margin:16px 0 10px;border-top:1px solid var(--line);padding-top:14px">Expansion check: after FIND COILS saves a watchlist, run this to see which of those symbols have since closed outside the compression range on a volume spike (G4 closed above coil high, G5 vol z&gt;2). Two-step process by design — run FIND COILS first, check back later.</div>
       <div class="row">
         <button class="btn" id="expRun" onclick="runExpansionCheck()">CHECK EXPANSION</button>
         <span class="note" id="expStat"></span>
@@ -232,42 +230,42 @@ table{width:100%;border-collapse:collapse}
 
   <section id="tab_div" class="tabpane">
     <div class="panel">
-      <h2>RSI Divergence <span>regular + hidden divergence on 4H &#183; price vs momentum disagreement</span></h2>
+      <h2>RSI Divergence <span>regular + hidden divergence on 4H · price vs momentum disagreement</span></h2>
       <div class="row">
         <button class="btn" id="divRun" onclick="runDivScan()">FIND DIVERGENCE</button>
         <span class="note" id="divStat"></span>
       </div>
       <div class="prog" id="divProg"><i></i></div>
     </div>
-    <div class="note" style="margin-bottom:10px">Gates: G1 valid pivot structure (price vs RSI disagree over 2 swing points) &middot; G2 span&ge;10 bars between pivots, newest pivot &le;15 bars old &middot; G3 funding not extreme/opposing &middot; G4 no opposing CUSUM event in last 10 bars &middot; G5 R:R&ge;2. Regular divergence favors range/reversal contexts; hidden divergence favors trending continuation &#8212; shown as regime context, not a veto.</div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 valid pivot structure (price vs RSI disagree over 2 swing points) &middot; G2 span&ge;10 bars between pivots, newest pivot &le;15 bars old &middot; G3 funding not extreme/opposing &middot; G4 no opposing CUSUM event in last 10 bars &middot; G5 R:R&ge;2. Regular divergence favors range/reversal contexts; hidden divergence favors trending continuation — shown as regime context, not a veto.</div>
     <div class="cards" id="divCards"></div>
     <div class="empty" id="divEmpty" style="display:none">No qualifying divergence found.</div>
   </section>
 
   <section id="tab_basis" class="tabpane">
     <div class="panel">
-      <h2>Cross-Venue Basis <span>Delta India vs CoinDCX price gap &#183; informational, not an executed arbitrage</span></h2>
+      <h2>Cross-Venue Basis <span>Delta India vs CoinDCX price gap · informational, not an executed arbitrage</span></h2>
       <div class="row">
         <button class="btn" id="basisRun" onclick="runBasisScan()">FIND BASIS GAPS</button>
         <span class="note" id="basisStat"></span>
       </div>
       <div class="prog" id="basisProg"><i></i></div>
     </div>
-    <div class="note" style="margin-bottom:10px">Gates: G1 base asset listed on both venues &middot; G2 |basis|&ge;0.15%. CoinDCX's public API exposes no funding-rate field in this app, so this cannot confirm a funding-driven arbitrage &#8212; it only flags a price disagreement between venues. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.</div>
+    <div class="note" style="margin-bottom:10px">Gates: G1 base asset listed on both venues &middot; G2 |basis|&ge;0.15%. CoinDCX's public API exposes no funding-rate field in this app, so this cannot confirm a funding-driven arbitrage — it only flags a price disagreement between venues. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.</div>
     <div class="cards" id="basisCards"></div>
     <div class="empty" id="basisEmpty" style="display:none">No basis gaps found.</div>
   </section>
 
     <section id="tab_apex" class="tabpane">
       <div class="panel">
-        <h2>Apex Leaders <span>relative strength vs BTC &#183; manual macro execution</span></h2>
+        <h2>Apex Leaders <span>relative strength vs BTC · manual macro execution</span></h2>
         <div class="row">
           <button class="btn" id="apexRun" onclick="runApexScan()">FIND APEX ASSETS</button>
           <span class="note" id="apexStat"></span>
         </div>
         <div class="prog" id="apexProg"><i></i></div>
       </div>
-      <div class="note" style="margin-bottom:10px">Gates: G1 BTC not bullish (24h return &#8804; 1.5%, macro headwind present) &#183; G2 Asset is outperforming BTC by &#8805; 5% over 24h (the RS spread) &#183; G3 Asset holding above its 1H EMA50 (short-term structure intact despite BTC bleeding). Action: Watch Bitcoin, not the altcoin. The minute BTC prints a 15m bullish sweep/reclaim, manually buy the #1 Apex asset.</div>
+      <div class="note" style="margin-bottom:10px">Gates: G1 BTC not bullish (24h return ≤ 1.5%, macro headwind present) · G2 Asset is outperforming BTC by ≥ 5% over 24h (the RS spread) · G3 Asset holding above its 1H EMA50 (short-term structure intact despite BTC bleeding). Action: Watch Bitcoin, not the altcoin. The minute BTC prints a 15m bullish sweep/reclaim, manually buy the #1 Apex asset.</div>
       <div class="cards" id="apexCards"></div>
       <div class="empty" id="apexEmpty" style="display:none">No valid Apex setups. Either BTC is currently bullish (no headwind to test against), or no assets are showing true relative strength.</div>
     </section>
@@ -275,42 +273,42 @@ table{width:100%;border-collapse:collapse}
 
     <section id="tab_trap" class="tabpane">
       <div class="panel">
-        <h2>Liquidation Snapback <span>mean reversion &#183; fading the extreme</span></h2>
+        <h2>Liquidation Snapback <span>mean reversion · fading the extreme</span></h2>
         <div class="row">
           <button class="btn" id="trapRun" onclick="runTrapScan()">FIND TRAPPED TRADERS</button>
           <span class="note" id="trapStat"></span>
         </div>
         <div class="prog" id="trapProg"><i></i></div>
       </div>
-      <div class="note" style="margin-bottom:10px">Gates: G1 Extreme excursion &#8212; price pierced a volatility-scaled outer Bollinger Band (2.5&#8211;4.5 SD, wider for higher-ATR% assets) &#183; G2 The rejection &#8212; candle closed back inside a volatility-scaled inner band (1.8&#8211;3.0 SD) &#183; G3 Momentum exhaustion (RSI < 30 or > 70). Action: The crowd is trapped at the extreme. You are fading them. Buy/sell the reclaim, stop goes just past the liquidation wick, target the mean.</div>
+      <div class="note" style="margin-bottom:10px">Gates: G1 Extreme excursion — price pierced a volatility-scaled outer Bollinger Band (2.5–4.5 SD, wider for higher-ATR% assets) · G2 The rejection — candle closed back inside a volatility-scaled inner band (1.8–3.0 SD) · G3 Momentum exhaustion (RSI < 30 or > 70). Action: The crowd is trapped at the extreme. You are fading them. Buy/sell the reclaim, stop goes just past the liquidation wick, target the mean.</div>
       <div class="cards" id="trapCards"></div>
       <div class="empty" id="trapEmpty" style="display:none">No active liquidity traps. The market is currently respecting its boundaries.</div>
     </section>
 
       <section id="tab_smc" class="tabpane">
         <div class="panel">
-          <h2>SMC (FVG) <span>institutional imbalance &#183; fair value gaps &#183; mitigation taps</span></h2>
+          <h2>SMC (FVG) <span>institutional imbalance · fair value gaps · mitigation taps</span></h2>
           <div class="row">
             <button class="btn" id="smcRun" onclick="runSmcScan()">FIND UNMITIGATED FVGs</button>
             <span class="note" id="smcStat"></span>
           </div>
           <div class="prog" id="smcProg"><i></i></div>
         </div>
-        <div class="note" style="margin-bottom:10px">Gates: G1 Displacement (a valid 3-candle Fair Value Gap was created recently) &#183; G2 Unmitigated (the gap has not been fully filled or invalidated by subsequent closes) &#183; G3 The Tap (current price has pulled back and is trading inside the FVG zone) &#183; G4 HTF Context (aligned with the 4H/200 EMA trend &#8212; note: this scan runs on 4H candles, not 1D). Action: the asset is currently sitting in an institutional Point of Interest (POI). Drop to a 5m/15m chart. Wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.</div>
+        <div class="note" style="margin-bottom:10px">Gates: G1 Displacement (a valid 3-candle Fair Value Gap was created recently) · G2 Unmitigated (the gap has not been fully filled or invalidated by subsequent closes) · G3 The Tap (current price has pulled back and is trading inside the FVG zone) · G4 HTF Context (aligned with the 4H/200 EMA trend — note: this scan runs on 4H candles, not 1D). Action: the asset is currently sitting in an institutional Point of Interest (POI). Drop to a 5m/15m chart. Wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.</div>
         <div class="cards" id="smcCards"></div>
         <div class="empty" id="smcEmpty" style="display:none">No assets are currently tapping an unmitigated 4H FVG.</div>
       </section>
 
       <section id="tab_ob" class="tabpane">
         <div class="panel">
-          <h2>ORDER BLOCKS <span>institutional order blocks &#183; equal-high/low liquidity pools</span></h2>
+          <h2>ORDER BLOCKS <span>institutional order blocks · equal-high/low liquidity pools</span></h2>
           <div class="row">
             <button class="btn" id="obRun" onclick="runObScan()">FIND UNMITIGATED ORDER BLOCKS</button>
             <span class="note" id="obStat"></span>
           </div>
           <div class="prog" id="obProg"><i></i></div>
         </div>
-        <div class="note" style="margin-bottom:10px">Gates: G1 Valid Order Block (the last opposite-colored 4H candle before a displacement candle that broke recent structure) &#183; G2 Unmitigated (no subsequent candle has fully closed/wicked through the block) &#183; G3 Price inside OB (current price has pulled back and is trading inside the block) &#183; G4 HTF Context (aligned with the 4H/200 EMA trend). Liquidity Target shows the nearest unswept equal-high/low pool in your direction. Action: drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH), then execute.</div>
+        <div class="note" style="margin-bottom:10px">Gates: G1 Valid Order Block (the last opposite-colored 4H candle before a displacement candle that broke recent structure) · G2 Unmitigated (no subsequent candle has fully closed/wicked through the block) · G3 Price inside OB (current price has pulled back and is trading inside the block) · G4 HTF Context (aligned with the 4H/200 EMA trend). Liquidity Target shows the nearest unswept equal-high/low pool in your direction. Action: drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH), then execute.</div>
         <div class="cards" id="obCards"></div>
         <div class="empty" id="obEmpty" style="display:none">No assets are currently tapping an unmitigated 4H Order Block.</div>
       </section>
@@ -322,108 +320,38 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= GOLD ================= -->
 <section id="tab_gold" class="tabpane">
   <div class="panel">
-    <h2>GOLD v3.0 <span>XM 360 &#183; XAUTUSD &#183; always-on &#183; 37+ indicators &#183; free Delta India data &#183; integration only, not endorsed</span></h2>
+    <h2>Gold — XAUTUSD <span>session-aware · Asian range + PDH/PDL liquidity · sweep-and-reclaim scalps · Delta India perp</span></h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn" id="goldRun" onclick="runGold()">EVALUATE GOLD</button>
-      <span id="goldSess" class="statuschip">session <b>&#8212;</b></span>
-      <span id="goldNfp" class="statuschip">NFP <b>&#8212;</b></span>
-      <span id="goldDxy" class="statuschip">DXY <b>&#8212;</b></span>
-      <span id="goldTnx" class="statuschip">TNX <b>&#8212;</b></span>
-      <span id="goldLvl" class="statuschip">PDH <b>&#8212;</b> &#183; PDL <b>&#8212;</b></span>
-      <span class="spacer"></span>
-      <span id="goldStat" class="statuschip"></span>
+      <span class="statuschip" id="goldSess">session <b>—</b></span>
+      <span class="statuschip" id="goldLvl">PDH <b>—</b> · PDL <b>—</b> · Asia <b>—</b></span>
+      <span class="note" id="goldStat"></span>
     </div>
+    <div class="note">Gold logic: swing side follows the 4H/1D hard gates (same discipline as crypto, no exceptions for the shiny metal). Scalps only fire inside London (12:30–15:30 IST) or NY (17:30–20:30 IST) kill zones, and only on a sweep of the Asian range or prior-day high/low followed by a closed-bar reclaim — the Judas pattern you already trade. Fear &amp; Greed is crypto sentiment and is deliberately NOT applied here. DXY, real yields and the event calendar are your manual homework — no API here will judge them honestly for you.</div>
     <div class="prog" id="goldProg"><i></i></div>
-    <div class="grid2">
-      <div>
-        <label class="f" style="margin-bottom:6px">DXY Direction (TradingView 4H)
-          <select id="goldDxySelect" onchange="updateGoldDxy()">
-            <option value="n/a">Select DXY trend...</option>
-            <option value="bullish">BULLISH (bad for gold longs)</option>
-            <option value="bearish">BEARISH (good for gold longs)</option>
-          </select>
-        </label>
-      </div>
-      <div>
-        <label class="f" style="margin-bottom:6px">TNX / 10Y Yield (TradingView)
-          <select id="goldTnxSelect" onchange="updateGoldTnx()">
-            <option value="n/a">Select TNX trend...</option>
-            <option value="rising">RISING (bad for gold longs)</option>
-            <option value="falling">FALLING (good for gold longs)</option>
-          </select>
-        </label>
-      </div>
-    </div>
   </div>
-  <div class="grid2">
-    <div class="panel"><h2>Gold Swing <span>Daily/4H &#183; 37 gates &#183; score-based</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
-    <div class="panel"><h2>Gold Scalp <span>1H/15m &#183; 20 gates &#183; always shows both sides</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
-  </div>
-  <div class="grid2">
-    <div class="panel"><h2>Gold Breakout <span>Bollinger squeeze + expansion</span></h2><div id="goldBreakoutOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
-    <div class="panel"><h2>Gold Mean Reversion <span>Band touch + reversal candle</span></h2><div id="goldMeanRevOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
-  </div>
-  <div id="goldMacroOut"></div>
-</section>
-
-<!-- ================= SUPER GOLD ================= -->
-<section id="tab_supergold" class="tabpane">
-  <div class="panel">
-    <h2>SUPER GOLD <span>XM 360 - XAUUSD - all gold indicators - no paid feeds</span></h2>
-    <div class="note warn" style="margin-bottom:10px">This is a user-supplied strategy module. The gate verdicts, risk guidance, and the SEND TO TRADE PLAN handoff are not validated or endorsed - verify DXY, yields, the economic calendar, and broker spread manually before acting. The ledger cannot see everything.</div>
-    <div class="row" style="margin-bottom:10px">
-      <button id="superGoldRun" class="btn" onclick="runSuperGold()">EVALUATE SUPER GOLD</button>
-      <span id="sgSess" class="statuschip">session -</span>
-      <span id="sgNfp" class="statuschip">NFP -</span>
-      <span id="sgDxy" class="statuschip">DXY -</span>
-      <span id="sgTnx" class="statuschip">TNX -</span>
-      <span class="spacer"></span>
-      <span id="sgStat" class="statuschip"></span>
-    </div>
-    <div class="prog" id="sgProg"><i></i></div>
-    <div class="grid2">
-      <div>
-        <label class="f" style="margin-bottom:6px">DXY Direction (eyeball DXY 4H chart on TradingView)
-          <select id="sgDxySelect" onchange="runSuperGold()">
-            <option value="n/a">Select DXY trend...</option>
-            <option value="bullish">BULLISH (bad for gold longs)</option>
-            <option value="bearish">BEARISH (good for gold longs)</option>
-          </select>
-        </label>
-      </div>
-      <div>
-        <label class="f" style="margin-bottom:6px">TNX / 10Y Yield Direction (eyeball TNX on TradingView)
-          <select id="sgTnxSelect" onchange="runSuperGold()">
-            <option value="n/a">Select TNX trend...</option>
-            <option value="rising">RISING (bad for gold longs)</option>
-            <option value="falling">FALLING (good for gold longs)</option>
-          </select>
-        </label>
-      </div>
-    </div>
-  </div>
-  <div class="grid2">
-    <div id="sgSwingOut"></div>
-    <div id="sgScalpOut"></div>
-  </div>
-  <div id="sgMacroOut"></div>
-  <div class="panel">
-    <h2>BACKTEST NOTE <span>Twelve Data removed - free alternatives</span></h2>
-    <div class="note warn">Twelve Data was a paid subscription and is not used here. To backtest, export XM 360 MT4/MT5 history as CSV and replay the gates locally, use a free rate-limited source such as Yahoo Finance 1h data, or scroll back on TradingView XAUUSD manually. The gate logic in this module is the same code the live evaluation uses.</div>
+  
+<div class="row" style="margin-top:10px">
+<button class="btn" id="goldBtRun" onclick="runGoldBacktest()">BACKTEST (Twelve Data)</button>
+</div>
+<div id="goldBtOut"></div>
+<div class="grid2">
+    <div class="panel"><h2>Swing Ledger <span>4H structure</span></h2><div id="goldSwingOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
+    <div class="panel"><h2>Scalp Ledger <span>15m sweep-and-reclaim in kill zone</span></h2><div id="goldScalpOut"><div class="empty">Run EVALUATE GOLD.</div></div></div>
   </div>
 </section>
 
 <!-- ================= BEST ================= -->
 <section id="tab_best" class="tabpane">
   <div class="panel">
-    <h2>Best Setup <span>hard gates are the ticket in &#183; ranking = tally of independent aligned confirmations &#183; WAIT is a first-class answer</span></h2>
+    <h2>Best Setup <span>hard gates are the ticket in · ranking = tally of independent aligned confirmations · WAIT is a first-class answer</span></h2>
     <div class="row" style="margin-bottom:10px">
       <label class="f">SCAN TOP (BY TURNOVER)<input id="bestN" type="number" value="30" min="5" max="500" style="width:80px"></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input id="bestAll" type="checkbox" style="width:auto"> SCAN WHOLE EXCHANGE</label>
       <button class="btn" id="bestRun" onclick="runBest()">FIND BEST</button>
       <span class="note" id="bestStat"></span>
     </div>
-    <div class="note">How this ranks &#8212; and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:R&#8805;2, no opposing CUSUM). That is binary; nothing "almost" passes. Survivors are then ranked by <b>independent evidence families</b>, not indicator count &#8212; because correlated indicators inflate confidence without adding information (your own factor sweeps proved this: zero factors survived deflated Sharpe). F1 TREND needs a 2-of-3 internal majority (TSMOM &#183; 1D side &#183; CUSUM) and yields ONE point total no matter how many trend indicators agree &#183; F2 POSITIONING (funding tailwind) &#183; F3 PARTICIPATION (volume z&gt;1) &#183; F4 STRUCTURE (Donchian-20 zone or R:R&#8805;3). Ties broken by two robustness tests: the cascade must also hold on 2H (a signal living at exactly one timeframe is curve-fit), and must be &#8805;3 closed bars old (not a flicker). No weighting, no 0&#8211;100, no invented probability &#8212; and WAIT is a first-class answer.</div>
+    <div class="note">How this ranks — and how it refuses to lie: every candidate must first pass ALL seven swing hard gates (cascade+spread, HTF side, RSI, funding, volume, R:R≥2, no opposing CUSUM). That is binary; nothing "almost" passes. Survivors are then ranked by <b>independent evidence families</b>, not indicator count — because correlated indicators inflate confidence without adding information (your own factor sweeps proved this: zero factors survived deflated Sharpe). F1 TREND needs a 2-of-3 internal majority (TSMOM · 1D side · CUSUM) and yields ONE point total no matter how many trend indicators agree · F2 POSITIONING (funding tailwind) · F3 PARTICIPATION (volume z&gt;1) · F4 STRUCTURE (Donchian-20 zone or R:R≥3). Ties broken by two robustness tests: the cascade must also hold on 2H (a signal living at exactly one timeframe is curve-fit), and must be ≥3 closed bars old (not a flicker). No weighting, no 0–100, no invented probability — and WAIT is a first-class answer.</div>
     <div class="prog" id="bestProg"><i></i></div>
   </div>
   <div id="bestOut"><div class="empty">Run FIND BEST.</div></div>
@@ -446,14 +374,14 @@ table{width:100%;border-collapse:collapse}
 
 <section id="tab_finder" class="tabpane">
 <div class="panel">
-<h2>Find Trade <span>one symbol, every strategy this app knows &#8212; SWING, SCALP, and Judas Sweep, gates shown honestly</span></h2>
+<h2>Find Trade <span>one symbol, every strategy this app knows — SWING, SCALP, and Judas Sweep, gates shown honestly</span></h2>
 <div class="row" style="margin-bottom:10px">
 <label class="f">TYPE<select id="finderType" onchange="finderTypeChanged()"><option value="crypto">CRYPTO</option><option value="gold">GOLD (XAUTUSD)</option></select></label>
 <label class="f" id="finderSymWrap">SYMBOL<input id="finderSym" type="text" placeholder="e.g. BTC" style="width:140px" onkeydown="if(event.key==='Enter') runFinder()"></label>
 <button class="btn" onclick="runFinder()">EVALUATE</button>
 <span class="note" id="finderStat"></span>
 </div>
-<div class="note">Runs this app's existing SWING and SCALP gate ledgers plus a session-gated Judas Sweep check (liquidity sweep of the Asian range / prior-day high-low, kill-zone timed) on one symbol at a time &#8212; crypto looks the symbol up on Delta India first, then CoinDCX. Nothing here is a new indicator; it's the same gates used elsewhere in this app, just gathered in one place per-symbol, with an optional Twelve Data backtest for context.</div>
+<div class="note">Runs this app's existing SWING and SCALP gate ledgers plus a session-gated Judas Sweep check (liquidity sweep of the Asian range / prior-day high-low, kill-zone timed) on one symbol at a time — crypto looks the symbol up on Delta India first, then CoinDCX. Nothing here is a new indicator; it's the same gates used elsewhere in this app, just gathered in one place per-symbol, with an optional Twelve Data backtest for context.</div>
 </div>
 <div id="finderOut"></div>
 </section>
@@ -461,16 +389,16 @@ table{width:100%;border-collapse:collapse}
 <!-- ================= LOG ================= -->
 <section id="tab_log" class="tabpane">
   <div class="panel">
-    <h2>Setup Log <span>every CLEAN setup auto-logs &#183; outcomes graded against candle history &#183; stored in this browser (localStorage)</span></h2>
+    <h2>Setup Log <span>every CLEAN setup auto-logs · outcomes graded against candle history · stored in this browser (localStorage)</span></h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn" id="logCheck" onclick="checkOutcomes()">CHECK OUTCOMES</button>
       <button class="btn ghost" onclick="exportLog()">EXPORT JSON</button>
       <button class="btn ghost" onclick="clearLog()">CLEAR</button>
       <span class="note" id="logStat"></span>
     </div>
-    <div class="note" id="logSummary">&#8212;</div>
+    <div class="note" id="logSummary">—</div>
     <hr class="sep">
-    <div class="note">Grading rules, stated so the numbers can't flatter you: outcome = first touch of T1 or stop on closed candles after log time. If both print inside the same bar, it counts as <b>SL</b> (conservative &#8212; intrabar order is unknowable). No fees, no slippage, no funding paid &#8212; so real results will be WORSE than this log. Open &gt;14 days &#8594; EXPIRED, excluded from hit rate. &#931;R assumes -1R on SL, +R:R on TP1, ignores runners. This is a signal audit, not a PnL statement. Data lives in this browser only &#8212; EXPORT before clearing cache or switching devices.</div>
+    <div class="note">Grading rules, stated so the numbers can't flatter you: outcome = first touch of T1 or stop on closed candles after log time. If both print inside the same bar, it counts as <b>SL</b> (conservative — intrabar order is unknowable). No fees, no slippage, no funding paid — so real results will be WORSE than this log. Open &gt;14 days → EXPIRED, excluded from hit rate. ΣR assumes -1R on SL, +R:R on TP1, ignores runners. This is a signal audit, not a PnL statement. Data lives in this browser only — EXPORT before clearing cache or switching devices.</div>
   </div>
   <div class="panel" style="overflow-x:auto" id="logTable"></div>
 </section>
@@ -493,8 +421,8 @@ table{width:100%;border-collapse:collapse}
       <div class="row" style="margin-bottom:8px">
         <label class="f">EQUITY $<input id="tEq" type="number" value="1000" style="width:90px"></label>
         <label class="f">RISK %<input id="tRisk" type="number" value="1" step="0.25" style="width:70px"></label>
-        <label class="f">AUTO LEVERAGE<input id="tLev" type="number" value="10" step="1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Computed automatically as Notional / Equity (position-size-based leverage; P4 margin gate enforces safety)"></label>
-        <label class="f">MMR % (tiered, auto)<input id="tMmr" type="number" value="0.5" step="0.1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Auto-computed from the exchange's real tiered maintenance-margin schedule, based on position notional"></label>
+        <label class="f">AUTO LEVERAGE<input id="tLev" type="number" value="10" step="1" readonly style="width:70px;opacity:0.75;cursor:not-allowed" title="Computed automatically from stop distance for 1.5x liquidation clearance"></label>
+        <label class="f">MMR %<input id="tMmr" type="number" value="0.5" step="0.1" style="width:70px"></label>
         <label class="f">T1 SCALE-OUT %<input id="tScale" type="number" value="50" step="5" style="width:80px"></label>
       </div>
       <button class="btn" onclick="planTrade()">COMPUTE PLAN</button>
@@ -502,7 +430,7 @@ table{width:100%;border-collapse:collapse}
       <div class="checklist" id="tCheck">
         <label><input type="checkbox" class="ck"> Isolated margin selected</label>
         <label><input type="checkbox" class="ck"> Auto top-up is OFF</label>
-        <label><input type="checkbox" class="ck"> Stop is beyond swept liquidity &#8212; not reverse-engineered to hit an R:R</label>
+        <label><input type="checkbox" class="ck"> Stop is beyond swept liquidity — not reverse-engineered to hit an R:R</label>
         <label><input type="checkbox" class="ck"> Position fits venue liquidity (check book depth vs size)</label>
         <label><input type="checkbox" class="ck"> Trade will be logged fixed-R in the tradelog</label>
       </div>
@@ -519,32 +447,12 @@ table{width:100%;border-collapse:collapse}
 
 <script src="indicators.js"></script>
 <script src="store.js"></script>
-<script src="idb.js"></script>
-<script src="time-utils.js"></script>
-<script src="selftest.js"></script>
-  <script src="log.js"></script>
-  <script src="candles.js"></script>
-  <script src="coilwatch.js"></script>
-  <script src="symbols.js"></script>
-  <script src="backtests.js"></script>
-  <script src="exchanges.js"></script>
-  <script src="scanners.js"></script>
-  <script src="finder.js"></script>
-  <script src="gold.js"></script>
-  <script src="alerts.js"></script>
-  <script src="scanrender.js"></script>
-  <script src="btworker.js"></script>
-  <script src="finder-search.js"></script>
-  <script src="marketpicture.js"></script>
-  <script src="best.js"></script>
-  <script src="backtest-ui.js"></script>
-  <script src="gold-super.js"></script>
 <script>
 /* =========================================================================
-   HARDGATE \u2014 gates, not scores.
+   HARDGATE — gates, not scores.
    No fabricated confluence numbers. Every verdict is a visible pass/veto trail.
    Data: Delta Exchange India public API (primary), CoinDCX public API (best-
-   effort; may be CORS-blocked in browser \u2014 status surfaces honestly if so).
+   effort; may be CORS-blocked in browser — status surfaces honestly if so).
    ========================================================================= */
 'use strict';
 
@@ -568,12 +476,10 @@ const CDCX_PUBLIC_PROXIES = [
   u => 'https://corsproxy.io/?' + encodeURIComponent(u),
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
   u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
-  u => 'https://thingproxy.freeboard.io/fetch/' + u,
-  u => 'https://cors.isomorphic-git.org/' + u,
 ]; // Public backup proxies tried in order if Render proxy is cold/down (last resort, rate-limited)
 
 /* CoinDCX fetch: try direct (CORS may block), fall back to the Render proxy.
-   Free-tier proxy cold-starts in ~50s after idle \u2014 first call may be slow. */
+   Free-tier proxy cold-starts in ~50s after idle — first call may be slow. */
 
 /* ---------------- lightweight rate-limit tracking (client-side estimate only) ---------------- */
 const RateTrack = { td: [], cdcx: [] };
@@ -587,7 +493,7 @@ function trackCall(bucket){
     if (bucket==='td'){
       const minAgo = arr.filter(function(t){ return now-t<=60000; }).length;
       const el = document.getElementById('goldStat');
-      if (el) el.title = 'Twelve Data usage (client-side estimate): '+arr.length+'/800 today \u00b7 '+minAgo+'/8 this minute';
+      if (el) el.title = 'Twelve Data usage (client-side estimate): '+arr.length+'/800 today · '+minAgo+'/8 this minute';
     } else {
       const el = document.getElementById('chipConn');
       if (el) el.title = 'CoinDCX proxy/API calls in the last 60s: '+arr.length;
@@ -595,61 +501,42 @@ function trackCall(bucket){
   }catch(e){}
 }
 
-const CDCX_CACHE = {};
 async function cdcxGet(url){
   trackCall('cdcx');
-  const TIMEOUT_MS = 7000;
-  const RETRIES = 2;
-  async function tryFetch(u){
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-    try {
-      const r = await fetch(u, { signal: ctrl.signal });
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return await r.json();
-    } finally { clearTimeout(timer); }
-  }
-  async function attempt(build, tag){
-    for (let i = 0; i < RETRIES; i++){
-      try {
-        const j = await tryFetch(build(url));
-        S.cdcxViaProxy = tag;
-        CDCX_CACHE[url] = { j, t: Date.now() };
-        return j;
-      } catch(e) {
-        if (i < RETRIES - 1) await new Promise(res => setTimeout(res, 400 * (i + 1)));
-      }
-    }
-    return undefined;
-  }
-  // 1) direct (works for public candle endpoints, no proxy needed)
-  let j = await attempt(u => u, false);
-  if (j !== undefined) return j;
-  // 2) dedicated render proxy
-  j = await attempt(u => `${CDCX_PROXY}/proxy?url=${encodeURIComponent(u)}`, 'render');
-  if (j !== undefined) return j;
-  // 3) public CORS proxies, in reliability order
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    S.cdcxViaProxy = false;
+    return j;
+  }catch(e){}
+  try{
+    const r = await fetch(`${CDCX_PROXY}/proxy?url=${encodeURIComponent(url)}`);
+    if(!r.ok) throw new Error('proxy HTTP '+r.status);
+    S.cdcxViaProxy = 'render';
+    return r.json();
+  }catch(e){}
   for (const build of CDCX_PUBLIC_PROXIES){
-    j = await attempt(build, 'public');
-    if (j !== undefined) return j;
+    try{
+      const r = await fetch(build(url));
+      if(!r.ok) throw new Error('public proxy HTTP '+r.status);
+      S.cdcxViaProxy = 'public';
+      return r.json();
+    }catch(e){}
   }
-  // 4) last resort: reuse a recent cached response (<= 10 min old) so a transient
-  //    proxy outage does not drop the symbol entirely
-  const cached = CDCX_CACHE[url];
-  if (cached && (Date.now() - cached.t) <= 600000){ S.cdcxViaProxy = 'cache'; return cached.j; }
   throw new Error('all proxies failed');
 }
 
 /* ---------------- utils ---------------- */
 const $ = id => document.getElementById(id);
-const fmt = (n, d=2) => (n===null||n===undefined||isNaN(n)) ? '\u2014' : Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:0});
+const fmt = (n, d=2) => (n===null||n===undefined||isNaN(n)) ? '—' : Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:0});
 const px = n => { // adaptive price precision
-  if (n===null||isNaN(n)) return '\u2014';
+  if (n===null||isNaN(n)) return '—';
   const a=Math.abs(n);
   const d = a>=1000?1 : a>=100?2 : a>=1?4 : a>=0.01?6 : 8;
   return Number(n).toLocaleString('en-US',{maximumFractionDigits:d});
 };
-const pct = (n,d=3)=> isFinite(n)? (n>=0?'+':'')+n.toFixed(d)+'%':'\u2014';
+const pct = (n,d=3)=> isFinite(n)? (n>=0?'+':'')+n.toFixed(d)+'%':'—';
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const nowSec = () => Math.floor(Date.now()/1000);
 function setProg(id, f){ const p=$(id); if(!p) return; p.style.display = f===null?'none':'block'; if(f!==null) p.firstElementChild.style.width=(f*100).toFixed(1)+'%'; }
@@ -664,21 +551,6 @@ function tickClock(){
   const ms = (8*3600 - secIn8h)*1000;
   const mm = Math.floor(ms/60000), hh=Math.floor(mm/60);
   $('chipFund').innerHTML = `next funding <b>${hh}h ${String(mm%60).padStart(2,'0')}m</b>`;
-  // CoinDCX fetch-health badge: shows the data source of the last candle fetch.
-  (function(){
-    var el = document.getElementById('chipCdcxHealth');
-    if (!el) return;
-    if (typeof S === 'undefined' || S.exchange !== 'coindcx'){ el.style.display = 'none'; return; }
-    el.style.display = '';
-    var v = S.cdcxViaProxy;
-    var label, color;
-    if (v === false || v === 'direct'){ label = 'LIVE'; color = 'var(--long)'; }
-    else if (v === 'render'){ label = 'RENDER'; color = 'var(--long)'; }
-    else if (v === 'public'){ label = 'PROXY'; color = 'var(--gold)'; }
-    else if (v === 'cache'){ label = 'CACHE'; color = 'var(--veto)'; }
-    else { label = '--'; color = 'var(--mut)'; }
-    el.innerHTML = 'CDCX data <b style="color:' + color + '">' + label + '</b>';
-  })();
   return ms/60000; // minutes
 }
 setInterval(tickClock, 1000);
@@ -741,13 +613,68 @@ Store.subscribe('PRICE_UPDATE', function(d){ updateTradePlanPriceUI(d.symbol, d.
     };
   }catch(e){}
 }
+async function loadTickersDelta(){
+  const r = await fetch(`${DELTA}/v2/tickers?contract_types=perpetual_futures`);
+  const j = await r.json();
+  return (j.result||[]).map(t=>({
+    symbol: t.symbol,
+    mark: parseFloat(t.mark_price ?? t.close),
+    fundingPct: t.funding_rate!==undefined && t.funding_rate!==null ? parseFloat(t.funding_rate) : null, // Delta India: percent units per interval. NO *100.
+    oiUsd: parseFloat(t.oi_value_usd ?? t.oi_value ?? 0),
+    turnoverUsd: parseFloat(t.turnover_usd ?? t.turnover ?? 0),
+    chg24: (isFinite(parseFloat(t.close)) && isFinite(parseFloat(t.open))) ? (parseFloat(t.close)/parseFloat(t.open)-1)*100 : null,
+  })).filter(t=>isFinite(t.mark));
+}
+const DELTA_RES = {'15m':'15m','1h':'1h','2h':'2h','4h':'4h','1d':'1d'};
+async function candlesDelta(sym, res, count){
+  const secPer = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
+  const end = nowSec(), start = end - secPer*(count+3);
+  const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`);
+  const j = await r.json();
+  const rows = (j.result||[]).map(c=>({t:c.time, o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+c.volume}));
+  rows.sort((a,b)=>a.t-b.t);
+  return rows;
+}
 
-async function candlesRangeRaw(sym, res, start, end){ if (S.exchange==='delta'){ const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`); const j = await r.json(); const rows = (j.result||[]).map(c=>({t:c.time, o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+c.volume})); rows.sort((a,b)=>a.t-b.t); return rows; } else { const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${start}&to=${end}&resolution=${CDCX_RES[res]}&pcode=f`); const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)})); rows.sort((a,b)=>a.t-b.t); return rows; } } async function getTickers(ex){
-        var _ex = (ex === undefined || ex === null) ? S.exchange : ex;
-        if (_ex === 'delta') return loadTickersDelta();
-        try { const t = await loadTickersCdcx(); S.cdcxBlocked = false; return t; }
-        catch(e){ S.cdcxBlocked = true; throw e; }
-      }
+async function loadTickersCdcx(){
+  // Active USDT-margined futures instruments; ticker detail endpoints vary — we
+  // rank by what candles give us and mark funding as unavailable rather than faking it.
+  const j = await cdcxGet(`${CDCX_API}/exchange/v1/derivatives/futures/data/active_instruments?margin_currency_short_name[]=USDT`);
+  const list = Array.isArray(j) ? j : (j.instruments||[]);
+  return list.map(s=>({ symbol: typeof s==='string'? s : s.symbol, mark: NaN, fundingPct: null, oiUsd: 0, turnoverUsd: 0, chg24: null }));
+}
+const CDCX_RES = {'15m':'15','1h':'60','2h':'120','4h':'240','1d':'1D'};
+async function candlesCdcx(sym, res, count){
+  const secPer = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
+  const to = nowSec(), from = to - secPer*(count+3);
+  const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${from}&to=${to}&resolution=${CDCX_RES[res]}&pcode=f`);
+  const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)}));
+  rows.sort((a,b)=>a.t-b.t);
+  return rows;
+}
+
+async function candlesRangeRaw(sym, res, start, end){ if (S.exchange==='delta'){ const r = await fetch(`${DELTA}/v2/history/candles?resolution=${DELTA_RES[res]}&symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`); const j = await r.json(); const rows = (j.result||[]).map(c=>({t:c.time, o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+c.volume})); rows.sort((a,b)=>a.t-b.t); return rows; } else { const j = await cdcxGet(`${CDCX_PUB}/market_data/candlesticks?pair=${encodeURIComponent(sym)}&from=${start}&to=${end}&resolution=${CDCX_RES[res]}&pcode=f`); const rows = (j.data||[]).map(c=>({t:Math.floor((c.time??c.t)/1000), o:+c.open, h:+c.high, l:+c.low, c:+c.close, v:+(c.volume??0)})); rows.sort((a,b)=>a.t-b.t); return rows; } } async function getTickers(){
+  if (S.exchange==='delta') return loadTickersDelta();
+  try { const t = await loadTickersCdcx(); S.cdcxBlocked=false; return t; }
+  catch(e){ S.cdcxBlocked=true; throw e; }
+}
+/* Drop the still-forming bar: gates must only ever see CLOSED candles.
+   Evaluating a partial bar repaints — a cascade that exists at 14:37 can
+   vanish by 16:00. Candle t = bar open time, so forming iff now-t < duration. */
+function dropForming(rows, res){
+  const sec = {'15m':900,'1h':3600,'2h':7200,'4h':14400,'1d':86400}[res];
+  if (!rows.length || !sec) return rows;
+  return (nowSec() - rows[rows.length-1].t < sec) ? rows.slice(0,-1) : rows;
+}
+async function getCandles(sym, res, count){
+  const key = `${S.exchange}|${sym}|${res}|${count}`;
+  const hit = S.candleCache[key];
+  if (hit && (nowSec()-hit.at) < 60) return hit.rows;
+  let rows = S.exchange==='delta' ? await candlesDelta(sym,res,count) : await candlesCdcx(sym,res,count);
+  rows = dropForming(rows, res);
+  S.candleCache[key] = {rows, at: nowSec()};
+  return rows;
+}
 
 async function getXAUCandles(res, count){
   trackCall('td');
@@ -788,27 +715,27 @@ async function getXAUCandles(res, count){
 
 
 
-/* Bollinger Bands (Bollinger, 1980s) \u2014 mean +/- mult*stdev over p bars. widthPct is band width
+/* Bollinger Bands (Bollinger, 1980s) — mean +/- mult*stdev over p bars. widthPct is band width
    relative to the mid-band, used to spot a volatility squeeze right before a breakout. */
 
-/* ADX / DI (Wilder, New Concepts in Technical Trading Systems, 1978) \u2014 Wilder-smoothed
+/* ADX / DI (Wilder, New Concepts in Technical Trading Systems, 1978) — Wilder-smoothed
    directional movement. adx>=20 with DI on your side means a real, aligned trend push,
    not just noise. */
 
-/* Stochastic RSI (Chande & Kroll, 1994) \u2014 stochastic oscillator applied to RSI instead of
+/* Stochastic RSI (Chande & Kroll, 1994) — stochastic oscillator applied to RSI instead of
    price. Flags when momentum is already stretched (>80 long / <20 short) so you are not
    chasing the last bar of a move. */
 
-/* Rolling VWAP deviation \u2014 is the last close trading through its own volume-weighted
+/* Rolling VWAP deviation — is the last close trading through its own volume-weighted
    average price over the lookback, in your direction. A cheap, real-participation check
    that does not depend on any external feed. */
 
-/* Symmetric CUSUM event filter on log returns (L\u00f3pez de Prado, AFML ch.2).
-   Threshold h = k\u00d7\u03c3 of the sample. Returns the most recent event {dir, barsAgo}.
+/* Symmetric CUSUM event filter on log returns (López de Prado, AFML ch.2).
+   Threshold h = k×σ of the sample. Returns the most recent event {dir, barsAgo}.
    Provenance: `cusum_aligned` was the dominant feature in the user's own
-   meta-label walk-forward (OOS AUC \u22480.57\u20130.59) \u2014 the only signal in this app
+   meta-label walk-forward (OOS AUC ≈0.57–0.59) — the only signal in this app
    with venue-specific out-of-sample evidence behind it. */
-/* Consecutive CLOSED bars the EMA cascade order has held \u2014 a one-bar cascade
+/* Consecutive CLOSED bars the EMA cascade order has held — a one-bar cascade
    is a flicker, not a trend. Perturbation-style anti-noise check. */
 
 
@@ -830,21 +757,489 @@ async function setExchange(x){
   S.exchange = x; S.candleCache = {}; if (x!=='delta' && deltaWS){ try{ deltaWS.close(); }catch(e){} deltaWS=null; }
   $('xDelta').classList.toggle('on', x==='delta');
   $('xCdcx').classList.toggle('on', x==='coindcx');
-  $('chipConn').innerHTML = '<b>\u2026</b> loading';
+  $('chipConn').innerHTML = '<b>…</b> loading';
   try{
     S.tickers = await getTickers();
     $('chipConn').classList.remove('warn');
     $('chipConn').innerHTML = `<b>${S.tickers.length}</b> ${x==='delta'?'Delta India':'CoinDCX'} perps`;
-    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy \u00b7 ':S.cdcxViaProxy?'via proxy \u00b7 ':''}no funding/turnover fields \u2014 gates degrade honestly)</b>`; if (x==='delta') initDeltaWS();
+    if (x==='coindcx') $('chipConn').innerHTML += ` <b style="color:var(--gold)">(${S.cdcxViaProxy==='public'?'via backup proxy · ':S.cdcxViaProxy?'via proxy · ':''}no funding/turnover fields — gates degrade honestly)</b>`; if (x==='delta') initDeltaWS();
   }catch(e){
     $('chipConn').classList.add('warn');
-    $('chipConn').innerHTML = `<b>API blocked</b> \u2014 ${x==='coindcx'?'CoinDCX direct + both proxies (Render + backup) failed. If Render just woke from idle it needs ~50s \u2014 retry once. Otherwise the backup proxy may be rate-limited; try again shortly.':'Delta unreachable.'}`;
+    $('chipConn').innerHTML = `<b>API blocked</b> — ${x==='coindcx'?'CoinDCX direct + both proxies (Render + backup) failed. If Render just woke from idle it needs ~50s — retry once. Otherwise the backup proxy may be rate-limited; try again shortly.':'Delta unreachable.'}`;
     S.tickers = [];
   }
   renderBiasChips();
 }
+async function runCoilScan(){
+  const btn=$('coilRun'); const cardsEl=$('coilCards'); const emptyEl=$('coilEmpty'); const statEl=$('coilStat');
+  btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
+  try{
+    if (!S.tickers.length) S.tickers=await getTickers();
+    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    let found=0;
+    let coilList = [];
+    for (let i=0;i<uni.length;i++){
+      const t=uni[i];
+      setProg('coilProg',(i+1)/uni.length);
+      statEl.textContent=`scanning ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'4h',200);
+        if (rows.length<80) continue;
+        const c=rows.map(r=>r.c);
+        const p=c[c.length-1];
+        const bb=bollinger(c,20,2);
+        const currentWidth=bb.widthPct[c.length-1];
+        const pastWidths=bb.widthPct.slice(-50).filter(isFinite);
+        if (!pastWidths.length) continue;
+        const avgWidth=pastWidths.reduce((a,b)=>a+b,0)/pastWidths.length;
+        if (!(currentWidth<avgWidth*0.75)) continue;
+        const vz=volZ(rows,20);
+        if (!(vz<-0.5)) continue;
+        const e200=last(ema(c,200));
+        if (!(p>e200)) continue;
+        const recentRows=rows.slice(-20);
+        const coilHigh=Math.max(...recentRows.map(r=>r.h));
+        const coilLow=Math.min(...recentRows.map(r=>r.l));
+        found++;
+        coilList.push({symbol: t.symbol, dir: "long", coilLow: coilLow, coilHigh: coilHigh});
+        __cardsHtml.push(cardHTML(t.symbol,'long',
+          [['mark',px(t.mark||p)],['24h',t.chg24!=null?pct(t.chg24,2):'—'],
+           ['BB width',fmt(currentWidth,2)+'% (avg '+fmt(avgWidth,2)+'%)'],['vol z',fmt(vz,2)],
+           ['coil low',px(coilLow)],['coil high',px(coilHigh)]],
+          ['G1 BB squeeze','G2 vol drought','G3 >4H 200 EMA'],
+          `Wait for price to sweep below ${px(coilLow)}, then manually bid the reclaim. Do not buy inside the chop.`,
+          coilLow, coilLow*0.95, coilHigh));
+      }catch(e){}
+      await sleep(120);
+    }
+    saveCoilWatch(coilList);
+    statEl.textContent=`done — ${found} coils found`;
+    if (!found) emptyEl.style.display='block';
+  }catch(e){
+    statEl.textContent=`coil scan failed: ${e.message}`;
+  }finally{
+cardsEl.innerHTML = __cardsHtml.join('');
+    setProg('coilProg', null);
+    btn.disabled=false;
+  }
+}
+
+
+
+const COILWATCH_KEY = "hardgate_coilwatch_v1";
+function saveCoilWatch(list){ try{ localStorage.setItem(COILWATCH_KEY, JSON.stringify({at:nowSec(), ex:S.exchange, list:list})); }catch(e){} }
+function loadCoilWatch(){ try{ return JSON.parse(localStorage.getItem(COILWATCH_KEY)||"null"); }catch(e){ return null; } }
+async function runExpansionCheck(){
+  const btn=$("expRun"); const cardsEl=$("expCards"); const emptyEl=$("expEmpty"); const statEl=$("expStat");
+  btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
+  try{
+    const watch = loadCoilWatch();
+    if (!watch || !watch.list || !watch.list.length){ statEl.textContent="no saved coil watchlist — run FIND COILS first"; return; }
+    if (watch.ex !== S.exchange){ statEl.textContent="saved watchlist is for "+watch.ex.toUpperCase()+" — switch exchange or re-run FIND COILS"; return; }
+    let found=0;
+    for (let i=0;i<watch.list.length;i++){
+      const w = watch.list[i];
+      setProg("expProg",(i+1)/watch.list.length);
+      statEl.textContent = "checking "+(i+1)+"/"+watch.list.length+" · "+w.symbol;
+      try{
+        const rows = await getCandles(w.symbol,"4h",60);
+        if (rows.length<25) continue;
+        const cur = rows[rows.length-1];
+        const vz = volZ(rows,20);
+        const broke = cur.c > w.coilHigh && vz > 2;
+        if (!broke) continue;
+        found++;
+        const entry = cur.c;
+        const stop = w.coilLow;
+        const risk = Math.abs(entry-stop);
+        if (!(risk>0)) continue;
+        const t1 = entry + 2*risk;
+        const t2 = entry + 3*risk;
+        __cardsHtml.push(cardHTML(w.symbol,"long",
+          [["mark",px(entry)],["coil high",px(w.coilHigh)],["coil low",px(w.coilLow)],["vol z",fmt(vz,2)],["watch age",fmt((nowSec()-watch.at)/3600,1)+"h"]],
+          ["G1 was on coil watchlist","G2 closed above range","G3 vol z>2"],
+          planBlock("long",entry,stop,t1,t2), entry, stop, t1));
+        logSetup(w.symbol,"long","coil-expansion",entry,stop,t1);
+      }catch(e){}
+      await sleep(120);
+    }
+    statEl.textContent = "done — "+found+" expansions triggered";
+    if (!found) emptyEl.style.display="block";
+  }catch(e){ statEl.textContent = "expansion check failed: "+e.message; }
+  finally{
+cardsEl.innerHTML = __cardsHtml.join(''); setProg("expProg", null); btn.disabled=false; }
+}
+async function runDivScan(){
+  const btn=$("divRun"); const cardsEl=$("divCards"); const emptyEl=$("divEmpty"); const statEl=$("divStat");
+  btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    const uni = S.exchange==="delta" ? S.tickers.filter(function(t){ return t.turnoverUsd>=500000; }).sort(function(a,b){ return b.turnoverUsd-a.turnoverUsd; }) : S.tickers.slice();
+    let found=0;
+    for (let i=0;i<uni.length;i++){
+      const t = uni[i];
+      setProg("divProg",(i+1)/uni.length);
+      statEl.textContent = "scanning "+(i+1)+"/"+uni.length+" · "+t.symbol;
+      try{
+        const rows = await getCandles(t.symbol,"4h",200);
+        if (rows.length < 80) continue;
+        const c = rows.map(function(r){ return r.c; });
+        const n = c.length;
+        const rv = rsi(c,14);
+        const pivots = findPivots(c,3);
+        const highs = pivots.filter(function(p){ return p.type==="high"; });
+        const lows = pivots.filter(function(p){ return p.type==="low"; });
+        let dir=null, kindLabel=null, pivA=null, pivB=null;
+        if (highs.length>=2){
+          const h1=highs[highs.length-2], h2=highs[highs.length-1];
+          if (h2.i-h1.i>=10 && isFinite(rv[h1.i]) && isFinite(rv[h2.i])){
+            if (h2.v>h1.v && rv[h2.i]<rv[h1.i]){ dir="short"; kindLabel="Regular Bearish"; pivA=h1; pivB=h2; }
+            else if (h2.v<h1.v && rv[h2.i]>rv[h1.i]){ dir="short"; kindLabel="Hidden Bearish"; pivA=h1; pivB=h2; }
+          }
+        }
+        if (!dir && lows.length>=2){
+          const l1=lows[lows.length-2], l2=lows[lows.length-1];
+          if (l2.i-l1.i>=10 && isFinite(rv[l1.i]) && isFinite(rv[l2.i])){
+            if (l2.v<l1.v && rv[l2.i]>rv[l1.i]){ dir="long"; kindLabel="Regular Bullish"; pivA=l1; pivB=l2; }
+            else if (l2.v>l1.v && rv[l2.i]<rv[l1.i]){ dir="long"; kindLabel="Hidden Bullish"; pivA=l1; pivB=l2; }
+          }
+        }
+        if (!dir) continue;
+        if ((n-1-pivB.i) > 15) continue;
+        const ev = cusumLast(c,1);
+        if (ev && ev.barsAgo<=10){
+          if ((dir==="long" && ev.dir==="short") || (dir==="short" && ev.dir==="long")) continue;
+        }
+        if (t.fundingPct!==null){
+          const fr = t.fundingPct;
+          if (Math.abs(fr) > 0.05-1e-9) continue;
+          if ((dir==="long" && fr>=0.04) || (dir==="short" && fr<=-0.04)) continue;
+        }
+        const p = c[n-1];
+        const a4 = last(atr(rows,14));
+        if (!isFinite(a4) || a4<=0) continue;
+        const entry = p;
+        const stop = dir==="long" ? pivB.v - 0.5*a4 : pivB.v + 0.5*a4;
+        const risk = Math.abs(entry-stop);
+        if (!(risk>0)) continue;
+        const t1 = dir==="long" ? entry+2*risk : entry-2*risk;
+        const t2 = dir==="long" ? entry+3*risk : entry-3*risk;
+        const rr = Math.abs(t1-entry)/risk;
+        if (!(rr>=2)) continue;
+        found++;
+        const reg = detectRegime(rows);
+        __cardsHtml.push(cardHTML(t.symbol, dir,
+          [["mark",px(t.mark||p)],["type",kindLabel],["RSI 4H",fmt(rv[n-1],1)],["span",(pivB.i-pivA.i)+" bars"],
+           ["funding", t.fundingPct!==null?fmt(t.fundingPct,4)+"%":"n/a"],["regime",reg.label]],
+          ["G1 pivot structure","G2 span>=10 bars","G3 funding","G4 no opposing CUSUM","G5 R:R>=2"],
+          planBlock(dir,entry,stop,t1,t2), entry, stop, t1));
+        logSetup(t.symbol, dir, "div", entry, stop, t1);
+      }catch(e){}
+      await sleep(120);
+    }
+    statEl.textContent = "done — "+found+" divergences found";
+    if (!found) emptyEl.style.display="block";
+  }catch(e){ statEl.textContent = "divergence scan failed: "+e.message; }
+  finally{
+cardsEl.innerHTML = __cardsHtml.join(''); setProg("divProg", null); btn.disabled=false; }
+}
+async function runBasisScan(){
+  const btn=$("basisRun"); const cardsEl=$("basisCards"); const emptyEl=$("basisEmpty"); const statEl=$("basisStat");
+  btn.disabled=true; cardsEl.innerHTML=""; let __cardsHtml = []; emptyEl.style.display="none";
+  try{
+    statEl.textContent = "loading Delta India + CoinDCX symbol lists…";
+    const res = await Promise.all([ loadTickersDelta().catch(function(){return [];}), loadTickersCdcx().catch(function(){return [];}) ]);
+    const dTick = res[0], cTick = res[1];
+    const dMap = {}; dTick.forEach(function(t){ dMap[searchBase(t.symbol,"delta")] = t; });
+    const cByBase = {}; cTick.forEach(function(t){ const b=searchBase(t.symbol,"cdcx"); if(!cByBase[b]) cByBase[b]=[]; cByBase[b].push(t); });
+    const bases = Object.keys(dMap).filter(function(b){ return cByBase[b] && cByBase[b].length; });
+    let found=0;
+    for (let i=0;i<bases.length;i++){
+      const b = bases[i];
+      setProg("basisProg",(i+1)/bases.length);
+      statEl.textContent = "checking "+(i+1)+"/"+bases.length+" · "+b;
+      const dT = dMap[b];
+      const cSym = cByBase[b][0].symbol;
+      try{
+        const rows = await candlesCdcx(cSym,"15m",3);
+        if (!rows.length) continue;
+        const cPrice = rows[rows.length-1].c;
+        if (!isFinite(dT.mark) || !isFinite(cPrice) || cPrice<=0) continue;
+        const basisPct = (dT.mark - cPrice)/cPrice*100;
+        if (Math.abs(basisPct) < 0.15) continue;
+        found++;
+        const dir = basisPct>0 ? "short" : "long";
+        const nomStop = dir==="long" ? dT.mark*0.995 : dT.mark*1.005;
+        const nomT1 = dir==="long" ? dT.mark*1.01 : dT.mark*0.99;
+        const planTxt = "Informational only — not a single-click executable trade. "+b+" shows a "+basisPct.toFixed(3)+"% gap between Delta ("+dT.symbol+") and CoinDCX ("+cSym+"). CoinDCX exposes no funding-rate field here, so this is NOT a confirmed funding arbitrage — it only flags a price disagreement. Verify funding, withdrawal/transfer friction and execution cost yourself before acting.";
+        __cardsHtml.push(cardHTML(b, dir,
+          [["Delta mark",px(dT.mark)],["CoinDCX px",px(cPrice)],["basis",fmt(basisPct,3)+"%"],["delta funding", dT.fundingPct!==null?fmt(dT.fundingPct,4)+"%":"n/a"]],
+          ["G1 base asset on both venues","G2 |basis|>=0.15%"],
+          planTxt, dT.mark, nomStop, nomT1));
+      }catch(e){}
+      await sleep(150);
+    }
+    statEl.textContent = "done — "+found+" basis gaps found";
+    if (!found) emptyEl.style.display="block";
+  }catch(e){ statEl.textContent = "basis scan failed: "+e.message; }
+  finally{
+cardsEl.innerHTML = __cardsHtml.join(''); setProg("basisProg", null); btn.disabled=false; }
+}
+
+async function runApexScan(){
+  const btn=$('apexRun'); const cardsEl=$('apexCards'); const emptyEl=$('apexEmpty'); const statEl=$('apexStat');
+  btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
+  try{
+    if (!S.tickers.length) S.tickers=await getTickers();
+    const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT';
+    const btcRows = await getCandles(btcSym,'1h',72);
+    if (btcRows.length<48) throw new Error('Insufficient BTC data for benchmark');
+    const btcNow = btcRows[btcRows.length-1].c;
+    const btc24h = btcRows[Math.max(0,btcRows.length-25)].c;
+    const btcRet24 = ((btcNow-btc24h)/btc24h)*100;
+    if (btcRet24>1.5){
+      cardsEl.innerHTML = `<div class="empty">BTC is up ${fmt(btcRet24,2)}% in 24h. Relative Strength scans are invalid during macro uptrends because everything goes up. Wait for a BTC pullback to test for true Apex leaders.</div>`;
+      statEl.textContent = `skipped — BTC bullish (+${fmt(btcRet24,2)}%)`;
+      return;
+    }
+    const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=500000 && t.symbol!==btcSym) : S.tickers.filter(t=>t.symbol!==btcSym);
+    let results=[];
+    for (let i=0;i<uni.length;i++){
+      const t=uni[i];
+      setProg('apexProg',(i+1)/uni.length);
+      statEl.textContent = `measuring ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'1h',72);
+        if (rows.length<50) continue;
+        const c=rows.map(r=>r.c);
+        const p=c[c.length-1];
+        const p24=c[Math.max(0,c.length-25)];
+        const ret24=((p-p24)/p24)*100;
+        const spread24 = ret24 - btcRet24;
+        if (spread24<5.0) continue;
+        const e50=last(ema(c,50));
+        if (p<e50) continue;
+        results.push({sym:t.symbol, mark:p, ret24, spread24, e50, rows});
+      }catch(e){}
+      await sleep(100);
+    }
+    results.sort((a,b)=>b.spread24-a.spread24);
+    results.forEach(r=>{
+      __cardsHtml.push(cardHTML(r.sym,'long',
+        [['mark',px(r.mark)],['BTC 24h',pct(btcRet24,2)],['asset 24h',pct(r.ret24,2)],['RS spread',pct(r.spread24,2)],['Nearest OB',nearestOBText(r.rows,'long')],['Liquidity Target',liquidityTargetText(r.rows,'long')]],
+        ['G1 BTC headwind','G2 spread ≥5%','G3 1H EMA50 intact'],
+        `MANUAL TRIGGER: do not buy yet. Pull up a 15m chart of BTC. The exact minute BTC prints a bullish reclaim or sweeps a local low, buy this asset.`,
+        r.mark, r.e50, r.mark*1.05));
+    });
+    statEl.textContent = `done — ${results.length} Apex assets found`;
+    if (!results.length) emptyEl.style.display='block';
+  }catch(e){
+    statEl.textContent = `apex scan failed: ${e.message}`;
+  }finally{
+cardsEl.innerHTML = __cardsHtml.join('');
+    setProg('apexProg', null);
+    btn.disabled=false;
+  }
+}
+async function runTrapScan(){
+const btn=$('trapRun'); const cardsEl=$('trapCards'); const emptyEl=$('trapEmpty'); const statEl=$('trapStat');
+btn.disabled=true; cardsEl.innerHTML=''; let __cardsHtml = []; emptyEl.style.display='none';
+try{
+if (!S.tickers.length) S.tickers=await getTickers();
+const uni = S.exchange==='delta' ? S.tickers.filter(t=>t.turnoverUsd>=300000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+let found=0;
+for (let i=0;i<uni.length;i++){
+const t=uni[i];
+setProg('trapProg',(i+1)/uni.length);
+statEl.textContent = `hunting ${i+1}/${uni.length} \u00b7 ${t.symbol}`;
+try{
+const rows=await getCandles(t.symbol,'15m',100);
+if (rows.length<50) continue;
+const c=rows.map(r=>r.c);
+const p=c[c.length-1];
+
+const a14=last(atr(rows,14));
+const atrPct=(a14/p)*100;
+const outerSD=Math.min(4.5, Math.max(2.5, 3.0+(atrPct-0.5)*0.6));
+const innerSD=Math.min(3.0, Math.max(1.8, 2.0+(atrPct-0.5)*0.3));
+
+const bbOuter=bollinger(c,20,outerSD);
+const bbInner=bollinger(c,20,innerSD);
+const e20=bbInner.mid[c.length-1];
+const rNow=last(rsi(c,14));
+
+const lOuter=bbOuter.lower[c.length-1];
+const lInner=bbInner.lower[c.length-1];
+const uOuter=bbOuter.upper[c.length-1];
+const uInner=bbInner.upper[c.length-1];
+
+// Sweep can happen on any of the last 4 bars (not just this instant) - the reclaim
+// (close back inside the inner band) is what confirms it right now. Momentum
+// exhaustion (RSI) is checked AT THE SWEEP BAR itself, not after price has
+// already partly recovered - by the time of reclaim RSI has typically normalized.
+const N=4;
+let sweptLowAt=-1, sweptHighAt=-1;
+for (let k=Math.max(0,rows.length-N); k<rows.length; k++){
+if (rows[k].l<lOuter) sweptLowAt=k;
+if (rows[k].h>uOuter) sweptHighAt=k;
+}
+const reclaimLong = sweptLowAt>=0 && p>lInner;
+const reclaimShort = sweptHighAt>=0 && p<uInner;
+
+let dir=null, stop=NaN, rsiAtSweep=null;
+if (reclaimLong){
+const rAtSweep = last(rsi(c.slice(0,sweptLowAt+1),14));
+if (rAtSweep<35){ dir='long'; stop=rows[sweptLowAt].l-(rows[sweptLowAt].l*0.001); rsiAtSweep=rAtSweep; }
+}
+if (!dir && reclaimShort){
+const rAtSweep = last(rsi(c.slice(0,sweptHighAt+1),14));
+if (rAtSweep>65){ dir='short'; stop=rows[sweptHighAt].h+(rows[sweptHighAt].h*0.001); rsiAtSweep=rAtSweep; }
+}
+if (!dir) continue;
+
+const risk=Math.abs(p-stop);
+if (!(risk>0)) continue;
+const t1=e20;
+const room=Math.abs(t1-p);
+const rr=room/risk;
+if (rr<1.5) continue;
+
+found++;
+__cardsHtml.push(cardHTML(t.symbol, dir,
+[['mark',px(p)],['RSI now',fmt(rNow,1)],['RSI at sweep',fmt(rsiAtSweep,1)],['vol (ATR%)',fmt(atrPct,2)+'%'],
+[fmt(outerSD,1)+' SD swept ('+(rows.length-1-(dir==='long'?sweptLowAt:sweptHighAt))+'b ago)', dir==='long'?px(rows[sweptLowAt].l):px(rows[sweptHighAt].h)],
+[fmt(innerSD,1)+' SD reclaimed now', dir==='long'?px(lInner):px(uInner)],
+['target (mean)',px(t1)]],
+['G1 '+fmt(outerSD,1)+' SD extreme','G2 reclaimed '+fmt(innerSD,1)+' SD','G3 momentum exhausted at sweep'],
+`Dynamic mean reversion: bands auto-scaled to ${fmt(outerSD,1)} SD based on this asset's volatility. Momentum exhaustion (RSI ${fmt(rsiAtSweep,1)}) is read at the moment of the extreme wick, not after price already reclaimed. Stop goes tight behind the wick at ${px(stop)}. Target the mean at ${px(t1)}.`,
+p, stop, t1));
+}catch(e){}
+await sleep(100);
+}
+statEl.textContent = `done \u2014 ${found} traps found`;
+if (!found) emptyEl.style.display='block';
+}catch(e){
+statEl.textContent = `trap scan failed: ${e.message}`;
+}finally{
+cardsEl.innerHTML = __cardsHtml.join('');
+setProg('trapProg', null);
+btn.disabled=false;
+}
+}
+async function runSmcScan(){
+  const btn = $('smcRun'); const cardsEl = $('smcCards'); const emptyEl = $('smcEmpty'); const statEl = $('smcStat');
+  btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
+    let found = 0;
+    for (let i = 0; i < uni.length; i++){
+      const t = uni[i];
+      setProg('smcProg', (i+1)/uni.length);
+      statEl.textContent = `hunting ${i+1}/${uni.length} - ${t.symbol}`;
+      try{
+        const isGold = t.symbol.includes('XAU');
+        const rows = isGold ? await getXAUCandles('4h', 260) : await getCandles(t.symbol, '4h', 260);
+        if (rows.length < 210) continue;
+        const c = rows.map(r => r.c);
+        const p = c[c.length-1];
+        const e200 = last(ema(c, 200));
+        let fvg = null, dir = null;
+        for (let j = rows.length-30; j < rows.length-1; j++){
+          const bar1 = rows[j-2], bar2 = rows[j-1], bar3 = rows[j];
+          if (bar1.h < bar3.l && bar2.c > bar2.o){
+            let gapHigh = bar3.l, gapLow = bar1.h, mitigated = false;
+            for (let k = j+1; k < rows.length; k++){
+              if (rows[k].l <= gapLow){ mitigated = true; break; }
+              if (rows[k].l < gapHigh) gapHigh = rows[k].l;
+            }
+            if (!mitigated && p > e200){ fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j }; dir = 'long'; }
+          } else if (bar1.l > bar3.h && bar2.c < bar2.o){
+            let gapLow = bar3.h, gapHigh = bar1.l, mitigated = false;
+            for (let k = j+1; k < rows.length; k++){
+              if (rows[k].h >= gapHigh){ mitigated = true; break; }
+              if (rows[k].h > gapLow) gapLow = rows[k].h;
+            }
+            if (!mitigated && p < e200){ fvg = { top: gapHigh, bottom: gapLow, age: rows.length-1-j }; dir = 'short'; }
+          }
+        }
+        if (!fvg) continue;
+        const isTapping = p <= fvg.top && p >= fvg.bottom;
+        if (!isTapping) continue;
+        found++;
+        const stop = dir === 'long' ? fvg.bottom - (fvg.bottom*0.002) : fvg.top + (fvg.top*0.002);
+        const t1 = dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l));
+        __cardsHtml.push(cardHTML(t.symbol, dir, [
+          ['mark', px(p)], ['Gap Age', `${fvg.age} bars (4H)`],
+          ['FVG Top', px(fvg.top)], ['FVG Bottom', px(fvg.bottom)],
+          ['Struct Stop', px(stop)], ['Target Liq', px(t1)]
+        ], ['G1 Displacement (FVG)', 'G2 Unmitigated', 'G3 Price inside POI', 'G4 HTF Trend Aligned'],
+        'SMC TAP: price has pulled back into a 4H institutional imbalance. Drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.', p, stop, t1));
+      } catch(e) { /* skip this symbol */ }
+      await sleep(100);
+    }
+    statEl.textContent = `done - ${found} SMC setups found`;
+    if (!found) emptyEl.style.display = 'block';
+  } catch(e){
+    statEl.textContent = `smc scan failed: ${e.message}`;
+  } finally {
+cardsEl.innerHTML = __cardsHtml.join('');
+    setProg('smcProg', null);
+    btn.disabled = false;
+  }
+}
+async function runObScan(){
+  const btn = $('obRun'); const cardsEl = $('obCards'); const emptyEl = $('obEmpty'); const statEl = $('obStat');
+  btn.disabled = true; cardsEl.innerHTML = ''; let __cardsHtml = []; emptyEl.style.display = 'none';
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    let uni = S.exchange === 'delta' ? S.tickers.filter(t => t.turnoverUsd >= 500000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd) : S.tickers.slice();
+    if (S.exchange === 'delta') uni.unshift({ symbol: 'XAUTUSD', mark: null, chg24: null, turnoverUsd: 0 });
+    let found = 0;
+    for (let i = 0; i < uni.length; i++){
+      const t = uni[i];
+      setProg('obProg', (i+1)/uni.length);
+      statEl.textContent = `hunting ${i+1}/${uni.length} - ${t.symbol}`;
+      try{
+        const isGold = t.symbol.includes('XAU');
+        const rows = isGold ? await getXAUCandles('4h', 260) : await getCandles(t.symbol, '4h', 260);
+        if (rows.length < 210) continue;
+        const c = rows.map(r => r.c);
+        const p = c[c.length-1];
+        const e200 = last(ema(c, 200));
+        let dir = null, ob = null;
+        const obLong = findOrderBlock(rows, 'long');
+        const obShort = findOrderBlock(rows, 'short');
+        if (obLong && p >= obLong.bottom && p <= obLong.top && p > e200){ dir = 'long'; ob = obLong; }
+        else if (obShort && p >= obShort.bottom && p <= obShort.top && p < e200){ dir = 'short'; ob = obShort; }
+        if (!dir) continue;
+        found++;
+        const lp = findLiquidityPools(rows);
+        const target = dir === 'long' ? lp.buySide : lp.sellSide;
+        const stop = dir === 'long' ? ob.bottom - (ob.bottom*0.002) : ob.top + (ob.top*0.002);
+        const t1 = target ? target.level : (dir === 'long' ? Math.max(...rows.slice(-20).map(r=>r.h)) : Math.min(...rows.slice(-20).map(r=>r.l)));
+        __cardsHtml.push(cardHTML(t.symbol, dir, [
+          ['mark', px(p)], ['OB Age', `${ob.age} bars (4H)`],
+          ['OB Top', px(ob.top)], ['OB Bottom', px(ob.bottom)],
+          ['Struct Stop', px(stop)], ['Liquidity Target', target ? `${px(target.level)} (x${target.count})` : px(t1)]
+        ], ['G1 Valid Order Block', 'G2 Unmitigated', 'G3 Price inside OB', 'G4 HTF Trend Aligned'],
+        'ORDER BLOCK TAP: price has pulled back into an unmitigated 4H order block. Drop to a 5m/15m chart, wait for a local sweep or Change of Character (CHOCH) in your direction, then execute.', p, stop, t1));
+      } catch(e) { /* skip this symbol */ }
+      await sleep(100);
+    }
+    statEl.textContent = `done - ${found} Order Block setups found`;
+    if (!found) emptyEl.style.display = 'block';
+  } catch(e){
+    statEl.textContent = `order block scan failed: ${e.message}`;
+  } finally {
+cardsEl.innerHTML = __cardsHtml.join('');
+    setProg('obProg', null);
+    btn.disabled = false;
+  }
+}
 function showTab(t){
-  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','supergold','best','basis','search','log','trade','finder'].forEach(k=>{
+  ['bias','swing','scalp','coil','apex','trap','smc','ob','div','gold','best','basis','search','log','trade','finder'].forEach(k=>{
     $('tab_'+k).classList.toggle('on', k===t);
     $('tabB_'+k).classList.toggle('on', k===t);
   });
@@ -854,7 +1249,7 @@ function showTab(t){
 
 <script>
 /* =========================================================================
-   BIAS TAB \u2014 fundamental + technical + sentiment, one visible ledger
+   BIAS TAB — fundamental + technical + sentiment, one visible ledger
    ========================================================================= */
 const BIAS_QUICK = ['BTCUSD','ETHUSD','SOLUSD','XAUTUSD'];
 function renderBiasChips(){
@@ -887,7 +1282,7 @@ async function runBias(){
     const e9=last(ema(c4,9)), e21=last(ema(c4,21)), e50=last(ema(c4,50));
     const r4=last(rsi(c4,14)), mh1=last(macdHist(ch));
     const tkr = S.tickers.find(t=>t.symbol===sym);
-    const fr = tkr?.fundingPct ?? null;                      // % per interval \u2014 percent units, never *100
+    const fr = tkr?.fundingPct ?? null;                      // % per interval — percent units, never *100
     const frAnn = fr===null? null : fr*3*365;                // annualized %
     const dailyDir = pd>e50d && (isNaN(e200d) || e50d>e200d) ? 'long' : (pd<e50d && (isNaN(e200d)||e50d<e200d) ? 'short' : 'mixed');
     const casc4 = e9>e21 && e21>e50 ? 'long' : (e9<e21 && e21<e50 ? 'short' : 'mixed');
@@ -895,106 +1290,54 @@ async function runBias(){
     // ---- gates ----
     const g=[];
     const t1 = dailyDir!=='mixed';
-    g.push(['T1','1D structure (close vs EMA50, EMA50 vs EMA200)', t1?'pass':'veto', `close ${px(pd)} \u00b7 EMA50 ${px(e50d)} \u00b7 EMA200 ${isNaN(e200d)?'n/a':px(e200d)} \u2192 ${dailyDir.toUpperCase()}`]);
+    g.push(['T1','1D structure (close vs EMA50, EMA50 vs EMA200)', t1?'pass':'veto', `close ${px(pd)} · EMA50 ${px(e50d)} · EMA200 ${isNaN(e200d)?'n/a':px(e200d)} → ${dailyDir.toUpperCase()}`]);
     const t2 = casc4!=='mixed' && casc4===dailyDir;
-    g.push(['T2','4H EMA cascade agrees with 1D', t2?'pass':'veto', `EMA9/21/50 \u2192 ${casc4.toUpperCase()}`]);
+    g.push(['T2','4H EMA cascade agrees with 1D', t2?'pass':'veto', `EMA9/21/50 → ${casc4.toUpperCase()}`]);
     const t3 = (dailyDir==='long'&&mh1>0)||(dailyDir==='short'&&mh1<0);
     g.push(['T3','1H MACD momentum aligned (timing only, not a veto)', dailyDir==='mixed'?'na':(t3?'pass':'na'), `hist ${fmt(mh1,4)}`]);
     const t4veto = (dailyDir==='long'&&r4>70)||(dailyDir==='short'&&r4<30);
     g.push(['T4','4H RSI exhaustion guard', t4veto?'veto':'pass', `RSI14 ${fmt(r4,1)} (block: >70 into longs, <30 into shorts)`]);
     let s1='na', s1d='funding unavailable on this feed';
     if (fr!==null){
-      const extreme = Math.abs(fr) > 0.05 - 1e-9; // Delta clamp is \u00b10.05% \u2014 at clamp = crowded
+      const extreme = Math.abs(fr) > 0.05 - 1e-9; // Delta clamp is ±0.05% — at clamp = crowded
       const against = (dailyDir==='long'&&fr>=0.04)||(dailyDir==='short'&&fr<=-0.04);
       s1 = (extreme||against)?'veto':'pass';
-      s1d = `${fmt(fr,4)}%/interval \u00b7 ann ${fmt(frAnn,1)}% (clamp \u00b10.05%)`;
-    }
-    // rolling funding history (built across runs) \u2192 momentum
-    let frMom = null;
-    if (fr !== null){
-      try {
-        const FHK = 'hardgate_frhist_v1';
-        const store = JSON.parse(localStorage.getItem(FHK) || '{}');
-        const arr = (store[sym] || []).slice(-11);
-        const lastSaved = arr.length ? arr[arr.length-1] : null;
-        if (lastSaved === null || Math.abs(lastSaved - fr) > 1e-9) arr.push(fr);
-        store[sym] = arr.slice(-12);
-        localStorage.setItem(FHK, JSON.stringify(store));
-        frMom = fundingMomentum(store[sym].map(function(v){ return v/100; }));
-      } catch(e){}
+      s1d = `${fmt(fr,4)}%/interval · ann ${fmt(frAnn,1)}% (clamp ±0.05%)`;
     }
     const r30=roc(c1,30), r90=roc(c1,90);
-    let t5='na', t5d=`30d ${pct(r30,1)} \u00b7 90d ${pct(r90,1)}`;
+    let t5='na', t5d=`30d ${pct(r30,1)} · 90d ${pct(r90,1)}`;
     if (dailyDir!=='mixed' && isFinite(r30) && isFinite(r90)){
       const want = dailyDir==='long'?1:-1;
       const agree = (Math.sign(r30)===want?1:0)+(Math.sign(r90)===want?1:0);
       t5 = agree===2?'pass':agree===0?'veto':'na';
     }
-    g.push(['T5','TSMOM 30/90d sign agreement (Moskowitz\u2013Ooi\u2013Pedersen 2012)', t5, t5d]);
+    g.push(['T5','TSMOM 30/90d sign agreement (Moskowitz–Ooi–Pedersen 2012)', t5, t5d]);
     const ev1d = cusumLast(c1.slice(-120), 1);
     let t6='na', t6d='no recent event';
     if (ev1d && ev1d.barsAgo<=10 && dailyDir!=='mixed'){
       t6 = ev1d.dir===dailyDir?'pass':'veto';
       t6d = `${ev1d.dir.toUpperCase()} event ${ev1d.barsAgo} bars ago (1D)`;
     } else if (ev1d){ t6d = `${ev1d.dir.toUpperCase()} event ${ev1d.barsAgo} bars ago (stale)`; }
-    g.push(['T6','CUSUM event alignment \u2014 your walk-forward\'s top feature (OOS AUC \u22480.58)', t6, t6d]);
+    g.push(['T6','CUSUM event alignment — your walk-forward\'s top feature (OOS AUC ≈0.58)', t6, t6d]);
     g.push(['S1','Funding cleanliness (crowding veto)', s1, s1d]);
     let s2='na', s2d='F&G unavailable';
     if (S.fng){ const v=S.fng.v;
       const veto=(dailyDir==='long'&&v>=80)||(dailyDir==='short'&&v<=20);
-      s2 = veto?'veto':'pass'; s2d = `${v} ${S.fng.c} (block fresh longs \u226580, fresh shorts \u226420)`;
+      s2 = veto?'veto':'pass'; s2d = `${v} ${S.fng.c} (block fresh longs ≥80, fresh shorts ≤20)`;
     }
     g.push(['S2','Sentiment extreme guard (Fear & Greed)', s2, s2d]);
-    g.push(['F1','Macro context (informational \u2014 judge it yourself)', 'na',
-      `BTC.D ${S.dom!==null?S.dom.toFixed(1)+'%':'n/a'}${sym.includes('XAUT')?' \u00b7 gold: check DXY, real yields, event calendar manually':''}`]);
-
-    // ---- F2/F3 confluence tags (informational only \u2014 never veto) ----
-    const ha4 = heikinAshi(h4);
-    const haDir = ha4 ? (ha4.bull ? 'long' : 'short') : null;
-    const haAgree = haDir !== null && dailyDir !== 'mixed' && haDir === dailyDir;
-    g.push(['F2','Heikin Ashi 4H trend confirmation (informational \u2014 smooths EMA noise)', 'na',
-      ha4 ? `HA state ${ha4.state}${haDir?(' \u2192 '+haDir.toUpperCase()):''}${haAgree?' (agrees with bias)':(dailyDir!=='mixed'?' (fighting bias)':'')}` : 'n/a']);
-    const mz1 = macdZeroLine(c1);
-    const mzAgree = (dailyDir==='long' && mz1>0) || (dailyDir==='short' && mz1<0);
-    g.push(['F3','1D MACD zero-line filter (informational \u2014 no longs below zero, no shorts above)', 'na',
-      `MACD line ${mz1>0?'above':mz1<0?'below':'at'} zero${dailyDir!=='mixed'?(mzAgree?' (permits '+dailyDir+')':' (against '+dailyDir+')'):''}`]);
-    g.push(['F4','Funding momentum trend (informational \u2014 built across runs)', 'na',
-      frMom ? `slope ${fmt(frMom.slope*100,4)}%/step${frMom.accelerating?', accelerating':''}${(dailyDir==='long'&&frMom.slope>0)||(dailyDir==='short'&&frMom.slope<0)?' (worsening for '+dailyDir+')':''}` : 'building history (need 3+ observations)']);
-
-    // ---- F5-F8 Phase 7 confluence tags (informational only - never veto) ----
-    const kz = killzone(Date.now());
-    g.push(['F5','Session killzone timing (informational - ICT active-hours context)', 'na',
-      kz.active ? `In ${kz.zone} killzone (higher liquidity/participation)` : 'Outside major killzones (thinner conditions)']);
-    const mtf = mtfAlign([
-      e50d>e200d?1:(e50d<e200d?-1:0),
-      e9>e21?1:(e9<e21?-1:0),
-      e21>e50?1:(e21<e50?-1:0),
-      last(ch)>last(ema(ch,50))?1:(last(ch)<last(ema(ch,50))?-1:0)
-    ]);
-    g.push(['F6','MTF 3-of-4 alignment (informational - trend agreement across TFs)', 'na',
-      `${mtf.agree}/${mtf.of} timeframes agree ${mtf.dir>0?'UP':(mtf.dir<0?'DOWN':'MIXED')}${mtf.aligned?' (aligned)':' (no strong alignment)'}`]);
-    const lb4 = h4[h4.length-1];
-    const wc = lb4 ? wickCommit({open:lb4.o,high:lb4.h,low:lb4.l,close:lb4.c}) : null;
-    g.push(['F7','Wick commitment 4H (informational - body vs range + rejection side)', 'na',
-      wc ? `commit ${fmt(wc.commit*100,0)}% of range${wc.reject!=='NONE'?', '+wc.reject.toLowerCase()+' rejection':''}` : 'n/a']);
-    const rdiv = rsiDivergence(c4, 14);
-    g.push(['F9','RSI divergence 4H (informational - momentum vs price)', 'na',
-      rdiv.type==='NONE' ? 'no clear divergence' : `${rdiv.type.toLowerCase()} divergence detected`]);
-    if (sym.includes("XAUT")){
-      const nfp = preNfp(Date.now(), 60);
-      g.push(['F8','Gold pre-NFP window (informational - first-Friday 13:30 UTC caution)', 'na',
-        nfp.standAside ? `Within +/-60m of NFP (${Math.abs(nfp.minutesTo)}m away) - consider standing aside` : 'Not near NFP release']);
-    }
+    g.push(['F1','Macro context (informational — judge it yourself)', 'na',
+      `BTC.D ${S.dom!==null?S.dom.toFixed(1)+'%':'n/a'}${sym.includes('XAUT')?' · gold: check DXY, real yields, event calendar manually':''}`]);
 
     const vetoed = g.some(x=>x[2]==='veto');
     const verdict = vetoed||dailyDir==='mixed' ? 'aside' : dailyDir;
     const why = verdict==='aside'
       ? 'One or more gates vetoed. The framework has no opinion strong enough to risk capital today on this symbol.'
-      : `1D and 4H agree ${verdict.toUpperCase()}, no veto fired. This is directional bias only \u2014 entry still needs a structure trigger (Swing/Scalp tab) and a stop beyond swept liquidity.`;
+      : `1D and 4H agree ${verdict.toUpperCase()}, no veto fired. This is directional bias only — entry still needs a structure trigger (Swing/Scalp tab) and a stop beyond swept liquidity.`;
 
     out.innerHTML = `
       <div class="panel">
-        <h2>${sym} <span>${S.exchange==='delta'?'Delta India':'CoinDCX'} \u00b7 mark ${tkr?px(tkr.mark):px(pd)} \u00b7 24h ${tkr&&tkr.chg24!==null?pct(tkr.chg24,2):'\u2014'}</span></h2>
+        <h2>${sym} <span>${S.exchange==='delta'?'Delta India':'CoinDCX'} · mark ${tkr?px(tkr.mark):px(pd)} · 24h ${tkr&&tkr.chg24!==null?pct(tkr.chg24,2):'—'}</span></h2>
         <div class="ledger">${g.map(x=>gateRow(...x)).join('')}</div>
         <div class="verdict ${verdict}">
           <div class="vword">${verdict==='aside'?'STAND ASIDE':verdict.toUpperCase()}</div>
@@ -1003,20 +1346,60 @@ async function runBias(){
         <div class="note" style="margin-top:8px">This verdict has no backtested expectancy attached until your own tradelog proves one. Treat it as a filter, not a promise.</div>
       </div>`;
   }catch(e){
-    out.innerHTML = `<div class="empty">Fetch failed for ${sym}: ${e.message}. ${S.exchange==='coindcx'?'CoinDCX public API likely CORS-blocked \u2014 use Delta or your server proxy.':''}</div>`;
+    out.innerHTML = `<div class="empty">Fetch failed for ${sym}: ${e.message}. ${S.exchange==='coindcx'?'CoinDCX public API likely CORS-blocked — use Delta or your server proxy.':''}</div>`;
   }finally{ setProg('biasProg',null); $('biasRun').disabled=false; }
 }
 
 /* =========================================================================
-   SCANNERS \u2014 swing (4H) and scalp (1H context + 15m trigger)
+   SCANNERS — swing (4H) and scalp (1H context + 15m trigger)
    ========================================================================= */
+function planBlock(dir, entry, stop, t1, t2){
+  const risk = Math.abs(entry-stop);
+  return `entry <b>${px(entry)}</b> · stop <b>${px(stop)}</b> (structural) · T1 <b>${px(t1)}</b> (${fmt(Math.abs(t1-entry)/risk,1)}R, vol target, scale out) · T2 <b>${px(t2)}</b> (${fmt(Math.abs(t2-entry)/risk,1)}R, max excursion, trail rest) · risk/unit ${px(risk)}`;
+}
+function cardHTML(sym, dir, mini, gates, plan, entry, stop, t1){
+  const symHtml = String(sym).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const onclickJs = `toTrade(${JSON.stringify(sym)},${JSON.stringify(dir)},${entry},${stop},${t1})`;
+  const onclickAttr = onclickJs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<div class="card ${dir}">
+    <div class="chead"><span class="sym">${symHtml}</span><span class="dir">${dir.toUpperCase()} · CLEAN</span></div>
+    <div class="mini">${mini.map(([k,v])=>`<span class="k">${k}</span><span>${v}</span>`).join('')}</div>
+    <div class="gates">${gates.map(g=>`<span class="gpip ok">${g}</span>`).join('')}</div>
+    <div class="plan">${plan}</div>
+    <button class="toTrade" onclick="${onclickAttr}">SEND TO TRADE PLAN →</button>
+  </div>`;
+}
+function toTrade(sym,dir,entry,stop,t1){
+  $('tSym').value=sym; $('tSide').value=dir; $('tEntry').value=entry; $('tStop').value=stop; $('tT1').value=t1;
+  showTab('trade'); planTrade();
+}
+
+async function runScan(kind){
+  const isSwing = kind==='swing';
+  const scanAll = $(isSwing?'swingAll':'scalpAll').checked;
+  const N = Math.max(5, Math.min(500, +$(isSwing?'swingN':'scalpN').value||30));
+  const minTurn = isSwing ? (+$('swingTurn').value||0) : 0;
+  const cardsEl = $(isSwing?'swingCards':'scalpCards'), emptyEl=$(isSwing?'swingEmpty':'scalpEmpty'), statEl=$(isSwing?'swingStat':'scalpStat');
+  const btn = $(isSwing?'swingRun':'scalpRun');
+  cardsEl.innerHTML=''; emptyEl.style.display='none'; emptyEl.textContent=''; btn.disabled=true;
+  try{
+    if (!S.tickers.length) S.tickers = await getTickers();
+    let uni = S.tickers.slice();
+    if (S.exchange==='delta') uni = uni.filter(t=> scanAll ? true : t.turnoverUsd>=minTurn).sort((a,b)=>b.turnoverUsd-a.turnoverUsd);
+    if (!scanAll) uni = uni.slice(0,N);
+    const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
+    const minsToFunding = tickClock();
+    let found=0; const CHUNK_SIZE=5; for (let ci=0; ci<uni.length; ci+=CHUNK_SIZE){ const chunk = uni.slice(ci, ci+CHUNK_SIZE); await Promise.all(chunk.map(async function(t, idxInChunk){ const i = ci+idxInChunk; setProg(isSwing?'swingProg':'scalpProg', (i+1)/uni.length); statEl.textContent = `scanning ${i+1}/${uni.length} - ${t.symbol}`; try{ if (isSwing){ const rows = await getCandles(t.symbol,'4h',260); if (rows.length<210) return; const c=rows.map(r=>r.c); const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200)); const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20); let dir=null; if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short'; if (!dir) return; const a4=last(atr(rows,14)); if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)) return; if (dir==='long' ? !(p>e200) : !(p<e200)) return; if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) return; if (t.fundingPct!==null){ const fr=t.fundingPct; if (Math.abs(fr)>0.05-1e-9) return; if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return; } if (!(vz > 0.5)) return; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return; const stop = lastSwing(rows, dir, 30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) return; let plannedEntry = p; let entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25) { plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry; const risk = Math.abs(entry-stop); if (!(risk>0)) return; const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const dynamicRR = expectedMove/risk; if (!(dynamicRR>=2)) return; const ev = cusumLast(c.slice(-120), 1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) return; found++; let momDetail = 'n/a'; try{ const nEw = c.length; if (nEw>=40){ const bbW = bollinger(c,20,2); const priorWw = bbW.widthPct.slice(Math.max(0,nEw-50), nEw-1).filter(function(v){return isFinite(v);}); const wAvgW = priorWw.length ? priorWw.reduce(function(a,b){return a+b;},0)/priorWw.length : NaN; const wantW = dir==='long' ? 1 : -1; const bbBreakW = (wantW>0 ? c[nEw-1]>bbW.upper[nEw-1] : c[nEw-1]<bbW.lower[nEw-1]) && isFinite(wAvgW) && bbW.widthPct[nEw-2]<=wAvgW; const adxW = adx(rows,14); const adxAlignedW = adxW.adx[nEw-1]>=20 && (wantW>0 ? adxW.plusDI[nEw-1]>adxW.minusDI[nEw-1] : adxW.minusDI[nEw-1]>adxW.plusDI[nEw-1]); const srsiW = stochRsi(c,14,14); const srsiOkW = isFinite(srsiW[nEw-1]) && (wantW>0 ? srsiW[nEw-1]<80 : srsiW[nEw-1]>20); const votesW = (bbBreakW?1:0)+(adxAlignedW?1:0)+(srsiOkW?1:0); momDetail = votesW+'/3 (BB '+(bbBreakW?'ok':'x')+' ADX '+(adxAlignedW?'ok':'x')+' StochRSI '+(srsiOkW?'ok':'x')+')'; } }catch(e){} cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [ ['mark',px(t.mark||p)],['order',entryType==='MARKET'?'market':'limit @ EMA9'],['24h',t.chg24!==null?pct(t.chg24,2):'-'], ['RSI 4H',fmt(r14,1)],['vol z',fmt(vz,2)], ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['ann.',t.fundingPct!==null?fmt(t.fundingPct*3*365,1)+'%':'-'], ['dyn R:R',fmt(dynamicRR,2)+'R vol-capped'],['turnover',t.turnoverUsd?('$'+fmt(t.turnoverUsd,0)):'-'],['context: momentum',momDetail],['Nearest OB',nearestOBText(rows,dir)],['Liquidity Target',liquidityTargetText(rows,dir)], ], ['G1 cascade+spread','G2 HTF side','G3 RSI ok','G4 funding','G5 vol+wick','G6 R:R>=2','G7 CUSUM'+(ev&&ev.barsAgo<=20?' ok':' n/a')], planBlock(dir,entry,stop,t1,t2), entry, stop, t1)); logSetup(t.symbol, dir, 'swing', entry, stop, t1); } else { const h1 = await getCandles(t.symbol,'1h',120); if (h1.length<60) return; const c1=h1.map(r=>r.c); const e9h=last(ema(c1,9)), e21h=last(ema(c1,21)), e50h=last(ema(c1,50)); let dir=null; if (e9h>e21h&&e21h>e50h) dir='long'; else if (e9h<e21h&&e21h<e50h) dir='short'; if (!dir) return; const m15 = await getCandles(t.symbol,'15m',160); if (m15.length<60) return; const c15=m15.map(r=>r.c); const e9a=ema(c15,9), e21a=ema(c15,21); const n=c15.length; const priorWin = m15.slice(n-24, n-7); const localLow = Math.min(...priorWin.map(r=>r.l)); const localHigh = Math.max(...priorWin.map(r=>r.h)); const recentWin = m15.slice(n-7, n-1); const sweptLiquidity = dir === 'long' ? Math.min(...recentWin.map(r=>r.l)) < localLow : Math.max(...recentWin.map(r=>r.h)) > localHigh; const reclaimed = dir === 'long' ? (c15[n-1] > e9a[n-1] && e9a[n-1] > e21a[n-1]) : (c15[n-1] < e9a[n-1] && e9a[n-1] < e21a[n-1]); if (!(sweptLiquidity && reclaimed)) return; const r15=last(rsi(c15,14)); if (dir==='long' ? !(r15>=40&&r15<=65) : !(r15>=35&&r15<=60)) return; if (t.fundingPct!==null){ const fr=t.fundingPct; if (Math.abs(fr)>0.05-1e-9) return; if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return; } if (minsToFunding<25) return; const atrArr = atr(m15,14); const a = last(atrArr); const base = atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y); const aMed = base.length ? base[Math.floor(base.length/2)] : NaN; if (!(isFinite(a) && isFinite(aMed) && a >= 0.8*aMed)) return; const vz = volZ(m15,20); if (!(vz > 0.5)) return; const currentBar = m15[m15.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return; const entry = c15[n-1]; const stop = dir === 'long' ? localLow - (a * 0.25) : localHigh + (a * 0.25); const risk = Math.abs(entry - stop); if (!(risk > 0)) return; const expectedMove = a * 2.5; const t1 = dir === 'long' ? entry + expectedMove : entry - expectedMove; const t2 = dir === 'long' ? entry + (a * 4) : entry - (a * 4); const dynamicRR = expectedMove / risk; if (!(dynamicRR >= 1.5)) return; found++; let momDetailS = 'n/a'; try{ const nEs = c15.length; if (nEs>=40){ const bbS = bollinger(c15,20,2); const priorWs = bbS.widthPct.slice(Math.max(0,nEs-50), nEs-1).filter(function(v){return isFinite(v);}); const wAvgS = priorWs.length ? priorWs.reduce(function(a,b){return a+b;},0)/priorWs.length : NaN; const wantS = dir==='long' ? 1 : -1; const bbBreakS = (wantS>0 ? c15[nEs-1]>bbS.upper[nEs-1] : c15[nEs-1]<bbS.lower[nEs-1]) && isFinite(wAvgS) && bbS.widthPct[nEs-2]<=wAvgS; const adxS = adx(m15,14); const adxAlignedS = adxS.adx[nEs-1]>=20 && (wantS>0 ? adxS.plusDI[nEs-1]>adxS.minusDI[nEs-1] : adxS.minusDI[nEs-1]>adxS.plusDI[nEs-1]); const srsiS = stochRsi(c15,14,14); const srsiOkS = isFinite(srsiS[nEs-1]) && (wantS>0 ? srsiS[nEs-1]<80 : srsiS[nEs-1]>20); const votesS = (bbBreakS?1:0)+(adxAlignedS?1:0)+(srsiOkS?1:0); momDetailS = votesS+'/3 (BB '+(bbBreakS?'ok':'x')+' ADX '+(adxAlignedS?'ok':'x')+' StochRSI '+(srsiOkS?'ok':'x')+')'; } }catch(e){} cardsEl.insertAdjacentHTML('beforeend', cardHTML(t.symbol, dir, [ ['mark',px(t.mark||entry)],['1H trend',dir.toUpperCase()], ['RSI 15m',fmt(r15,1)],['ATR 15m',px(a)],['dyn R:R',fmt(dynamicRR,2)+'R vol-capped'], ['funding',t.fundingPct!==null?fmt(t.fundingPct,4)+'%':'n/a'],['to settle',fmt(minsToFunding,0)+'m'],['context: momentum',momDetailS],['Nearest OB',nearestOBText(m15,dir)],['Liquidity Target',liquidityTargetText(m15,dir)], ], ['G1 1H trend','G2 Judas sweep+reclaim','G3 RSI band','G4 funding','G5 settle>25m','G6 vol+wick commit','G7 1.5R vol-capped'], planBlock(dir,entry,stop,t1,t2), entry, stop, t1)); logSetup(t.symbol, dir, 'scalp', entry, stop, t1); } }catch(e){ } })); await sleep(150); } statEl.textContent = `done - ${found} CLEAN / ${uni.length} scanned (${universeLabel})`;
+    if (!found){ emptyEl.textContent=(isSwing?'No CLEAN swing setups. Standing aside is a position.':'No CLEAN scalp triggers right now.'); emptyEl.style.display='block'; }
+  }catch(e){
+    statEl.textContent = `scan failed: ${e.message}`;
+  }finally{ setProg(isSwing?'swingProg':'scalpProg',null); btn.disabled=false; }
+}
 
 /* =========================================================================
-   TRADE PLAN \u2014 sizing, liquidation clearance, ticket. No execution here.
+   TRADE PLAN — sizing, liquidation clearance, ticket. No execution here.
    ========================================================================= */
-function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return NaN; const ma=a.slice(0,n).reduce(function(x,y){return x+y;},0)/n; const mb=b.slice(0,n).reduce(function(x,y){return x+y;},0)/n; let num=0,da=0,db=0; for(let i=0;i<n;i++){ const xa=a[i]-ma, xb=b[i]-mb; num+=xa*xb; da+=xa*xa; db+=xb*xb; } const den=Math.sqrt(da*db); return den>0?num/den:NaN; } async function updatePortfolioHeat(sym,dir){ const elRow=$('portfolioHeatRow'); if(!elRow) return; try{ const base=(sym||'').replace(/USD$/,'').replace(/^B-/,'').replace(/_USDT$/,''); if(base==='BTC'){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">n/a (BTC itself)</span>'; return; } const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT'; const rowsSym = await getCandles(sym,'1d',31); const rowsBtc = await getCandles(btcSym,'1d',31); if(rowsSym.length<25||rowsBtc.length<25){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">not enough history</span>'; return; } const n=Math.min(rowsSym.length,rowsBtc.length); const rs=rowsSym.slice(-n), rb=rowsBtc.slice(-n); const retA=[],retB=[]; for(let i=1;i<n;i++){ retA.push(rs[i].c/rs[i-1].c-1); retB.push(rb[i].c/rb[i-1].c-1); } const r=pearsonCorr(retA,retB); const openLog=loadLog().filter(function(e){return e.status==='open';}); const btcOpen=openLog.find(function(e){return e.sym===btcSym;}); const highCorr=isFinite(r)&&r>0.75; let warn=''; if(highCorr&&btcOpen&&btcOpen.dir===dir){ warn=' <b style="color:var(--gold)">\u2014 taking this stacks beta, consider adjusting risk or standing aside</b>'; } 
-    /* Heat v2: correlation vs ALL open setups (cached candles only) */
-    try { const others = openLog.filter(function(e){ return e.sym!==sym && e.sym!==btcSym; }); const clash = []; for (const o of others){ const oc = S.candleCache[S.exchange+'|'+o.sym+'|1d']; if(!oc||!oc.rows||oc.rows.length<25) continue; const os = oc.rows.slice(-(retA.length+1)); const or=[]; for(let k=1;k<os.length;k++) or.push(os[k].c/os[k-1].c-1); const m2 = Math.min(retA.length, or.length); const cc = pearsonCorr(retA.slice(-m2), or.slice(-m2)); if(isFinite(cc) && Math.abs(cc)>0.7){ if(cc>0 && o.dir===dir) clash.push(o.sym+' (+'+cc.toFixed(2)+' same-dir stacks)'); else if(cc<0 && o.dir!==dir) clash.push(o.sym+' ('+cc.toFixed(2)+' inverse+opposite stacks)'); } } if(clash.length){ warn += ' <b style="color:var(--gold)">\u2014 correlated open: '+clash.join(', ')+'; consider halving risk</b>'; } } catch(e){} elRow.innerHTML = '<span class="k">Portfolio Heat</span><span class="v">r='+(isFinite(r)?r.toFixed(2):'n/a')+' vs BTC 30d'+warn+'</span>'; }catch(e){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">check failed</span>'; } } function executeTrade(plan){ if (!plan || plan.vetoed){ alert('Cannot execute a vetoed plan.'); return; } if (!EXECUTE_BACKEND_URL || EXECUTE_BACKEND_URL.indexOf('your-secure-backend.com')>=0){ alert('EXECUTE_BACKEND_URL is still a placeholder \u2014 set it to your real delta-trader.ts endpoint before this button can do anything.'); return; } const payload = { symbol: plan.sym, side: plan.side, qty: plan.qty, leverage: plan.lev, bracket: { stop: plan.stop, takeProfit: plan.t1 }, timestamp: nowSec() }; if (!confirm('Send this bracket to '+EXECUTE_BACKEND_URL+'? '+JSON.stringify(payload,null,2))) return; fetch(EXECUTE_BACKEND_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); alert('Bracket sent.'); }).catch(function(e){ alert('Execution request failed: '+e.message); }); }  async function pullMark(){
+function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return NaN; const ma=a.slice(0,n).reduce(function(x,y){return x+y;},0)/n; const mb=b.slice(0,n).reduce(function(x,y){return x+y;},0)/n; let num=0,da=0,db=0; for(let i=0;i<n;i++){ const xa=a[i]-ma, xb=b[i]-mb; num+=xa*xb; da+=xa*xa; db+=xb*xb; } const den=Math.sqrt(da*db); return den>0?num/den:NaN; } async function updatePortfolioHeat(sym,dir){ const elRow=$('portfolioHeatRow'); if(!elRow) return; try{ const base=(sym||'').replace(/USD$/,'').replace(/^B-/,'').replace(/_USDT$/,''); if(base==='BTC'){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">n/a (BTC itself)</span>'; return; } const btcSym = S.exchange==='delta' ? 'BTCUSD' : 'B-BTC_USDT'; const rowsSym = await getCandles(sym,'1d',31); const rowsBtc = await getCandles(btcSym,'1d',31); if(rowsSym.length<25||rowsBtc.length<25){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">not enough history</span>'; return; } const n=Math.min(rowsSym.length,rowsBtc.length); const rs=rowsSym.slice(-n), rb=rowsBtc.slice(-n); const retA=[],retB=[]; for(let i=1;i<n;i++){ retA.push(rs[i].c/rs[i-1].c-1); retB.push(rb[i].c/rb[i-1].c-1); } const r=pearsonCorr(retA,retB); const openLog=loadLog().filter(function(e){return e.status==='open';}); const btcOpen=openLog.find(function(e){return e.sym===btcSym;}); const highCorr=isFinite(r)&&r>0.75; let warn=''; if(highCorr&&btcOpen&&btcOpen.dir===dir){ warn=' <b style="color:var(--gold)">— taking this stacks beta, consider adjusting risk or standing aside</b>'; } elRow.innerHTML = '<span class="k">Portfolio Heat</span><span class="v">r='+(isFinite(r)?r.toFixed(2):'n/a')+' vs BTC 30d'+warn+'</span>'; }catch(e){ elRow.innerHTML='<span class="k">Portfolio Heat</span><span class="v">check failed</span>'; } } function executeTrade(plan){ if (!plan || plan.vetoed){ alert('Cannot execute a vetoed plan.'); return; } if (!EXECUTE_BACKEND_URL || EXECUTE_BACKEND_URL.indexOf('your-secure-backend.com')>=0){ alert('EXECUTE_BACKEND_URL is still a placeholder — set it to your real delta-trader.ts endpoint before this button can do anything.'); return; } const payload = { symbol: plan.sym, side: plan.side, qty: plan.qty, leverage: plan.lev, bracket: { stop: plan.stop, takeProfit: plan.t1 }, timestamp: nowSec() }; if (!confirm('Send this bracket to '+EXECUTE_BACKEND_URL+'? '+JSON.stringify(payload,null,2))) return; fetch(EXECUTE_BACKEND_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); alert('Bracket sent.'); }).catch(function(e){ alert('Execution request failed: '+e.message); }); }  async function pullMark(){
   const sym=($('tSym').value||'').trim(); if(!sym) return;
   try{
     if (!S.tickers.length) S.tickers = await getTickers();
@@ -1025,9 +1408,9 @@ function pearsonCorr(a,b){ const n=Math.min(a.length,b.length); if(n<2) return N
     else { const r=await getCandles(sym,'15m',5); if(r.length) $('tEntry').value = last(r).c; }
   }catch(e){ alert('mark pull failed: '+e.message); }
 }
-function getTieredMMR(exchange, notional){ if (exchange==='coindcx'){ if (notional<=50000) return 0.015; if (notional<=100000) return 0.02; if (notional<=500000) return 0.03; if (notional<=1000000) return 0.05; if (notional<=5000000) return 0.06; return 0.10; } if (notional<=100000) return 0.0025; return 0.0025 + 0.0000000125*(notional-100000); } function planTrade(){
+function planTrade(){
   const side=$('tSide').value, entry=+$('tEntry').value, stop=+$('tStop').value;
-  const eq=+$('tEq').value, riskPct=+$('tRisk').value;
+  const eq=+$('tEq').value, riskPct=+$('tRisk').value, mmr=(+$('tMmr').value||0.5)/100;
   const scaleOut=Math.min(100,Math.max(0,+$('tScale').value||50));
   const out=$('tradeOut');
   if (!(entry>0&&stop>0&&eq>0&&riskPct>0)){ out.innerHTML='<div class="empty">Fill entry, stop, equity, and risk %.</div>'; return; }
@@ -1035,39 +1418,39 @@ function getTieredMMR(exchange, notional){ if (exchange==='coindcx'){ if (notion
   const riskUnit = Math.abs(entry-stop);
   const riskUsd = eq*riskPct/100;
   const qty = riskUsd/riskUnit;
-  const notional = qty*entry; const mmr = getTieredMMR(S.exchange, notional); $('tMmr').value = (mmr*100).toFixed(3);
+  const notional = qty*entry;
   const stopDist = riskUnit/entry;
-  const targetClearance = 2.0;
-  let optimalLev = Math.floor(notional/eq);
+  const targetClearance = 1.5;
+  let optimalLev = Math.floor(1/(stopDist*targetClearance+mmr));
   optimalLev = Math.max(1, Math.min(100, optimalLev));
   $('tLev').value = optimalLev;
   const lev = optimalLev;
   const margin = notional/lev;
   const liq = side==='long' ? entry*(1 - 1/lev + mmr) : entry*(1 + 1/lev - mmr);
   const liqDist = Math.abs(entry-liq)/entry;
-  const clearance = liqDist/stopDist; // want \u2265 2.0\u00d7
+  const clearance = liqDist/stopDist; // want ≥ 1.5×
   const t1 = $('tT1').value ? +$('tT1').value : (side==='long'?entry+2*riskUnit:entry-2*riskUnit);
   const rr = Math.abs(t1-entry)/riskUnit;
 
   const g=[];
   g.push(['P1','Stop on the correct side of entry', dirOk?'pass':'veto', dirOk?'':'stop must be '+(side==='long'?'below':'above')+' entry']);
-  g.push(['P2','R:R \u2265 2 to T1', rr>=2?'pass':'veto', `${fmt(rr,2)}R to T1 ${px(t1)} \u2014 never move the stop to fix this; move the trade`]);
-  g.push(['P3','Liquidation clearance (>= 2.0x stop, leverage set by position size)', clearance>=1.95?'pass':'veto',
-    `liq \u2248 ${px(liq)} \u00b7 leverage ${lev}x (set by position size/equity) yields ${fmt(clearance,2)}\u00d7 stop clearance`]);
-  g.push(['P4','Margin sanity (margin \u2264 25% equity)', margin<=eq*0.25?'pass':'veto', `margin $${fmt(margin,2)} of $${fmt(eq,2)}`]);
+  g.push(['P2','R:R ≥ 2 to T1', rr>=2?'pass':'veto', `${fmt(rr,2)}R to T1 ${px(t1)} — never move the stop to fix this; move the trade`]);
+  g.push(['P3','Liquidation clearance auto-scaled (>= 1.5x stop)', clearance>=1.45?'pass':'veto',
+    `liq ≈ ${px(liq)} · leverage auto-set to ${lev}x to yield ${fmt(clearance,2)}× stop clearance`]);
+  g.push(['P4','Margin sanity (margin ≤ 25% equity)', margin<=eq*0.25?'pass':'veto', `margin $${fmt(margin,2)} of $${fmt(eq,2)}`]);
   const checksDone = [...document.querySelectorAll('#tCheck .ck')].every(c=>c.checked);
-  g.push(['P5','Discipline checklist complete', checksDone?'pass':'veto', checksDone?'':'tick every box on the left \u2014 SKYAI/HYPE/GOAT were checklist failures, not signal failures']);
+  g.push(['P5','Discipline checklist complete', checksDone?'pass':'veto', checksDone?'':'tick every box on the left — SKYAI/HYPE/GOAT were checklist failures, not signal failures']);
 
   const vet = g.some(x=>x[2]==='veto');
   const ticket =
-`${side.toUpperCase()} ${$('tSym').value||'\u2014'}  (${S.exchange==='delta'?'Delta India':'CoinDCX'})
+`${side.toUpperCase()} ${$('tSym').value||'—'}  (${S.exchange==='delta'?'Delta India':'CoinDCX'})
 entry     ${px(entry)}
 stop      ${px(stop)}   (structural, isolated, auto top-up OFF)
-size      ${fmt(qty,6)} @ ${lev}x  \u2192  notional $${fmt(notional,2)}, margin $${fmt(margin,2)}
-risk      $${fmt(riskUsd,2)}  (${riskPct}% of equity)  \u00b7  1R = ${px(riskUnit)}
-T1        ${px(t1)}  \u2192  close ${scaleOut}%, stop to breakeven
+size      ${fmt(qty,6)} @ ${lev}x  →  notional $${fmt(notional,2)}, margin $${fmt(margin,2)}
+risk      $${fmt(riskUsd,2)}  (${riskPct}% of equity)  ·  1R = ${px(riskUnit)}
+T1        ${px(t1)}  →  close ${scaleOut}%, stop to breakeven
 runner    trail remainder behind structure toward ${px(side==='long'?entry+3*riskUnit:entry-3*riskUnit)} (3R)
-liq est   ${px(liq)}  (${fmt(clearance,2)}\u00d7 stop clearance)`;
+liq est   ${px(liq)}  (${fmt(clearance,2)}× stop clearance)`;
 
   out.innerHTML = `
     <div class="ledger">${g.map(x=>gateRow(...x)).join('')}</div>
@@ -1077,11 +1460,479 @@ liq est   ${px(liq)}  (${fmt(clearance,2)}\u00d7 stop clearance)`;
     </div>
     <hr class="sep">
     <div class="ticket" id="ticketTxt">${ticket}</div>
-    <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)" ${vet?'disabled title="Fix the vetoed gates before copying this ticket"':''}>COPY TICKET</button><div class="kv" id="portfolioHeatRow" style="margin-top:8px"><span class="k">Portfolio Heat</span><span class="v">checking\u2026</span></div>`; updatePortfolioHeat($('tSym').value||'', side); if(!vet){ out.insertAdjacentHTML('beforeend', '<button class="btn" style="margin-top:8px" onclick="executeTrade({sym:'+JSON.stringify($('tSym').value)+',side:'+JSON.stringify(side)+',qty:'+qty+',lev:'+lev+',stop:'+stop+',t1:'+t1+',vetoed:false})">EXECUTE BRACKET</button>'); }
+    <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('ticketTxt').innerText)" ${vet?'disabled title="Fix the vetoed gates before copying this ticket"':''}>COPY TICKET</button><div class="kv" id="portfolioHeatRow" style="margin-top:8px"><span class="k">Portfolio Heat</span><span class="v">checking…</span></div>`; updatePortfolioHeat($('tSym').value||'', side); if(!vet){ out.insertAdjacentHTML('beforeend', '<button class="btn" style="margin-top:8px" onclick="executeTrade({sym:'+JSON.stringify($('tSym').value)+',side:'+JSON.stringify(side)+',qty:'+qty+',lev:'+lev+',stop:'+stop+',t1:'+t1+',vetoed:false})">EXECUTE BRACKET</button>'); }
 }
 
+/* =============================================================================
+   GOLD — XAUTUSD session + liquidity module.
+   Swing: same hard gates as crypto. Scalp: Judas sweep-and-reclaim of Asian
+   range / PDH/PDL inside London/NY kill zones only. Closed bars only.
+   F&G deliberately NOT applied — it measures crypto sentiment, not gold.
+   ============================================================================= */
+const GOLD_SYM = 'XAUTUSD';
+function goldSession(){
+  const d = new Date();
+  const h = d.getUTCHours() + d.getUTCMinutes()/60;
+  if (h>=7  && h<10) return {name:'LONDON KZ', kz:true};   // 12:30–15:30 IST
+  if (h>=12 && h<15) return {name:'NY KZ', kz:true};        // 17:30–20:30 IST
+  if (h>=0  && h<7)  return {name:'ASIA (range builds)', kz:false};
+  return {name:'OFF-SESSION', kz:false};
+}
+function utcDayStart(){ const d=new Date(); return Math.floor(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())/1000); }
 
+async function runGold(){
+  const btn=$('goldRun'); btn.disabled=true; setProg('goldProg',0.1);
+  $('goldStat').textContent='';
+  try{
+    
+    
+    
+    const d1 = await getXAUCandles('1d',260);  setProg('goldProg',0.35);
+    const h4 = await getXAUCandles('4h',300);  setProg('goldProg',0.6);
+    const h1 = await getXAUCandles('1h',160);  setProg('goldProg',0.75);
+    const m15= await getXAUCandles('15m',200); setProg('goldProg',0.9);
+    if (d1.length<60||h4.length<210||m15.length<40){ $('goldStat').textContent='not enough XAUTUSD history'; return; }
 
+    /* ---- levels: prior-day H/L from last CLOSED daily; Asian range 00:00–07:00 UTC today ---- */
+    const pdc = d1[d1.length-1];
+    const PDH = pdc.h, PDL = pdc.l;
+    const day0now = utcDayStart();
+    const day0 = (nowSec() < day0now+7*3600) ? day0now-86400 : day0now;
+    const asia = m15.filter(r=> r.t>=day0 && r.t<day0+7*3600);
+    const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
+    const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
+    const sess = goldSession();
+    $('goldSess').innerHTML = `session <b>${sess.name}</b>`;
+    $('goldLvl').innerHTML  = `PDH <b>${px(PDH)}</b> · PDL <b>${px(PDL)}</b> · Asia <b>${isFinite(asiaLo)?px(asiaLo):'—'}–${isFinite(asiaHi)?px(asiaHi):'—'}</b>`;
+
+    /* ---------------- SWING ledger ---------------- */
+    const c4=h4.map(r=>r.c), c1=d1.map(r=>r.c);
+    const e9=last(ema(c4,9)), e21=last(ema(c4,21)), e50=last(ema(c4,50));
+    const a4=last(atr(h4,14));
+    const e50d=last(ema(c1,50)), pd=last(c1);
+    const r4=last(rsi(c4,14));
+    const fr = null; // real spot XAUUSD has no futures funding rate
+    const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+    const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
+    const dSide = pd>e50d ? 'long' : 'short';
+    const sg=[];
+    sg.push(['GS1','4H EMA cascade with real spread (anti-chop)', casc!=='mixed'&&spreadOk?'pass':'veto',
+      `9/21/50 → ${casc.toUpperCase()} · |21−50| ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'—'}×ATR (need ≥0.25)`]);
+    sg.push(['GS2','1D side agrees (close vs 1D EMA50)', casc!=='mixed'&&casc===dSide?'pass':'veto', `1D → ${dSide.toUpperCase()}`]);
+    const rsiVeto=(casc==='long'&&r4>70)||(casc==='short'&&r4<30);
+    sg.push(['GS3','4H RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r4,1)}`]);
+    let gs4='na', gs4d='funding n/a on this feed';
+    if (fr!==null){
+      const bad = Math.abs(fr)>0.05-1e-9 || (casc==='long'&&fr>=0.04) || (casc==='short'&&fr<=-0.04);
+      gs4 = bad?'veto':'pass'; gs4d = `${fmt(fr,4)}%/interval`;
+    }
+    sg.push(['GS4','Funding clean (crowding veto)', gs4, gs4d]);
+    const r30g=roc(c1,30), r90g=roc(c1,90);
+    let gs5='na', gs5d=`30d ${pct(r30g,1)} · 90d ${pct(r90g,1)}`;
+    if (casc!=='mixed' && isFinite(r30g) && isFinite(r90g)){
+      const want=casc==='long'?1:-1;
+      const agree=(Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
+      gs5 = agree===2?'pass':agree===0?'veto':'na';
+    }
+    sg.push(['GS5','TSMOM 30/90d sign — trend persistence incl. commodities (MOP 2012)', gs5, gs5d]);
+    const evG = cusumLast(c4.slice(-120), 1);
+    let gs6='na', gs6d='no recent event';
+    if (evG && evG.barsAgo<=20 && casc!=='mixed'){
+      gs6 = evG.dir===casc?'pass':'veto';
+      gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (4H)`;
+    } else if (evG){ gs6d = `${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago (stale)`; }
+    sg.push(['GS6','CUSUM event alignment — your walk-forward\'s top feature (OOS AUC ≈0.58)', gs6, gs6d]);
+    let swingPlanHtml='', sVerdict='aside', nearMissSwing='';
+    if (casc!=='mixed'){
+      const stop=lastSwing(h4,casc,30), entry=last(c4), risk=Math.abs(entry-stop);
+      const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
+      const rrOk = risk>0 && room/risk>=2;
+      sg.push(['GS7','Structural R:R ≥ 2 (30-bar swing stop vs 120-bar room)', rrOk?'pass':'veto',
+        risk>0?`${fmt(room/risk,2)}R room · stop ${px(stop)}`:'no structure']);
+      const vet = sg.some(x=>x[2]==='veto');
+      sVerdict = vet?'aside':casc;
+      nearMissSwing = vet ? (' Nearest miss: '+sg.filter(x=>x[2]==='pass').length+'/'+sg.length+' gates cleared — blocked by '+sg.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'. Not a signal, just how close price is.') : '';
+      if(!vet){
+        const t1=casc==='long'?entry+2*risk:entry-2*risk, t2=casc==='long'?entry+3*risk:entry-3*risk;
+        logSetup(GOLD_SYM, casc, 'gold-swing', entry, stop, t1);
+        swingPlanHtml = `<div class="plan">${planBlock(casc,entry,stop,t1,t2)}</div>
+          <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${casc}',${entry},${stop})">SEND TO TRADE PLAN →</button>`;
+      }
+    } else {
+      sg.push(['GS7','Structural R:R ≥ 2','na','no direction to measure']);
+    }
+    let sEvidenceHtml = '';
+    try{
+      if (casc!=='mixed' && c4 && c4.length>=40){
+        const eeBB = bollinger(c4,20,2); const nE = c4.length;
+        const priorW = eeBB.widthPct.slice(Math.max(0,nE-50), nE-1).filter(function(v){return isFinite(v);});
+        const wAvgE = priorW.length ? priorW.reduce(function(a,b){return a+b;},0)/priorW.length : NaN;
+        const wantE = casc==='long' ? 1 : -1;
+        const bbBreakE = (wantE>0 ? c4[nE-1]>eeBB.upper[nE-1] : c4[nE-1]<eeBB.lower[nE-1]) && isFinite(wAvgE) && eeBB.widthPct[nE-2]<=wAvgE;
+        const adxE = adx(h4,14);
+        const adxAlignedE = adxE.adx[nE-1]>=20 && (wantE>0 ? adxE.plusDI[nE-1]>adxE.minusDI[nE-1] : adxE.minusDI[nE-1]>adxE.plusDI[nE-1]);
+        const srsiE = stochRsi(c4,14,14);
+        const srsiOkE = isFinite(srsiE[nE-1]) && (wantE>0 ? srsiE[nE-1]<80 : srsiE[nE-1]>20);
+        const votesE = (bbBreakE?1:0)+(adxAlignedE?1:0)+(srsiOkE?1:0);
+        const detailE = 'BB '+(bbBreakE?'breakout':'no breakout')+' · ADX '+fmt(adxE.adx[nE-1],1)+' '+(adxAlignedE?'aligned':'not aligned')+' · StochRSI '+fmt(srsiE[nE-1],0)+' '+(srsiOkE?'not exhausted':'exhausted');
+        sEvidenceHtml = '<div class="vwhy" style="margin-top:4px">Context (not a gate) — momentum evidence '+votesE+'/3 aligned with '+casc.toUpperCase()+': '+detailE+'.</div>';
+      }
+    }catch(e){}
+    $('goldSwingOut').innerHTML = `<div class="ledger">${sg.map(x=>gateRow(...x)).join('')}</div>
+      <div class="verdict ${sVerdict==='aside'?'aside':sVerdict}">
+        <div class="vword">${sVerdict==='aside'?'STAND ASIDE':sVerdict.toUpperCase()}</div>
+        <div class="vwhy">${sVerdict==='aside'
+          ?('Gold swing gates did not all clear. Remember: a clean ledger can still be invalidated by DXY strength, a real-yield spike, or an event — those are your manual checks.'+nearMissSwing)
+          :'All swing gates cleared. Verify DXY, real yields and the event calendar manually before sizing — this ledger cannot see them and will not pretend to.'}</div>
+      ${sEvidenceHtml}
+      </div>${swingPlanHtml}`;
+
+    /* ---------------- SCALP ledgers: both scenarios, judged independently ---------------- */
+    const c15=m15.map(r=>r.c), n15=c15.length;
+    const lastClose=c15[n15-1];
+    const atr15arr=atr(m15,14), a15=last(atr15arr);
+    const vbase=atr15arr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+    const aMed=vbase.length?vbase[Math.floor(vbase.length/2)]:NaN;
+    const volAlive=isFinite(a15)&&isFinite(aMed)&&a15>=0.8*aMed;
+    const e21h1=last(ema(h1.map(r=>r.c),21));
+    const look=m15.slice(-12); // last ~3h of closed 15m bars
+
+    function scalpLedger(dir){
+      const lvls = dir==='long' ? [['Asia low',asiaLo],['PDL',PDL]] : [['Asia high',asiaHi],['PDH',PDH]];
+      let swept=null, sweptLvl=NaN, ext=NaN;
+      for (const [nm,lv] of lvls){
+        if (!isFinite(lv)) continue;
+        if (dir==='long'  && Math.min(...look.map(r=>r.l)) < lv){ swept=nm; sweptLvl=lv; ext=Math.min(...look.map(r=>r.l)); break; }
+        if (dir==='short' && Math.max(...look.map(r=>r.h)) > lv){ swept=nm; sweptLvl=lv; ext=Math.max(...look.map(r=>r.h)); break; }
+      }
+      const reclaimed = swept && (dir==='long' ? lastClose>sweptLvl : lastClose<sweptLvl);
+      const htfOk = dir==='long' ? lastClose>e21h1 : lastClose<e21h1;
+      const g=[];
+      g.push(['GC1','Kill zone active (London/NY)', sess.kz?'pass':'veto', sess.name]);
+      g.push(['GC2',`Liquidity sweep of ${dir==='long'?'Asia low / PDL':'Asia high / PDH'} (last 3h)`, swept?'pass':'veto',
+        swept?`swept ${swept} ${px(sweptLvl)} · extreme ${px(ext)}`:'no sweep']);
+      g.push(['GC3','Closed 15m bar reclaimed the level', reclaimed?'pass':'veto', swept?`close ${px(lastClose)} vs ${px(sweptLvl)}`:'—']);
+      g.push(['GC4','1H context not fighting you (close vs 1H EMA21)', htfOk?'pass':'veto', `1H EMA21 ${px(e21h1)}`]);
+      g.push(['GC5','Volatility alive (15m ATR ≥ 0.8× 24h median)', volAlive?'pass':'veto', `ATR ${px(a15)} · med ${px(aMed)}`]);
+      let planHtml='';
+      if (swept && reclaimed){
+        const stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;   // beyond the sweep extreme, ATR buffer
+        const risk = Math.abs(lastClose-stop);
+        const oppoCands = (dir==='long'?[asiaHi,PDH]:[asiaLo,PDL]).filter(isFinite);
+        const oppo = oppoCands.length ? (dir==='long'?Math.min(...oppoCands):Math.max(...oppoCands)) : NaN;
+        const room = dir==='long' ? oppo-lastClose : lastClose-oppo;
+        const rrOk = risk>0 && isFinite(room) && room>=2*risk;
+        g.push(['GC6','2R fits before the opposite liquidity pool', rrOk?'pass':'veto',
+          risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'—']);
+        if (!g.some(x=>x[2]==='veto')){
+          const t1=dir==='long'?lastClose+2*risk:lastClose-2*risk;
+          logSetup(GOLD_SYM, dir, 'gold-scalp', lastClose, stop, t1);
+          planHtml=`<div class="plan">${planBlock(dir,lastClose,stop,t1,oppo)}</div>
+            <button class="toTrade" onclick="toTrade('${GOLD_SYM}','${dir}',${lastClose},${stop})">SEND TO TRADE PLAN →</button>`;
+        }
+      } else {
+        g.push(['GC6','2R fits before the opposite pool','na','needs a completed sweep + reclaim first']);
+      }
+      let cEvidenceHtml = '';
+      try{
+        const c15E = m15.map(function(r){return r.c;}); const nE2 = c15E.length;
+        if (nE2>=40){
+          const eeBB2 = bollinger(c15E,20,2);
+          const priorW2 = eeBB2.widthPct.slice(Math.max(0,nE2-50), nE2-1).filter(function(v){return isFinite(v);});
+          const wAvg2 = priorW2.length ? priorW2.reduce(function(a,b){return a+b;},0)/priorW2.length : NaN;
+          const wantE2 = dir==='long' ? 1 : -1;
+          const bbBreak2 = (wantE2>0 ? c15E[nE2-1]>eeBB2.upper[nE2-1] : c15E[nE2-1]<eeBB2.lower[nE2-1]) && isFinite(wAvg2) && eeBB2.widthPct[nE2-2]<=wAvg2;
+          const adx2 = adx(m15,14);
+          const adxAligned2 = adx2.adx[nE2-1]>=20 && (wantE2>0 ? adx2.plusDI[nE2-1]>adx2.minusDI[nE2-1] : adx2.minusDI[nE2-1]>adx2.plusDI[nE2-1]);
+          const srsi2 = stochRsi(c15E,14,14);
+          const srsiOk2 = isFinite(srsi2[nE2-1]) && (wantE2>0 ? srsi2[nE2-1]<80 : srsi2[nE2-1]>20);
+          const votes2 = (bbBreak2?1:0)+(adxAligned2?1:0)+(srsiOk2?1:0);
+          const detail2 = 'BB '+(bbBreak2?'breakout':'no breakout')+' · ADX '+fmt(adx2.adx[nE2-1],1)+' '+(adxAligned2?'aligned':'not aligned')+' · StochRSI '+fmt(srsi2[nE2-1],0)+' '+(srsiOk2?'not exhausted':'exhausted');
+          cEvidenceHtml = '<div class="vwhy" style="margin-top:2px;font-size:11px">Context (not a gate) — momentum evidence '+votes2+'/3 aligned with '+dir.toUpperCase()+': '+detail2+'.</div>';
+        }
+      }catch(e){}
+      const vet=g.some(x=>x[2]==='veto');
+    const nearMissScalp = vet ? ('<div class="vwhy">Nearest miss: '+g.filter(x=>x[2]==='pass').length+'/'+g.length+' gates cleared — blocked by '+g.filter(x=>x[2]==='veto').map(x=>x[0]).join(', ')+'.</div>') : '';
+      return `<div style="margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--${dir==='long'?'long':'short'})">${dir.toUpperCase()} SCENARIO</div>
+        <div class="ledger" style="margin-bottom:10px">${g.map(x=>gateRow(...x)).join('')}</div>
+        <div class="verdict ${vet?'aside':dir}" style="margin:0 0 16px"><div class="vword" style="font-size:16px">${vet?'NO TRADE':dir.toUpperCase()+' VALID'}${nearMissScalp}</div>${cEvidenceHtml}</div>${planHtml}`;
+    }
+    $('goldScalpOut').innerHTML = scalpLedger('long') + scalpLedger('short');
+    $('goldStat').textContent = `evaluated · closed bars only · ${S.cdcxViaProxy?'':''}${new Date().toTimeString().slice(0,5)}`;
+  }catch(e){
+    $('goldStat').textContent = 'gold eval failed: '+e.message;
+  }finally{ setProg('goldProg',null); setTimeout(()=>{ btn.disabled=false; }, 10000); }
+}
+
+/* =============================================================================
+   SETUP LOG — every CLEAN setup auto-logs; outcomes graded from candle history.
+   Conservative same-bar rule: stop and target in one bar counts as SL.
+   localStorage only; EXPORT before clearing browser data.
+   ============================================================================= */
+const LOG_KEY='hardgate_log_v1';
+function loadLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
+function saveLog(l){ try{ if (l.length>1000) l = l.slice(l.length-1000); localStorage.setItem(LOG_KEY, JSON.stringify(l)); }catch(e){} }
+function logSetup(sym,dir,kind,entry,stop,t1){
+  if (!(isFinite(entry)&&isFinite(stop)&&isFinite(t1)&&Math.abs(entry-stop)>0)) return;
+  const l=loadLog();
+  const cut=nowSec()-12*3600;
+  if (l.some(e=>e.sym===sym&&e.dir===dir&&e.kind===kind&&e.ts>cut)) return; // dedupe: same setup within 12h
+  l.push({ id:Date.now().toString(36)+Math.floor(Math.random()*1e4), ts:nowSec(), ex:S.exchange,
+           sym, dir, kind, entry, stop, t1, rr:Math.abs(t1-entry)/Math.abs(entry-stop), status:'open' });
+  saveLog(l); renderLogBadge();
+}
+async function checkOutcomes(){
+  const l=loadLog(); const btn=$('logCheck'); btn.disabled=true; $('logStat').textContent='checking…';
+  let checked=0, skipped=0;
+  for (const e of l){
+    if (e.status!=='open') continue;
+    if (e.ex!==S.exchange){ skipped++; continue; }
+    try{
+      const age = nowSec()-e.ts;
+      const res = age<2*86400 ? '15m' : age<12*86400 ? '1h' : '4h';
+      const secPer = {'15m':900,'1h':3600,'4h':14400}[res]; const maxBars = 24; const maxTimeAllowed = e.ts + (maxBars * secPer);
+      const rows = (await getCandles(e.sym,res,Math.min(300,Math.ceil(age/secPer)+5))).filter(r=>r.t>=e.ts);
+      for (const b of rows){
+        const hitSL = e.dir==='long' ? b.l<=e.stop : b.h>=e.stop;
+        const hitTP = e.dir==='long' ? b.h>=e.t1  : b.l<=e.t1; if (hitSL && hitTP && res!=='15m'){ try{ const sub = await candlesRangeRaw(e.sym, '15m', b.t, b.t+secPer); let rS=null, rT=null; for (const sb of sub){ const subSL = e.dir==='long' ? sb.l<=e.stop : sb.h>=e.stop; const subTP = e.dir==='long' ? sb.h>=e.t1 : sb.l<=e.t1; if (subSL){ rS='sl'; rT=sb.t; break; } if (subTP){ rS='tp'; rT=sb.t; break; } } if (rS){ e.status=rS; e.doneTs=rT; break; } }catch(err){} }
+        if (hitSL){ e.status='sl'; e.doneTs=b.t; break; }   // same-bar ambiguity → SL, always
+        if (hitTP){ e.status='tp'; e.doneTs=b.t; break; } if (b.t >= maxTimeAllowed && e.status==='open'){ e.status='time_stop'; e.doneTs=b.t; e.rr=-0.1; break; }
+      }
+      if (e.status==='open' && age>14*86400) e.status='exp';
+      checked++;
+    }catch(err){ /* symbol delisted or fetch failed — stays open */ }
+    await sleep(60);
+  }
+  saveLog(l); renderLog();
+  $('logStat').textContent = `checked ${checked} open${skipped?` · ${skipped} skipped (other exchange)`:''}`;
+  btn.disabled=false;
+}
+function renderLog(){
+  const l=loadLog().slice().sort((a,b)=>b.ts-a.ts);
+  const tp=l.filter(e=>e.status==='tp').length, sl=l.filter(e=>e.status==='sl').length,
+        op=l.filter(e=>e.status==='open').length, ex=l.filter(e=>e.status==='exp').length; const tsStop = l.filter(e=>e.status==='time_stop').length;
+  const closed=tp+sl;
+  const sumR=l.reduce((a,e)=> a + (e.status==='tp' ? (e.rr||2) : e.status==='sl' ? -1 : e.status==='time_stop' ? (e.rr||-0.1) : 0), 0);
+  $('logSummary').innerHTML = `logged <b>${l.length}</b> · open <b>${op}</b> · TP <b class="pos">${tp}</b> · SL <b class="neg">${sl}</b> · expired <b>${ex}</b> · time-stop <b>${tsStop}</b> · hit rate <b>${closed?fmt(tp/closed*100,1)+'%':'—'}</b> · ΣR <b class="${sumR>=0?'pos':'neg'}">${fmt(sumR,2)}R</b>${closed>0&&closed<30?' · <span style="color:var(--gold)">n='+closed+' closed — far too small to call an edge</span>':''}`;
+  $('logTable').innerHTML = l.length ? `<table><tr><th>time IST</th><th>sym</th><th>kind</th><th>dir</th><th>entry</th><th>stop</th><th>T1</th><th>R:R</th><th>status</th></tr>${
+    l.map(e=>{
+      const d=new Date((e.ts+19800)*1000).toISOString().slice(5,16).replace('T',' ');
+      const st=e.status==='tp'?'<b class="pos">TP</b>':e.status==='sl'?'<b class="neg">SL</b>':e.status==='exp'?'<span style="color:var(--dim)">EXP</span>':e.status==='time_stop'?'<span style="color:var(--dim)">TIME_STOP</span>':'open';
+      return `<tr><td>${d}</td><td>${e.sym}</td><td>${e.kind}</td><td>${e.dir.toUpperCase()}</td><td>${px(e.entry)}</td><td>${px(e.stop)}</td><td>${px(e.t1)}</td><td>${fmt(e.rr,2)}</td><td>${st}</td></tr>`;
+    }).join('')}</table>` : '<div class="empty">Nothing logged yet. Run any scan — every CLEAN setup lands here automatically.</div>';
+}
+function exportLog(){
+  const blob=new Blob([JSON.stringify(loadLog(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='hardgate-log.json'; a.click();
+}
+function clearLog(){ if (confirm('Delete the entire setup log? Export first if you care about the sample.')){ saveLog([]); renderLog(); renderLogBadge(); } }
+function renderLogBadge(){ const b=$('tabB_log'); if(b){ const n=loadLog().length; b.textContent = n?`LOG (${n})`:'LOG'; } }
+
+/* =============================================================================
+   BEST — all hard gates first (binary ticket), then rank CLEAN survivors by a
+   visible tally of independent aligned confirmations. Never a weighted score.
+   ============================================================================= */
+async function runCascadeCore(uni){
+  const clean=[];
+    let breadthBull=0, breadthTotal=0;
+    const CHUNK1_SIZE=5;
+    for (let ci=0; ci<uni.length; ci+=CHUNK1_SIZE){
+      const chunk = uni.slice(ci, ci+CHUNK1_SIZE);
+      await Promise.all(chunk.map(async function(t, idxInChunk){
+      const i = ci+idxInChunk; setProg('bestProg',(i+1)/uni.length*0.65);
+      $('bestStat').textContent=`gates ${i+1}/${uni.length} · ${t.symbol}`;
+      try{
+        const rows=await getCandles(t.symbol,'4h',260);
+        if (rows.length<210) return;
+        const c=rows.map(r=>r.c);
+        const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
+        const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20), a4=last(atr(rows,14));
+      if (isFinite(e200)){ breadthTotal++; if (p>e200) breadthBull++; }
+        let dir=null;
+        if (e9>e21&&e21>e50) dir='long'; else if (e9<e21&&e21<e50) dir='short';
+        if (!dir) return;
+        if (!(isFinite(a4)&&Math.abs(e21-e50)>=0.25*a4)) return;
+        if (dir==='long' ? !(p>e200) : !(p<e200)) return;
+        if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)) return;
+        const fr=t.fundingPct;
+        if (fr!==null){
+          if (Math.abs(fr)>0.05-1e-9) return;
+          if ((dir==='long'&&fr>=0.04)||(dir==='short'&&fr<=-0.04)) return;
+        }
+        if (!(vz > 0.5)) return; const currentBar = rows[rows.length-1]; const range = currentBar.h - currentBar.l; const closePos = range > 0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir === 'long' && closePos < 0.60) return; if (dir === 'short' && closePos > 0.40) return;
+        const stop=lastSwing(rows,dir,30); const distToAnchor = Math.abs(p - e21) / a4; if (!(isFinite(distToAnchor) && distToAnchor <= 1.5)) return; let plannedEntry = p, entryType = 'MARKET'; const distToFast = Math.abs(p - e9) / a4; if (distToFast > 0.25){ plannedEntry = dir === 'long' ? Math.min(p, e9) : Math.max(p, e9); entryType = 'LIMIT @ EMA9'; } const entry = plannedEntry, risk=Math.abs(entry-stop);
+if (!(risk>0)) return;
+const expectedMove = a4 * 3.5; const maxExcursion = a4 * 4.9; const t1 = dir==='long' ? entry+expectedMove : entry-expectedMove; const t2 = dir==='long' ? entry+maxExcursion : entry-maxExcursion; const rr = expectedMove/risk; if (!(rr>=2)) return; const ev = cusumLast(c.slice(-120),1); if (ev && ev.barsAgo<=20 && ev.dir!==dir) return; clean.push({t,dir,rows,entry,entryType,distToAnchor,stop,risk,rr,t1,t2,vz,fr,ev});
+      }catch(e){}
+      }));
+      await sleep(60);
+    }
+    
+    /* Evidence FAMILIES for survivors — independence over count.
+       Correlated indicators are grouped; each family yields at most ONE point,
+       and the TREND family needs a 2-of-3 internal majority. This is the fix
+       for triple-counting one fact (TSMOM, 1D side and CUSUM all measure trend).
+       Plus two robustness checks: cross-timeframe stability and persistence. */
+    for (let i=0;i<clean.length;i++){
+      const s=clean[i]; setProg('bestProg',0.65+((i+1)/clean.length)*0.3);
+      $('bestStat').textContent=`evidence ${i+1}/${clean.length} · ${s.t.symbol}`;
+      const want=s.dir==='long'?1:-1;
+      /* F1 TREND — members: TSMOM(MOP 2012), 1D side, CUSUM(your OOS top feature). Majority 2/3. */
+      let mTs=false, mD1=false, tsD='1D fetch failed', d1D='1D fetch failed';
+      try{
+        const d1=await getCandles(s.t.symbol,'1d',120); const c1=d1.map(r=>r.c);
+        const r30=roc(c1,30), r90=roc(c1,90);
+        mTs = isFinite(r30)&&isFinite(r90)&&Math.sign(r30)===want&&Math.sign(r90)===want;
+        tsD = `30d ${pct(r30,1)} · 90d ${pct(r90,1)}`;
+        const e50d=last(ema(c1,50));
+        mD1 = c1.length>=60 && (s.dir==='long'?last(c1)>e50d:last(c1)<e50d);
+        d1D = `1D EMA50 ${px(e50d)}`;
+      }catch(e){}
+      const mCu = !!(s.ev&&s.ev.barsAgo<=20&&s.ev.dir===s.dir);
+      const trendVotes=(mTs?1:0)+(mD1?1:0)+(mCu?1:0);
+      const f1 = trendVotes>=2;
+      /* F2 POSITIONING — funding tailwind: the crowd pays you to hold. */
+      const f2 = s.fr!==null && (s.dir==='long'?s.fr<0:s.fr>0);
+      /* F3 PARTICIPATION — strong volume expansion. */
+      let vwapOk=false, vwapDetail='n/a';
+      try{
+        const dv = vwapDev(s.rows,20);
+        if (isFinite(dv)){ vwapOk = want>0 ? dv>0 : dv<0; vwapDetail = fmt(dv,2)+'% vs 20-bar VWAP'; }
+      }catch(e){}
+      const f3 = s.vz>1.0 || vwapOk;
+      /* F4 STRUCTURE — breakout location (Donchian-20, Turtle) or extra room (R:R≥3). */
+      const d20 = s.dir==='long' ? Math.max(...s.rows.slice(-20).map(r=>r.h)) : Math.min(...s.rows.slice(-20).map(r=>r.l));
+      const mDc = Math.abs(s.entry-d20)/s.entry<=0.015, mRr=s.rr>=3;
+      const f4 = mDc||mRr;
+      /* F5 VOLATILITY/MOMENTUM — members: Bollinger(20,2) squeeze-to-breakout, ADX(14) trend
+         strength+direction, StochRSI(14) not-exhausted. Majority 2/3 — grouped as one family
+         because all three measure the same underlying fact: is momentum expanding in your
+         favor right now, not three independent facts. No claim of profitability; this only
+         changes which of the already-gated survivors gets ranked first. */
+      let f5=false, f5Detail='insufficient history';
+      try{
+        const closesX = s.rows.map(function(r){return r.c;}); const nX = closesX.length;
+        if (nX>=40){
+          const bbX = bollinger(closesX,20,2);
+          const priorWidths = bbX.widthPct.slice(Math.max(0,nX-50), nX-1).filter(function(v){return isFinite(v);});
+          const wAvg = priorWidths.length ? priorWidths.reduce(function(a,b){return a+b;},0)/priorWidths.length : NaN;
+          const bbBreak = (want>0 ? closesX[nX-1]>bbX.upper[nX-1] : closesX[nX-1]<bbX.lower[nX-1]) && isFinite(wAvg) && bbX.widthPct[nX-2]<=wAvg;
+          const adxX = adx(s.rows,14);
+          const adxAligned = adxX.adx[nX-1]>=20 && (want>0 ? adxX.plusDI[nX-1]>adxX.minusDI[nX-1] : adxX.minusDI[nX-1]>adxX.plusDI[nX-1]);
+          const srsiX = stochRsi(closesX,14,14);
+          const srsiOk = isFinite(srsiX[nX-1]) && (want>0 ? srsiX[nX-1]<80 : srsiX[nX-1]>20);
+          const votes5 = (bbBreak?1:0)+(adxAligned?1:0)+(srsiOk?1:0);
+          f5 = votes5>=2;
+          f5Detail = 'BB '+(bbBreak?'breakout':'no breakout')+' · ADX '+fmt(adxX.adx[nX-1],1)+' '+(adxAligned?'aligned':'not aligned')+' · StochRSI '+fmt(srsiX[nX-1],0)+' '+(srsiOk?'not exhausted':'exhausted');
+        }
+      }catch(e){}
+      /* R1 ROBUSTNESS — cascade must also hold on 2H: a signal living at exactly
+         one timeframe is a curve-fit artifact, not a trend. */
+      let r1=false, r1D='2H fetch failed';
+      try{
+        const h2=await getCandles(s.t.symbol,'2h',160); const c2=h2.map(r=>r.c);
+        const a9=last(ema(c2,9)), a21=last(ema(c2,21)), a50=last(ema(c2,50));
+        r1 = s.dir==='long' ? (a9>a21&&a21>a50) : (a9<a21&&a21<a50);
+        r1D = `2H EMA9/21/50 ${r1?'aligned':'NOT aligned'}`;
+      }catch(e){}
+      /* R2 ROBUSTNESS — persistence: cascade held ≥3 consecutive closed 4H bars. */
+      const age = cascadeAge(s.rows.map(r=>r.c), s.dir);
+      const r2 = age>=3;
+      s.fam=[
+['G0','Anti-Chase Guard — price to EMA21 distance', true, `${fmt(s.distToAnchor,2)} ATR (limit ≤ 1.5, entry: ${s.entryType})`],
+        ['F1','TREND family — 2-of-3 majority: TSMOM · 1D side · CUSUM', f1,
+          `${trendVotes}/3 → TSMOM ${mTs?'✓':'✗'} (${tsD}) · 1D ${mD1?'✓':'✗'} · CUSUM ${mCu?'✓':'✗'}${s.ev?` (${s.ev.dir.toUpperCase()} ${s.ev.barsAgo} bars ago)`:''}`],
+        ['F2','POSITIONING family — funding tailwind (crowd pays you)', f2, s.fr!==null?`${fmt(s.fr,4)}%/interval`:'n/a'],
+        ['F3','PARTICIPATION family — volume z > 1.0 or VWAP side', f3, `z ${fmt(s.vz,2)} · ${vwapDetail}`],
+        ['F4','STRUCTURE family — Donchian-20 breakout zone or R:R ≥ 3', f4, `Donchian ${mDc?'✓':'✗'} (${px(d20)}) · R:R ${mRr?'✓':'✗'} (${fmt(s.rr,2)}R)`],
+        ['F5','VOLATILITY/MOMENTUM family — 2-of-3 majority: Bollinger breakout · ADX trend+direction · StochRSI not-exhausted', f5, f5Detail],
+        ['R1','ROBUSTNESS — cascade also holds on 2H (anti curve-fit)', r1, r1D],
+        ['R2','ROBUSTNESS — cascade age ≥3 closed 4H bars (anti flicker)', r2, `${age} bars`],
+      ];
+      s.famScore=(f1?1:0)+(f2?1:0)+(f3?1:0)+(f4?1:0)+(f5?1:0);
+      s.robScore=(r1?1:0)+(r2?1:0);
+      await sleep(60);
+    }
+    clean.sort((a,b)=> b.famScore-a.famScore || b.robScore-a.robScore || b.rr-a.rr);
+  return {clean, breadth:{bull:breadthBull, total:breadthTotal}};
+}
+
+async function runBest(){
+  const btn=$('bestRun'); btn.disabled=true; setProg('bestProg',0.05);
+  const out=$('bestOut'); out.innerHTML=''; $('bestStat').textContent='';
+  try{
+    const scanAll = $('bestAll').checked;
+    const N = Math.max(5, Math.min(500, +$('bestN').value||30)); if (!S.tickers.length) S.tickers=await getTickers(); 
+    if (!S.tickers.length) S.tickers=await getTickers();
+    let uni = S.exchange==='delta'
+      ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
+      : S.tickers.slice();
+    if (!scanAll) uni = uni.slice(0,N);
+    const exLabel = S.exchange==='delta'?'Delta India':'CoinDCX';
+    const universeLabel = scanAll ? `whole ${exLabel} futures universe` : `top ${N} by turnover`;
+    const {clean, breadth} = await runCascadeCore(uni);
+    if (!clean.length){
+      out.innerHTML=`<div class="empty"><b>WAIT.</b> Nothing passed all seven hard gates across the ${universeLabel}. The best available trade right now is no trade — that verdict is the product working, not failing.</div>`;
+      return;
+    }
+    const w=clean[0];
+    const breadthPct = breadth.total>=10 ? (breadth.bull/breadth.total*100) : 50;
+    const regimeDir = breadth.total>=10 ? (breadthPct<=20?'bear':(breadthPct>=80?'bull':null)) : null;
+    if (regimeDir && ((regimeDir==='bear' && w.dir==='long') || (regimeDir==='bull' && w.dir==='short'))){
+      $('bestStat').textContent = 'master veto: regime unsafe';
+      out.innerHTML = `<div class="empty"><b style="color:var(--veto)">MASTER VETO: STAND ASIDE</b><br><br>Market breadth only ${fmt(breadthPct,0)}% bullish (${breadth.bull}/${breadth.total} coins above 200-EMA on 4H) — ${regimeDir} regime, ${w.dir} setups here are ${regimeDir==='bear'?'catching falling knives':'fighting a screaming uptrend'}. Scanning canceled to protect capital.</div>`;
+      return;
+    }
+    const t1=w.t1; const t2=w.t2;
+    logSetup(w.t.symbol,w.dir,'best',w.entry,w.stop,t1);
+    const others = clean.slice(1,6).map(s=>`${s.t.symbol} ${s.dir.toUpperCase()} — ${s.famScore}/5 families · ${s.robScore}/2 robustness · ${fmt(s.rr,2)}R`).join('<br>') || 'none';
+    out.innerHTML = `
+      <div class="panel">
+        <h2>${w.t.symbol} <span>${w.dir.toUpperCase()} · ${w.entryType} · mark ${px(w.t.mark||w.entry)} · all 7 hard gates PASSED (ticket in — not part of the ranking)</span></h2>
+        <div class="ledger">${w.fam.map(x=>gateRow(x[0], x[1], x[2]?'pass':'na', x[3])).join('')}</div>
+        <div class="verdict ${w.dir}">
+          <div class="vword">${w.dir.toUpperCase()} · ${w.famScore}/5 FAMILIES · ${w.robScore}/2 ROBUST</div>
+          <div class="vwhy">Execution: ${w.entryType}. Ranked #1 of ${clean.length} CLEAN setups by independent evidence families, then robustness, then structural R:R. Families cannot be inflated by correlated indicators — trend counts once no matter how many trend indicators agree. 4/4 + 2/2 is the strongest evidence this framework can honestly claim, and it is still not a promise. Logged to LOG automatically.</div>
+        </div>
+        <div class="plan">${planBlock(w.dir,w.entry,w.stop,t1,t2)}</div><div class="note" style="margin-top:8px">Nearest OB: <b>${nearestOBText(w.rows,w.dir)}</b> · Liquidity Target: <b>${liquidityTargetText(w.rows,w.dir)}</b></div>
+        <button class="toTrade" onclick="toTrade('${w.t.symbol}','${w.dir}',${w.entry},${w.stop},${t1})">SEND TO TRADE PLAN →</button>
+        <hr class="sep">
+        <div class="note"><b>Runners-up (also CLEAN):</b><br>${others}</div>
+      </div>`;
+    $('bestStat').textContent=`done · ${clean.length} CLEAN of ${uni.length} scanned (${universeLabel})`;
+  }catch(e){ out.innerHTML=`<div class="empty">best scan failed: ${e.message}</div>`; }
+  finally{ setProg('bestProg',null); btn.disabled=false; }
+}
+
+async function silentBestScan(exchangeArg){
+  const prevExchange = S.exchange;
+  const prevTickers = S.tickers;
+  S.exchange = exchangeArg;
+  S.tickers = [];
+  try{
+    const scanAll = true;
+    const N = 999999;
+    if (!S.tickers.length) S.tickers=await getTickers();
+    let uni = S.exchange==='delta'
+      ? S.tickers.filter(t=> scanAll ? true : t.turnoverUsd>=200000).sort((a,b)=>b.turnoverUsd-a.turnoverUsd)
+      : S.tickers.slice();
+    if (!scanAll) uni = uni.slice(0,N);
+    const universeLabel = scanAll ? `whole ${S.exchange==='delta'?'Delta India':'CoinDCX'} futures universe` : `top ${N} by turnover`;
+    const {clean} = await runCascadeCore(uni);
+    return clean;
+  }catch(e){ return []; }
+  finally{ S.exchange = prevExchange; S.tickers = prevTickers; }
+}
+
+function isManualScanBusy(){
+  const ids = ['bestRun','swingRun','scalpRun','goldRun','smcRun','obRun','coilRun','apexRun','trapRun','biasRun','divRun','expRun','basisRun'];
+  return ids.some(function(id){ const el = document.getElementById(id); return el && el.disabled; });
+}
+
+function updateAlertChip(){
+  const el = document.getElementById('alertState');
+  if (el) el.textContent = S.alertsOn ? 'ON' : 'OFF';
+}
 
 async function sendAlertEmail(w, exchange){
   const t1 = w.dir==='long' ? w.entry+2*w.risk : w.entry-2*w.risk;
@@ -1103,9 +1954,49 @@ async function sendAlertEmail(w, exchange){
   }catch(e){ console.error('HARDGATE alert email failed', e); }
 }
 
+async function runAlertCycle(){
+  if (S.alertBusy) return;
+  if (isManualScanBusy()) return;
+  S.alertBusy = true;
+  try{
+    const exchanges = ['delta','coindcx'];
+    for (const ex of exchanges){
+      try{
+        const clean = await silentBestScan(ex);
+        const w = clean && clean.length ? clean[0] : null;
+        const key = w ? (w.t.symbol + '|' + w.dir) : null;
+        if (key && key !== S.lastAlertKey[ex]){
+          await sendAlertEmail(w, ex);
+          S.lastAlertKey[ex] = key;
+        } else if (!key){
+          S.lastAlertKey[ex] = null;
+        }
+      }catch(e){ console.error('HARDGATE alert cycle error for', ex, e); }
+    }
+    S.lastAlertCheck = Date.now();
+  } finally {
+    S.alertBusy = false;
+  }
+}
+
+function toggleAlerts(){
+  S.alertsOn = !S.alertsOn;
+  try{ localStorage.setItem('hg_alerts_on', S.alertsOn ? '1':'0'); }catch(e){}
+  updateAlertChip();
+  if (S.alertsOn){
+    runAlertCycle();
+    S.alertTimer = setInterval(runAlertCycle, 15*60*1000);
+  } else {
+    if (S.alertTimer) clearInterval(S.alertTimer);
+    S.alertTimer = null;
+  }
+}
 
 
 let S_SEARCH_CACHE = null;
+function searchBase(sym, ex){
+  return ex==='delta' ? sym.replace(/USD$/,'') : sym.replace(/^B-/,'').replace(/_USDT$/,'');
+}
 
 async function getCryptoCandlesTD(base, res, count){
  trackCall('td');
@@ -1129,14 +2020,82 @@ rows = dropForming(rows, res);
 S.candleCache[key] = { rows: rows, at: nowSec() };
 return rows;
 }
+function backtestSwingTD(rows){
+const lastv = function(a){ return a[a.length-1]; };
+const MIN_LOOKBACK = 210, HORIZON = 120;
+const results = [];
+let i = MIN_LOOKBACK;
+while (i < rows.length - 1){
+const win = rows.slice(0, i+1);
+const c = win.map(function(r){ return r.c; });
+const e9=lastv(ema(c,9)), e21=lastv(ema(c,21)), e50=lastv(ema(c,50)), e200=lastv(ema(c,200));
+const p=lastv(c), r14=lastv(rsi(c,14));
+let dir=null;
+if (e9>e21 && e21>e50) dir='long'; else if (e9<e21 && e21<e50) dir='short';
+if (!dir){ i++; continue; }
+const a4=lastv(atr(win,14));
+if (!(isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4)){ i++; continue; }
+if (dir==='long' ? !(p>e200) : !(p<e200)){ i++; continue; }
+if ((dir==='long'&&r14>70)||(dir==='short'&&r14<30)){ i++; continue; }
+const currentBar=win[win.length-1]; const range=currentBar.h - currentBar.l; const closePos=range>0 ? (currentBar.c - currentBar.l) / range : 0.5; if (dir==='long' && closePos<0.60){ i++; continue; } if (dir==='short' && closePos>0.40){ i++; continue; }
+const stop = lastSwing(win, dir, 30);
+const entry = p;
+const risk = Math.abs(entry-stop);
+if (!(risk>0)){ i++; continue; }
+const ev = cusumLast(c.slice(-120), 1);
+if (ev && ev.barsAgo<=20 && ev.dir!==dir){ i++; continue; }
+const expectedMove = a4*3.5;
+const maxExcursion = a4*4.9;
+const dynamicRR = expectedMove/risk;
+if (!(dynamicRR>=2)){ i++; continue; }
+const t1 = dir==='long'? entry+expectedMove : entry-expectedMove;
+const t2 = dir==='long'? entry+maxExcursion : entry-maxExcursion;
+let outcome='unresolved', resolvedAt=null, rMult=0;
+for (let j=i+1; j<Math.min(rows.length, i+1+HORIZON); j++){
+const bar = rows[j];
+if (dir==='long'){
+if (bar.l<=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+if (bar.h>=t2){ outcome='target2'; resolvedAt=j; rMult=3; break; }
+if (bar.h>=t1){ outcome='target1'; resolvedAt=j; rMult=2; break; }
+} else {
+if (bar.h>=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+if (bar.l<=t2){ outcome='target2'; resolvedAt=j; rMult=3; break; }
+if (bar.l<=t1){ outcome='target1'; resolvedAt=j; rMult=2; break; }
+}
+}
+results.push({ t: rows[i].t, dir: dir, entry: entry, stop: stop, t1: t1, t2: t2, outcome: outcome, rMult: rMult });
+i = (resolvedAt!==null ? resolvedAt : i+HORIZON) + 1;
+}
+return results;
+}
+function backtestSummaryHTML(base, rows, results){
+const fmtD = function(t){ return new Date(t*1000).toISOString().slice(0,10); };
+const total = results.length;
+const wins = results.filter(function(r){ return r.outcome==='target1'||r.outcome==='target2'; }).length;
+const stops = results.filter(function(r){ return r.outcome==='stop'; }).length;
+const openCt = results.filter(function(r){ return r.outcome==='unresolved'; }).length;
+const resolved = results.filter(function(r){ return r.outcome!=='unresolved'; });
+const winRate = total ? (wins/total*100) : NaN;
+const avgR = resolved.length ? (resolved.reduce(function(a,r){return a+r.rMult;},0)/resolved.length) : NaN;
+const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
+const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) — treat as directional evidence, not a reliable win rate.</div>' : '';
+return '<div class="panel"><h2>'+base+' BACKTEST <span>4H swing gates on Twelve Data history · '+rangeNote+'</span></h2>'
++ '<div class="note">Replays this app\'s own SWING gates (cascade+spread, HTF side, RSI band, structural R:R≥ 2, CUSUM) bar-by-bar on real historical price data. Funding-rate and volume gates are NOT included — Twelve Data does not provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here. This is a frequency count of what already happened, not a prediction or guarantee.</div>'
++ '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
++ '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
++ '<div class="kv"><span class="k">Hit stop first</span><span class="v">'+stops+'</span></div>'
++ '<div class="kv"><span class="k">Still open at horizon end</span><span class="v">'+openCt+'</span></div>'
++ '<div class="kv"><span class="k">Avg R (resolved trades)</span><span class="v">'+(isFinite(avgR)?avgR.toFixed(2)+'R':'n/a')+'</span></div>'
++ smallNote + '</div>';
+}
 async function runCryptoBacktest(base, btnId, outId){
 const btn = $(btnId), out = $(outId);
 if (!btn || !out) return;
-btn.disabled = true; btn.textContent = 'RUNNING\u2026';
+btn.disabled = true; btn.textContent = 'RUNNING…';
 out.innerHTML = '';
 try{
 const rows = await getCryptoCandlesTD(base, '4h', 5000);
-if (rows.length < 220){ out.innerHTML = '<div class="note warn">Twelve Data only has '+rows.length+' 4H bars for '+base+' \u2014 not enough history for a meaningful backtest.</div>'; return; }
+if (rows.length < 220){ out.innerHTML = '<div class="note warn">Twelve Data only has '+rows.length+' 4H bars for '+base+' — not enough history for a meaningful backtest.</div>'; return; }
 const results = backtestSwingTD(rows);
 out.innerHTML = backtestSummaryHTML(base, rows, results);
 } catch(e){
@@ -1146,6 +2105,62 @@ btn.textContent = 'BACKTEST'; setTimeout(()=>{ btn.disabled = false; }, 5000);
 }
 }
 
+function searchRow(ex, sym, price, chg, funding, turnover){
+  const bits=[];
+  bits.push(isFinite(price)&&price!=null ? px(price) : 'n/a');
+  if (chg!=null && isFinite(chg)) bits.push('24h '+pct(chg,2));
+  if (funding!=null && isFinite(funding)) bits.push('funding '+pct(funding,4));
+  if (turnover!=null && isFinite(turnover) && turnover>0) bits.push('turnover $'+fmt(turnover,0));
+  return '<div class="lrow"><span class="gid">'+(ex==='delta'?'DELTA':'CDCX')+'</span><span class="gname">'+sym+'</span><span class="gdetail">'+bits.join(' \u00b7 ')+'</span><span class="stamp na">'+(ex==='delta'?'Delta India':'CoinDCX')+'</span></div>';
+}
+async function runSearch(){
+  const btn=$('searchRun'); btn.disabled=true; setProg('searchProg',0.08);
+  const out=$('searchOut'); $('searchStat').textContent='';
+  try{
+    const raw=($('searchQ').value||'').trim().toUpperCase();
+    if (!raw){ $('searchStat').textContent='type a coin symbol first'; setProg('searchProg',null); btn.disabled=false; return; }
+    if (!S_SEARCH_CACHE || (nowSec()-S_SEARCH_CACHE.at)>60){
+      $('searchStat').textContent='loading Delta India + CoinDCX symbol lists\u2026';
+      const res = await Promise.all([ loadTickersDelta().catch(()=>[]), loadTickersCdcx().catch(()=>[]) ]);
+      S_SEARCH_CACHE = {at:nowSec(), delta:res[0], cdcx:res[1]};
+    }
+    setProg('searchProg',0.35);
+    const dHits = S_SEARCH_CACHE.delta.filter(x=> searchBase(x.symbol,'delta').includes(raw) || x.symbol.includes(raw));
+    const cHits = S_SEARCH_CACHE.cdcx.filter(x=> searchBase(x.symbol,'cdcx').includes(raw) || x.symbol.includes(raw));
+    if (!dHits.length && !cHits.length){
+      out.innerHTML = '<div class="empty">No match for &quot;'+raw+'&quot; on either exchange\'s perpetual futures list.</div>';
+      $('searchStat').textContent='0 matches';
+      return;
+    }
+    setProg('searchProg',0.55);
+    const cCap = cHits.slice(0,15);
+    const cPrices={};
+    for (let i=0;i<cCap.length;i++){
+      const sym=cCap[i].symbol;
+      try{ const rows=await candlesCdcx(sym,'15m',3); cPrices[sym]= rows.length? rows[rows.length-1].c : null; }
+      catch(e){ cPrices[sym]=null; }
+      setProg('searchProg', 0.55 + (i+1)/Math.max(1,cCap.length)*0.4);
+    }
+    const rowsHtml=[];
+    dHits.forEach(t=> rowsHtml.push(searchRow('delta', t.symbol, t.mark, t.chg24, t.fundingPct, t.turnoverUsd)));
+    cCap.forEach(t=> rowsHtml.push(searchRow('cdcx', t.symbol, cPrices[t.symbol], null, null, null)));
+    let moreNote='';
+    if (cHits.length>cCap.length) moreNote = '<div class="note">+'+(cHits.length-cCap.length)+' more CoinDCX matches \u2014 narrow your search to see prices for all of them.</div>';
+    
+const uniqBases = Array.from(new Set(dHits.map(function(t){ return searchBase(t.symbol,'delta'); }).concat(cHits.map(function(t){ return searchBase(t.symbol,'cdcx'); }))));
+const idSafe = raw.replace(/[^A-Z0-9]/g,'_');
+const btHtml = uniqBases.map(function(b,idx){
+const btnId='btBtn_'+idSafe+'_'+idx, outId='btOut_'+idSafe+'_'+idx;
+return '<div class="lrow"><span class="gid">TD</span><span class="gname">'+b+'</span><span class="gdetail">Historical swing-gate backtest via Twelve Data (separate feed, on demand)</span><button id="'+btnId+'" onclick="runCryptoBacktest(\''+b+'\',\''+btnId+'\',\''+outId+'\')" style="padding:4px 10px;font-size:11px;background:transparent;border:1px solid var(--line);color:var(--gold);border-radius:4px">BACKTEST</button></div><div id="'+outId+'"></div>';
+}).join('');
+out.innerHTML = '<div class="panel"><h2>'+raw+' <span>'+dHits.length+' Delta India match'+(dHits.length===1?'':'es')+' \u00b7 '+cHits.length+' CoinDCX match'+(cHits.length===1?'':'es')+'</span></h2><div class="ledger">'+rowsHtml.join('')+'</div>'+moreNote+btHtml+'</div>';
+    $('searchStat').textContent=(dHits.length+cHits.length)+' total matches';
+  } catch(e){
+    $('searchStat').textContent = 'search failed: '+((e&&e.message)||e);
+  } finally {
+    btn.disabled=false; setProg('searchProg',1); setTimeout(()=>setProg('searchProg',null),400);
+  }
+}
 
 function initAlerts(){
   try{ emailjs.init({publicKey:'TrHdawQ8xirRSOZps'}); }catch(e){}
@@ -1161,6 +2176,63 @@ function initAlerts(){
 }
 
 
+/* ---------------- dev-only self-tests (console: runSelfTests()) ----------------
+   Lightweight fixture checks for the gate logic most prone to silent regressions.
+   Not a full test suite — pins the closePos/sweep formulas and exercises the
+   real cusumLast() directly so future edits to these can't silently flip a sign
+   or break a divide-by-zero guard without a visible console failure. */
+function runSelfTests(){
+  const results = [];
+  function assert(name, cond, detail){ results.push({name:name, pass:!!cond, detail:detail||''}); }
+
+  (function(){
+    function closePosOf(bar){ const range = bar.h - bar.l; return range>0 ? (bar.c - bar.l)/range : 0.5; }
+    const strong = {h:110,l:100,c:109};
+    const weak = {h:110,l:100,c:101};
+    const flatBar = {h:100,l:100,c:100};
+    assert('closePos: strong bullish close ~0.9', Math.abs(closePosOf(strong)-0.9)<1e-9, closePosOf(strong));
+    assert('closePos: weak close ~0.1', Math.abs(closePosOf(weak)-0.1)<1e-9, closePosOf(weak));
+    assert('closePos: zero-range bar defaults to 0.5 (no div/0)', closePosOf(flatBar)===0.5, closePosOf(flatBar));
+    assert('closePos gate: long passes on strong close (>=0.60)', closePosOf(strong)>=0.60, '');
+    assert('closePos gate: long vetoes weak close (<0.60)', !(closePosOf(weak)>=0.60), '');
+    assert('closePos gate: short passes on weak close (<=0.40)', closePosOf(weak)<=0.40, '');
+  })();
+
+  (function(){
+    function sweepOf(vals, dir, n){
+      const priorWin = vals.slice(n-24, n-7);
+      const localLow = Math.min.apply(null, priorWin);
+      const localHigh = Math.max.apply(null, priorWin);
+      const recent = vals.slice(n-7, n-1);
+      return dir==='long' ? Math.min.apply(null, recent) < localLow : Math.max.apply(null, recent) > localHigh;
+    }
+    const flat = new Array(24).fill(100);
+    const swept = flat.concat([100,100,100,100,95,100]); // undercut sits inside the 6-bar recent window, not at the very last (excluded) bar
+    const notSwept = new Array(23).fill(100).concat(new Array(7).fill(102)); // last 6 bars (recent window) are entirely above the lookback low
+    assert('sweep: detected when recent extreme undercuts prior range', sweepOf(swept,'long',swept.length), '');
+    assert('sweep: no false-positive when nothing undercuts the range', !sweepOf(notSwept,'long',notSwept.length), '');
+  })();
+
+  (function(){
+    let p = 100; const up = [];
+    for (let i=0;i<60;i++){ p *= 1.01; up.push(p); }
+    const evUp = cusumLast(up, 1);
+    assert('cusumLast: sustained uptrend yields a long event', !!(evUp && evUp.dir==='long'), JSON.stringify(evUp));
+
+    p = 100; const down = [];
+    for (let i=0;i<60;i++){ p *= 0.99; down.push(p); }
+    const evDown = cusumLast(down, 1);
+    assert('cusumLast: sustained downtrend yields a short event', !!(evDown && evDown.dir==='short'), JSON.stringify(evDown));
+
+    const flatSeries = new Array(60).fill(100);
+    const evFlat = cusumLast(flatSeries, 1);
+    assert('cusumLast: flat series does not throw (div/0 guard holds)', evFlat===null || typeof evFlat==='object', JSON.stringify(evFlat));
+  })();
+
+  const pass = results.filter(function(r){ return r.pass; }).length;
+  console.log('HARDGATE self-tests: '+pass+'/'+results.length+' passed', results);
+  return { pass:pass, total:results.length, results:results };
+}
 
 /* ---------------- init ---------------- */
 tickClock(); loadMacro(); setExchange('delta'); renderBiasChips(); renderLog(); renderLogBadge(); initDeltaWS();
@@ -1173,12 +2245,540 @@ setInterval(loadMacro, 10*60*1000);
 FIND TRADE tab + SCALP/GOLD Twelve Data backtests + Judas Sweep + Hard Refresh
 + Market Picture -- added 2026-07-13
 ========================================================================= */
+function fundingMinsAt(tSec){
+  const d = new Date(tSec*1000);
+  const secIn8h = (d.getUTCHours()%8)*3600 + d.getUTCMinutes()*60 + d.getUTCSeconds();
+  return (8*3600 - secIn8h)/60;
+}
 
+function dayStartOf(tSec){
+  const d = new Date(tSec*1000);
+  return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())/1000);
+}
 
+function sessionAt(tSec){
+  const d = new Date(tSec*1000);
+  const h = d.getUTCHours() + d.getUTCMinutes()/60;
+  if (h>=7 && h<10) return {name:'LONDON KZ', kz:true};
+  if (h>=12 && h<15) return {name:'NY KZ', kz:true};
+  if (h>=0 && h<7) return {name:'ASIA (range builds)', kz:false};
+  return {name:'OFF-SESSION', kz:false};
+}
 
+function judasSweepCheck(dir, d1rows, h1rows, m15rows){
+  const pdc = d1rows[d1rows.length-1];
+  const PDH = pdc.h, PDL = pdc.l;
+  const nowT = m15rows[m15rows.length-1].t;
+  const day0now = dayStartOf(nowT);
+  const day0 = (nowT < day0now+7*3600) ? day0now-86400 : day0now;
+  const asia = m15rows.filter(r=> r.t>=day0 && r.t<day0+7*3600);
+  const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
+  const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
+  const sess = sessionAt(nowT);
+  const c15 = m15rows.map(r=>r.c), n15 = c15.length;
+  const lastClose = c15[n15-1];
+  const atr15arr = atr(m15rows,14), a15 = atr15arr[atr15arr.length-1];
+  const vbase = atr15arr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+  const aMed = vbase.length ? vbase[Math.floor(vbase.length/2)] : NaN;
+  const volAlive = isFinite(a15) && isFinite(aMed) && a15>=0.8*aMed;
+  const e21h1 = ema(h1rows.map(r=>r.c),21); const e21h1v = e21h1[e21h1.length-1];
+  const look = m15rows.slice(-12);
+  const lvls = dir==='long' ? [['Asia low',asiaLo],['PDL',PDL]] : [['Asia high',asiaHi],['PDH',PDH]];
+  let swept=null, sweptLvl=NaN, ext=NaN;
+  for (const [nm,lv] of lvls){
+    if (!isFinite(lv)) continue;
+    if (dir==='long' && Math.min(...look.map(r=>r.l)) < lv){ swept=nm; sweptLvl=lv; ext=Math.min(...look.map(r=>r.l)); break; }
+    if (dir==='short' && Math.max(...look.map(r=>r.h)) > lv){ swept=nm; sweptLvl=lv; ext=Math.max(...look.map(r=>r.h)); break; }
+  }
+  const reclaimed = swept && (dir==='long' ? lastClose>sweptLvl : lastClose<sweptLvl);
+  const htfOk = dir==='long' ? lastClose>e21h1v : lastClose<e21h1v;
+  const g=[];
+  g.push(['JS1','Kill zone active (London/NY)', sess.kz?'pass':'veto', sess.name]);
+  g.push(['JS2', `Liquidity sweep of ${dir==='long'?'Asia low / PDL':'Asia high / PDH'} (last 3h)`, swept?'pass':'veto', swept?`swept ${swept} ${px(sweptLvl)} \u00b7 extreme ${px(ext)}`:'no sweep']);
+  g.push(['JS3','Closed 15m bar reclaimed the level', reclaimed?'pass':'veto', swept?`close ${px(lastClose)} vs ${px(sweptLvl)}`:'\u2014']);
+  g.push(['JS4','1H context not fighting you (close vs 1H EMA21)', htfOk?'pass':'veto', `1H EMA21 ${px(e21h1v)}`]);
+  g.push(['JS5','Volatility alive (15m ATR \u2265 0.8\u00d7 24h median)', volAlive?'pass':'veto', `ATR ${px(a15)} \u00b7 med ${px(aMed)}`]);
+  let entry=null, stop=null, t1=null, room=null, risk=null, oppo=null;
+  if (swept && reclaimed){
+    stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;
+    entry = lastClose;
+    risk = Math.abs(entry-stop);
+    const oppoCands = (dir==='long'?[asiaHi,PDH]:[asiaLo,PDL]).filter(isFinite);
+    oppo = oppoCands.length ? (dir==='long'?Math.min(...oppoCands):Math.max(...oppoCands)) : NaN;
+    room = dir==='long' ? oppo-entry : entry-oppo;
+    const rrOk = risk>0 && isFinite(room) && room>=2*risk;
+    g.push(['JS6','2R fits before the opposite liquidity pool', rrOk?'pass':'veto', risk>0&&isFinite(room)?`room ${px(room)} vs 2R ${px(2*risk)} (pool ${px(oppo)})`:'\u2014']);
+    if (rrOk) t1 = dir==='long'?entry+2*risk:entry-2*risk;
+  } else {
+    g.push(['JS6','2R fits before the opposite pool','na','needs a completed sweep + reclaim first']);
+  }
+  const veto = g.some(x=>x[2]==='veto');
+  return { gates: g, veto, dir, entry, stop, t1, oppo };
+}
 
+function backtestScalpTD(h1rows, m15rows){
+  const lastv = a => a[a.length-1];
+  const MIN_M15 = 60, HORIZON = 80;
+  const results = [];
+  let hIdx = 0;
+  let i = MIN_M15;
+  while (i < m15rows.length - 1){
+    const barT = m15rows[i].t;
+    while (hIdx+1 < h1rows.length && h1rows[hIdx+1].t <= barT) hIdx++;
+    if (hIdx < 55){ i++; continue; }
+    const h1win = h1rows.slice(0, hIdx+1);
+    const c1 = h1win.map(r=>r.c);
+    const e9h=lastv(ema(c1,9)), e21h=lastv(ema(c1,21)), e50h=lastv(ema(c1,50));
+    let dir=null;
+    if (e9h>e21h && e21h>e50h) dir='long'; else if (e9h<e21h && e21h<e50h) dir='short';
+    if (!dir){ i++; continue; }
+    const win15 = m15rows.slice(0, i+1);
+    const c15 = win15.map(r=>r.c);
+    const n = c15.length;
+    if (n<40){ i++; continue; }
+    const e9a = ema(c15,9), e21a = ema(c15,21);
+    const priorWin = win15.slice(n-24, n-7);
+    const localLow = Math.min(...priorWin.map(r=>r.l));
+    const localHigh = Math.max(...priorWin.map(r=>r.h));
+    const recentWin = win15.slice(n-7, n-1);
+    const sweptLiquidity = dir==='long' ? Math.min(...recentWin.map(r=>r.l)) < localLow : Math.max(...recentWin.map(r=>r.h)) > localHigh;
+    const reclaimed = dir==='long' ? (c15[n-1]>e9a[n-1] && e9a[n-1]>e21a[n-1]) : (c15[n-1]<e9a[n-1] && e9a[n-1]<e21a[n-1]);
+    if (!(sweptLiquidity && reclaimed)){ i++; continue; }
+    const r15 = lastv(rsi(c15,14));
+    if (dir==='long' ? !(r15>=40&&r15<=65) : !(r15>=35&&r15<=60)){ i++; continue; }
+    const mins = fundingMinsAt(win15[n-1].t);
+    if (mins<25){ i++; continue; }
+    const atrArr = atr(win15,14);
+    const a = lastv(atrArr);
+    const base = atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+    const aMed = base.length? base[Math.floor(base.length/2)] : NaN;
+    if (!(isFinite(a)&&isFinite(aMed)&&a>=0.8*aMed)){ i++; continue; }
+    const currentBar = win15[n-1];
+    const range = currentBar.h-currentBar.l;
+    const closePos = range>0 ? (currentBar.c-currentBar.l)/range : 0.5;
+    if (dir==='long'&&closePos<0.60){ i++; continue; }
+    if (dir==='short'&&closePos>0.40){ i++; continue; }
+    const entry = c15[n-1];
+    const stop = dir==='long'? localLow-0.25*a : localHigh+0.25*a;
+    const risk = Math.abs(entry-stop);
+    if (!(risk>0)){ i++; continue; }
+    const expectedMove = a*2.5;
+    const maxExcursion = a*4;
+    const dynamicRR = expectedMove/risk;
+    if (!(dynamicRR>=1.5)){ i++; continue; }
+    const t1 = dir==='long'? entry+expectedMove: entry-expectedMove;
+    const t2 = dir==='long'? entry+maxExcursion: entry-maxExcursion;
+    let outcome='unresolved', resolvedAt=null, rMult=0;
+    for (let j=i+1;j<Math.min(m15rows.length, i+1+HORIZON); j++){
+      const bar = m15rows[j];
+      if (dir==='long'){
+        if (bar.l<=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+        if (bar.h>=t2){ outcome='target2'; resolvedAt=j; rMult=(t2-entry)/risk; break; }
+        if (bar.h>=t1){ outcome='target1'; resolvedAt=j; rMult=(t1-entry)/risk; break; }
+      } else {
+        if (bar.h>=stop){ outcome='stop'; resolvedAt=j; rMult=-1; break; }
+        if (bar.l<=t2){ outcome='target2'; resolvedAt=j; rMult=(entry-t2)/risk; break; }
+        if (bar.l<=t1){ outcome='target1'; resolvedAt=j; rMult=(entry-t1)/risk; break; }
+      }
+    }
+    results.push({ t: win15[n-1].t, dir, entry, stop, t1, t2, outcome, rMult });
+    i = (resolvedAt!==null?resolvedAt:i+HORIZON)+1;
+  }
+  return results;
+}
 
-    async function runScalpBacktestUI(){
+function backtestGoldSwingTD(d1rows, h4rows){
+  const lastv = a => a[a.length-1];
+  const MIN_H4 = 210, HORIZON = 180;
+  const results = [];
+  let dIdx = 0;
+  let i = MIN_H4;
+  while (i < h4rows.length - 1){
+    const win4 = h4rows.slice(0, i+1);
+    const t = win4[win4.length-1].t;
+    const c4 = win4.map(r=>r.c);
+    const e9=lastv(ema(c4,9)), e21=lastv(ema(c4,21)), e50=lastv(ema(c4,50));
+    const a4 = lastv(atr(win4,14));
+    const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short':'mixed');
+    if (casc==='mixed'){ i++; continue; }
+    const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
+    if (!spreadOk){ i++; continue; }
+    while (dIdx+1 < d1rows.length && d1rows[dIdx+1].t <= t) dIdx++;
+    if (dIdx < 55){ i++; continue; }
+    const d1win = d1rows.slice(0, dIdx+1);
+    const c1 = d1win.map(r=>r.c);
+    const e50d = lastv(ema(c1,50)), pd = lastv(c1);
+    const dSide = pd>e50d ? 'long':'short';
+    if (casc!==dSide){ i++; continue; }
+    const r4 = lastv(rsi(c4,14));
+    if ((casc==='long'&&r4>70)||(casc==='short'&&r4<30)){ i++; continue; }
+    const r30g = roc(c1,30), r90g = roc(c1,90);
+    if (isFinite(r30g)&&isFinite(r90g)){
+      const want = casc==='long'?1:-1;
+      const agree = (Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
+      if (agree===0){ i++; continue; }
+    }
+    const evG = cusumLast(c4.slice(-120),1);
+    if (evG && evG.barsAgo<=20 && evG.dir!==casc){ i++; continue; }
+    const stop = lastSwing(win4, casc, 30);
+    const entry = lastv(c4);
+    const risk = Math.abs(entry-stop);
+    if (!(risk>0)){ i++; continue; }
+    const recentWin = win4.slice(-120);
+    const room = casc==='long' ? Math.max(...recentWin.map(r=>r.h))-entry : entry-Math.min(...recentWin.map(r=>r.l));
+    const rrOk = risk>0 && room/risk>=2;
+    if (!rrOk){ i++; continue; }
+    const t1 = casc==='long'?entry+2*risk:entry-2*risk;
+    const t2 = casc==='long'?entry+3*risk:entry-3*risk;
+    let outcome='unresolved', resolvedAt=null, rMult=0;
+    for (let j=i+1;j<Math.min(h4rows.length,i+1+HORIZON); j++){
+      const bar=h4rows[j];
+      if (casc==='long'){
+        if (bar.l<=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+        if (bar.h>=t2){outcome='target2';resolvedAt=j;rMult=3;break;}
+        if (bar.h>=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+      } else {
+        if (bar.h>=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+        if (bar.l<=t2){outcome='target2';resolvedAt=j;rMult=3;break;}
+        if (bar.l<=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+      }
+    }
+    results.push({t, dir:casc, entry, stop, t1, t2, outcome, rMult});
+    i = (resolvedAt!==null?resolvedAt:i+HORIZON)+1;
+  }
+  return results;
+}
+
+function backtestJudasTD(d1rows, h1rows, m15rows){
+  const MIN_LOOKBACK = 150, HORIZON = 40;
+  const results = [];
+  let hIdx = 0, dIdx = 0;
+  let i = MIN_LOOKBACK;
+  while (i < m15rows.length - 1){
+    const t = m15rows[i].t;
+    const sess = sessionAt(t);
+    if (!sess.kz){ i++; continue; }
+    const day0now = dayStartOf(t);
+    while (dIdx+1 < d1rows.length && d1rows[dIdx+1].t < day0now) dIdx++;
+    if (d1rows[dIdx].t >= day0now){ i++; continue; }
+    const PDH = d1rows[dIdx].h, PDL = d1rows[dIdx].l;
+    while (hIdx+1 < h1rows.length && h1rows[hIdx+1].t <= t) hIdx++;
+    if (hIdx < 25){ i++; continue; }
+    const h1win = h1rows.slice(0, hIdx+1);
+    const e21h1arr = ema(h1win.map(r=>r.c),21);
+    const e21h1v = e21h1arr[e21h1arr.length-1];
+    const day0 = (t < day0now+7*3600) ? day0now-86400 : day0now;
+    const win15 = m15rows.slice(0, i+1);
+    const asia = win15.filter(r=> r.t>=day0 && r.t<day0+7*3600);
+    const asiaHi = asia.length ? Math.max(...asia.map(r=>r.h)) : NaN;
+    const asiaLo = asia.length ? Math.min(...asia.map(r=>r.l)) : NaN;
+    const c15 = win15.map(r=>r.c), n15=c15.length;
+    const lastClose = c15[n15-1];
+    const atr15arr = atr(win15,14);
+    const a15 = atr15arr[atr15arr.length-1];
+    const vbase = atr15arr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+    const aMed = vbase.length? vbase[Math.floor(vbase.length/2)] : NaN;
+    const volAlive = isFinite(a15)&&isFinite(aMed)&&a15>=0.8*aMed;
+    const look = win15.slice(-12);
+    let resolvedAt=null;
+    for (const dir of ['long','short']){
+      const lvls = dir==='long'?[['Asia low',asiaLo],['PDL',PDL]]:[['Asia high',asiaHi],['PDH',PDH]];
+      let swept=null, sweptLvl=NaN, ext=NaN;
+      for (const [nm,lv] of lvls){
+        if (!isFinite(lv)) continue;
+        if (dir==='long' && Math.min(...look.map(r=>r.l)) < lv){ swept=nm; sweptLvl=lv; ext=Math.min(...look.map(r=>r.l)); break; }
+        if (dir==='short' && Math.max(...look.map(r=>r.h)) > lv){ swept=nm; sweptLvl=lv; ext=Math.max(...look.map(r=>r.h)); break; }
+      }
+      if (!swept) continue;
+      const reclaimed = dir==='long' ? lastClose>sweptLvl : lastClose<sweptLvl;
+      if (!reclaimed) continue;
+      const htfOk = dir==='long' ? lastClose>e21h1v : lastClose<e21h1v;
+      if (!htfOk) continue;
+      if (!volAlive) continue;
+      const stop = dir==='long' ? ext-0.25*a15 : ext+0.25*a15;
+      const entry = lastClose;
+      const risk = Math.abs(entry-stop);
+      if (!(risk>0)) continue;
+      const oppoCands = (dir==='long'?[asiaHi,PDH]:[asiaLo,PDL]).filter(isFinite);
+      const oppo = oppoCands.length ? (dir==='long'?Math.min(...oppoCands):Math.max(...oppoCands)) : NaN;
+      const room = dir==='long' ? oppo-entry : entry-oppo;
+      if (!(isFinite(room) && room>=2*risk)) continue;
+      const t1 = dir==='long'?entry+2*risk:entry-2*risk;
+      let outcome='unresolved', rMult=0;
+      for (let j=i+1;j<Math.min(m15rows.length,i+1+HORIZON); j++){
+        const bar=m15rows[j];
+        if (dir==='long'){
+          if (bar.l<=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+          if (bar.h>=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+        } else {
+          if (bar.h>=stop){outcome='stop';resolvedAt=j;rMult=-1;break;}
+          if (bar.l<=t1){outcome='target1';resolvedAt=j;rMult=2;break;}
+        }
+      }
+      results.push({t, dir, entry, stop, t1, outcome, rMult});
+      if (resolvedAt===null) resolvedAt = i+HORIZON;
+      break;
+    }
+    i = resolvedAt!==null ? resolvedAt+1 : i+1;
+  }
+  return results;
+}
+
+function backtestSummaryHTML2(label, rows, results, note){
+  const fmtD = t => new Date(t*1000).toISOString().slice(0,10);
+  const total = results.length;
+  const wins = results.filter(r=>r.outcome==='target1'||r.outcome==='target2').length;
+  const stops = results.filter(r=>r.outcome==='stop').length;
+  const openCt = results.filter(r=>r.outcome==='unresolved').length;
+  const resolved = results.filter(r=>r.outcome!=='unresolved');
+  const winRate = total ? (wins/total*100) : NaN;
+  const avgR = resolved.length ? (resolved.reduce((a,r)=>a+r.rMult,0)/resolved.length) : NaN;
+  const rangeNote = rows.length ? (fmtD(rows[0].t)+' to '+fmtD(rows[rows.length-1].t)) : 'n/a';
+  const smallNote = total<10 ? '<div class="note warn">Sample size is small ('+total+' signals) — treat as directional evidence, not a reliable win rate.</div>' : '';
+  return '<div class="panel"><h2>'+label+' BACKTEST <span>Twelve Data history · '+rangeNote+'</span></h2>'
+  + '<div class="note">'+note+'</div>'
+  + '<div class="kv"><span class="k">Signals found</span><span class="v">'+total+'</span></div>'
+  + '<div class="kv"><span class="k">Hit target first</span><span class="v">'+wins+' ('+(total?winRate.toFixed(1):'0.0')+'%)</span></div>'
+  + '<div class="kv"><span class="k">Hit stop first</span><span class="v">'+stops+'</span></div>'
+  + '<div class="kv"><span class="k">Still open at horizon end</span><span class="v">'+openCt+'</span></div>'
+  + '<div class="kv"><span class="k">Avg R (resolved trades)</span><span class="v">'+(isFinite(avgR)?avgR.toFixed(2)+'R':'n/a')+'</span></div>'
+  + smallNote + '</div>';
+}
+
+async function findTickerForBase(base){
+  const B = base.toUpperCase();
+  const dts = await loadTickersDelta();
+  let hit = dts.find(t => searchBase(t.symbol,'delta')===B);
+  if (hit) return {exch:'delta', sym:hit.symbol, fundingPct:hit.fundingPct, mark:hit.mark};
+  const cts = await loadTickersCdcx();
+  hit = cts.find(t => searchBase(t.symbol,'coindcx')===B);
+  if (hit) return {exch:'coindcx', sym:hit.symbol, fundingPct:hit.fundingPct ?? null, mark:hit.mark};
+  return null;
+}
+
+async function evalSwingSingle(sym, exch){
+  const rows = exch==='delta' ? await candlesDelta(sym,'4h',260) : await candlesCdcx(sym,'4h',260);
+  if (rows.length<210) return {error:'not enough 4H history'};
+  const c=rows.map(r=>r.c);
+  const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50)), e200=last(ema(c,200));
+  const p=last(c), r14=last(rsi(c,14)), vz=volZ(rows,20);
+  const a4=last(atr(rows,14));
+  let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : null);
+  const g=[];
+  const spreadOk = dir && isFinite(a4) && Math.abs(e21-e50)>=0.25*a4;
+  g.push(['G1','4H EMA cascade with real spread', dir&&spreadOk?'pass':'veto', dir?`${dir.toUpperCase()} · spread ${isFinite(a4)?fmt(Math.abs(e21-e50)/a4,2):'—'}x ATR`:'no cascade']);
+  if (!dir || !spreadOk) return {gates:g, veto:true};
+  const htfOk = dir==='long'?p>e200:p<e200;
+  g.push(['G2','HTF side (200EMA)', htfOk?'pass':'veto', `price ${px(p)} vs 200EMA ${px(e200)}`]);
+  const rsiVeto = (dir==='long'&&r14>70)||(dir==='short'&&r14<30);
+  g.push(['G3','RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r14,1)}`]);
+  g.push(['G4','Funding clean','na','fetched from ticker separately']);
+  if (!(vz>0.5)){ g.push(['G5','Vol + wick commit','veto',`vol z ${fmt(vz,2)} (need >0.5)`]); return {gates:g, veto:true}; }
+  const currentBar=rows[rows.length-1]; const range=currentBar.h-currentBar.l; const closePos=range>0?(currentBar.c-currentBar.l)/range:0.5;
+  const wickOk = dir==='long'?closePos>=0.60:closePos<=0.40;
+  g.push(['G5','Vol + wick commit', wickOk?'pass':'veto', `vol z ${fmt(vz,2)} · closePos ${fmt(closePos,2)}`]);
+  if (!wickOk) return {gates:g, veto:true};
+  const stop = lastSwing(rows, dir, 30);
+  const distToAnchor = Math.abs(p-e21)/a4;
+  const risk = Math.abs(p-stop);
+  const expectedMove = a4*3.5;
+  const dynamicRR = risk>0 ? expectedMove/risk : NaN;
+  const rrOk = distToAnchor<=1.5 && risk>0 && dynamicRR>=2;
+  g.push(['G6','Structural R:R \u2265 2', rrOk?'pass':'veto', risk>0?`dyn R:R ${fmt(dynamicRR,2)} \u00b7 dist/anchor ${fmt(distToAnchor,2)}`:'no structure']);
+  if (!rrOk) return {gates:g, veto:true, entry:p, stop};
+  const ev = cusumLast(c.slice(-120),1);
+  const cusumVeto = ev && ev.barsAgo<=20 && ev.dir!==dir;
+  g.push(['G7','CUSUM event alignment', cusumVeto?'veto':'pass', ev?`${ev.dir.toUpperCase()} event ${ev.barsAgo} bars ago`:'no recent event']);
+  const veto = g.some(x=>x[2]==='veto');
+  const t2 = dir==='long'?p+a4*4.9:p-a4*4.9;
+  const t1 = dir==='long'?p+expectedMove:p-expectedMove;
+  return {gates:g, veto, dir, entry:p, stop, t1, t2};
+}
+
+async function evalScalpSingle(sym, exch, tickerFundingPct, minsToFunding){
+  const h1 = exch==='delta' ? await candlesDelta(sym,'1h',120) : await candlesCdcx(sym,'1h',120);
+  if (h1.length<60) return {error:'not enough 1H history'};
+  const c1=h1.map(r=>r.c);
+  const e9h=last(ema(c1,9)), e21h=last(ema(c1,21)), e50h=last(ema(c1,50));
+  let dir = e9h>e21h&&e21h>e50h ? 'long' : (e9h<e21h&&e21h<e50h ? 'short' : null);
+  const g=[];
+  g.push(['G1','1H trend', dir?'pass':'veto', dir?dir.toUpperCase():'no clean 1H trend']);
+  if (!dir) return {gates:g, veto:true};
+  const m15 = exch==='delta' ? await candlesDelta(sym,'15m',160) : await candlesCdcx(sym,'15m',160);
+  if (m15.length<60) return {gates:g, veto:true, error:'not enough 15m history'};
+  const c15=m15.map(r=>r.c); const n=c15.length;
+  const e9a=ema(c15,9), e21a=ema(c15,21);
+  const priorWin = m15.slice(n-24,n-7);
+  const localLow = Math.min(...priorWin.map(r=>r.l));
+  const localHigh = Math.max(...priorWin.map(r=>r.h));
+  const recentWin = m15.slice(n-7,n-1);
+  const sweptLiquidity = dir==='long' ? Math.min(...recentWin.map(r=>r.l))<localLow : Math.max(...recentWin.map(r=>r.h))>localHigh;
+  const reclaimed = dir==='long' ? (c15[n-1]>e9a[n-1]&&e9a[n-1]>e21a[n-1]) : (c15[n-1]<e9a[n-1]&&e9a[n-1]<e21a[n-1]);
+  g.push(['G2','Judas sweep + reclaim', sweptLiquidity&&reclaimed?'pass':'veto', sweptLiquidity?(reclaimed?'swept + reclaimed':'swept, not reclaimed yet'):'no sweep of local low/high']);
+  if (!(sweptLiquidity&&reclaimed)) return {gates:g, veto:true};
+  const r15 = last(rsi(c15,14));
+  const rsiOk = dir==='long'?(r15>=40&&r15<=65):(r15>=35&&r15<=60);
+  g.push(['G3','15m RSI band', rsiOk?'pass':'veto', `RSI15 ${fmt(r15,1)}`]);
+  if (!rsiOk) return {gates:g, veto:true};
+  let g4='na', g4d='funding n/a';
+  if (tickerFundingPct!=null){
+    const bad = Math.abs(tickerFundingPct)>0.05-1e-9 || (dir==='long'&&tickerFundingPct>=0.04) || (dir==='short'&&tickerFundingPct<=-0.04);
+    g4 = bad?'veto':'pass'; g4d = `${fmt(tickerFundingPct,4)}%/interval`;
+  }
+  g.push(['G4','Funding clean', g4, g4d]);
+  if (g4==='veto') return {gates:g, veto:true};
+  const settleOk = minsToFunding==null || minsToFunding>=25;
+  g.push(['G5','\u2265 25 min to funding settlement', settleOk?'pass':'veto', minsToFunding!=null?`${fmt(minsToFunding,0)}m to settle`:'n/a']);
+  if (!settleOk) return {gates:g, veto:true};
+  const atrArr=atr(m15,14); const a=last(atrArr);
+  const base=atrArr.slice(-96).filter(isFinite).sort((x,y)=>x-y);
+  const aMed=base.length?base[Math.floor(base.length/2)]:NaN;
+  const volAlive = isFinite(a)&&isFinite(aMed)&&a>=0.8*aMed;
+  g.push(['G6','Volatility alive', volAlive?'pass':'veto', `ATR15 ${px(a)} \u00b7 med ${px(aMed)}`]);
+  if (!volAlive) return {gates:g, veto:true};
+  const entry=c15[n-1];
+  const stop = dir==='long'?localLow-0.25*a:localHigh+0.25*a;
+  const risk=Math.abs(entry-stop);
+  const expectedMove=a*2.5, maxExcursion=a*4;
+  const dynamicRR = risk>0?expectedMove/risk:NaN;
+  const rrOk = risk>0 && dynamicRR>=1.5;
+  g.push(['G7','1.5R vol-capped', rrOk?'pass':'veto', risk>0?`dyn R:R ${fmt(dynamicRR,2)}`:'no risk']);
+  const veto = g.some(x=>x[2]==='veto');
+  const t1 = dir==='long'?entry+expectedMove:entry-expectedMove;
+  const t2 = dir==='long'?entry+maxExcursion:entry-maxExcursion;
+  return {gates:g, veto, dir, entry, stop, t1, t2};
+}
+
+async function evalGoldSwing(){
+  const d1 = await getXAUCandles('1d',260);
+  const h4 = await getXAUCandles('4h',300);
+  if (d1.length<60||h4.length<210) return {error:'not enough XAUTUSD history'};
+  const c4=h4.map(r=>r.c), c1=d1.map(r=>r.c);
+  const e9=last(ema(c4,9)), e21=last(ema(c4,21)), e50=last(ema(c4,50));
+  const a4=last(atr(h4,14));
+  const e50d=last(ema(c1,50)), pd=last(c1);
+  const r4=last(rsi(c4,14));
+  const casc = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+  const spreadOk = isFinite(a4) && Math.abs(e21-e50) >= 0.25*a4;
+  const dSide = pd>e50d ? 'long' : 'short';
+  const sg=[];
+  sg.push(['GS1','4H EMA cascade with real spread', casc!=='mixed'&&spreadOk?'pass':'veto', `9/21/50 \u2192 ${casc.toUpperCase()}`]);
+  sg.push(['GS2','1D side agrees', casc!=='mixed'&&casc===dSide?'pass':'veto', `1D \u2192 ${dSide.toUpperCase()}`]);
+  const rsiVeto=(casc==='long'&&r4>70)||(casc==='short'&&r4<30);
+  sg.push(['GS3','4H RSI exhaustion guard', rsiVeto?'veto':'pass', `RSI14 ${fmt(r4,1)}`]);
+  sg.push(['GS4','Funding clean','na','funding n/a on this feed']);
+  const r30g=roc(c1,30), r90g=roc(c1,90);
+  let gs5='na';
+  if (casc!=='mixed' && isFinite(r30g) && isFinite(r90g)){
+    const want=casc==='long'?1:-1;
+    const agree=(Math.sign(r30g)===want?1:0)+(Math.sign(r90g)===want?1:0);
+    gs5 = agree===2?'pass':agree===0?'veto':'na';
+  }
+  sg.push(['GS5','TSMOM 30/90d sign', gs5, `30d ${pct(r30g,1)} \u00b7 90d ${pct(r90g,1)}`]);
+  const evG = cusumLast(c4.slice(-120), 1);
+  let gs6='na';
+  if (evG && evG.barsAgo<=20 && casc!=='mixed') gs6 = evG.dir===casc?'pass':'veto';
+  sg.push(['GS6','CUSUM event alignment', gs6, evG?`${evG.dir.toUpperCase()} event ${evG.barsAgo} bars ago`:'no recent event']);
+  let entry=null, stop=null, t1=null, t2=null;
+  if (casc!=='mixed'){
+    stop=lastSwing(h4,casc,30); entry=last(c4);
+    const risk=Math.abs(entry-stop);
+    const room = casc==='long' ? Math.max(...h4.slice(-120).map(r=>r.h))-entry : entry-Math.min(...h4.slice(-120).map(r=>r.l));
+    const rrOk = risk>0 && room/risk>=2;
+    sg.push(['GS7','Structural R:R \u2265 2', rrOk?'pass':'veto', risk>0?`${fmt(room/risk,2)}R room`:'no structure']);
+    if(rrOk){ t1=casc==='long'?entry+2*risk:entry-2*risk; t2=casc==='long'?entry+3*risk:entry-3*risk; }
+  } else {
+    sg.push(['GS7','Structural R:R \u2265 2','na','no direction']);
+  }
+  const veto = sg.some(x=>x[2]==='veto');
+  return {gates:sg, veto, dir:casc!=='mixed'?casc:null, entry, stop, t1, t2};
+}
+
+function renderStrategy(label, result){
+  if (result.error) return `<div class="panel"><h2>${label}</h2><div class="note warn">${result.error}</div></div>`;
+  const ledger = result.gates.map(g=>gateRow(...g)).join('');
+  const verdict = result.veto ? 'NO TRADE' : (result.dir ? result.dir.toUpperCase()+' VALID' : 'STAND ASIDE');
+  const planHtml = (!result.veto && result.dir && result.entry!=null && result.stop!=null && result.t1!=null)
+    ? `<div class="plan">${planBlock(result.dir, result.entry, result.stop, result.t1, result.t2||result.t1)}</div>`
+    : '';
+  return `<div class="panel"><h2>${label}</h2><div class="ledger">${ledger}</div><div class="verdict ${result.veto?'aside':(result.dir||'aside')}"><div class="vword">${verdict}</div></div>${planHtml}</div>`;
+}
+
+function finderTypeChanged(){
+  const type = document.getElementById('finderType').value;
+  document.getElementById('finderSymWrap').style.display = type==='crypto' ? '' : 'none';
+}
+
+async function runFinder(){
+  const type = document.getElementById('finderType').value;
+  const out = document.getElementById('finderOut');
+  const stat = document.getElementById('finderStat');
+  out.innerHTML=''; stat.textContent='evaluating\u2026';
+  try{
+    if (type==='gold'){
+      const swing = await evalGoldSwing();
+      const d1=await getXAUCandles('1d',60), h1=await getXAUCandles('1h',200), m15=await getXAUCandles('15m',200);
+      const jl = judasSweepCheck('long', d1, h1, m15);
+      const js = judasSweepCheck('short', d1, h1, m15);
+      out.innerHTML = renderStrategy('GOLD SWING', swing) + renderStrategy('JUDAS SWEEP \u2014 LONG', jl) + renderStrategy('JUDAS SWEEP \u2014 SHORT', js)
+        + `<div class="row"><button class="btn" onclick="runFinderGoldBacktest()">RUN BACKTEST CONTEXT</button></div><div id="finderBacktestOut"></div>`;
+      stat.textContent = 'evaluated \u00b7 ' + new Date().toTimeString().slice(0,8);
+    } else {
+      const base = document.getElementById('finderSym').value.trim().toUpperCase();
+      if (!base){ stat.textContent='enter a symbol'; return; }
+      const t = await findTickerForBase(base);
+      if (!t){ out.innerHTML = '<div class="note warn">No match for "'+base+'" on Delta India or CoinDCX futures.</div>'; stat.textContent=''; return; }
+      const mins = tickClock();
+      const swing = await evalSwingSingle(t.sym, t.exch);
+      const scalp = await evalScalpSingle(t.sym, t.exch, t.fundingPct, mins);
+      const d1 = t.exch==='delta'?await candlesDelta(t.sym,'1d',60):await candlesCdcx(t.sym,'1d',60);
+      const h1 = t.exch==='delta'?await candlesDelta(t.sym,'1h',200):await candlesCdcx(t.sym,'1h',200);
+      const m15 = t.exch==='delta'?await candlesDelta(t.sym,'15m',200):await candlesCdcx(t.sym,'15m',200);
+      const jl = judasSweepCheck('long', d1, h1, m15);
+      const js = judasSweepCheck('short', d1, h1, m15);
+      out.innerHTML = `<div class="note">${t.sym} \u00b7 ${t.exch==='delta'?'Delta India':'CoinDCX'} \u00b7 mark ${px(t.mark)}</div>`
+        + renderStrategy('SWING', swing) + renderStrategy('SCALP', scalp) + renderStrategy('JUDAS SWEEP \u2014 LONG', jl) + renderStrategy('JUDAS SWEEP \u2014 SHORT', js)
+        + `<div class="row"><button class="btn" onclick="runFinderCryptoBacktest('${base}')">RUN BACKTEST CONTEXT</button></div><div id="finderBacktestOut"></div>`;
+      stat.textContent = 'evaluated \u00b7 closed bars only \u00b7 ' + new Date().toTimeString().slice(0,8);
+    }
+  }catch(e){
+    stat.textContent = 'evaluation failed: ' + e.message;
+  }
+}
+
+async function runFinderGoldBacktest(){
+  const out = document.getElementById('finderBacktestOut');
+  out.innerHTML = 'running backtest\u2026';
+  try{
+    const d1 = await getXAUCandles('1d',4990);
+    const h4 = await getXAUCandles('4h',4990);
+    const h1 = await getXAUCandles('1h',3000);
+    const m15 = await getXAUCandles('15m',5000);
+    const swingRes = backtestGoldSwingTD(d1, h4);
+    const judasRes = backtestJudasTD(d1, h1, m15);
+    out.innerHTML = backtestSummaryHTML2('GOLD SWING', h4, swingRes, "Replays this app's own gold SWING gates (GS1-GS7) bar-by-bar on real Twelve Data 4H history.")
+      + backtestSummaryHTML2('GOLD JUDAS SWEEP', m15, judasRes, "Replays the kill-zone liquidity-sweep-and-reclaim gates (JS1-JS6) bar-by-bar on real Twelve Data 15m history.");
+  }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
+}
+
+async function runFinderCryptoBacktest(base){
+  const out = document.getElementById('finderBacktestOut');
+  out.innerHTML = 'running backtest\u2026';
+  try{
+    const h1 = await getCryptoCandlesTD(base,'1h',3000);
+    const m15 = await getCryptoCandlesTD(base,'15m',5000);
+    const d1 = await getCryptoCandlesTD(base,'1d',300);
+    const c4rows = await getCryptoCandlesTD(base,'4h',5000);
+    const swingRes = backtestSwingTD(c4rows);
+    const scalpRes = backtestScalpTD(h1, m15);
+    const judasRes = backtestJudasTD(d1, h1, m15);
+    out.innerHTML = backtestSummaryHTML2(base+' SWING', c4rows, swingRes, "Replays this app's SWING gates bar-by-bar. Funding and volume-z gates excluded (Twelve Data doesn't provide historical funding or reliable crypto volume).")
+      + backtestSummaryHTML2(base+' SCALP', m15, scalpRes, "Replays this app's SCALP gates (1H trend, sweep+reclaim, RSI band, funding-window timing, ATR vol-alive, wick commit, R:R) bar-by-bar. Funding rate and volume-z excluded for the same data-availability reason.")
+      + backtestSummaryHTML2(base+' JUDAS SWEEP', m15, judasRes, "Replays the kill-zone liquidity-sweep-and-reclaim gates bar-by-bar.");
+  }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
+}
+
+async function runScalpBacktestUI(){
   const inp = document.getElementById('scalpBtSym');
   const btn = document.getElementById('scalpBtRun');
   const out = document.getElementById('scalpBtOut');
@@ -1189,7 +2789,7 @@ FIND TRADE tab + SCALP/GOLD Twelve Data backtests + Judas Sweep + Hard Refresh
     const h1 = await getCryptoCandlesTD(base,'1h',3000);
     const m15 = await getCryptoCandlesTD(base,'15m',5000);
     if (m15.length<100){ out.innerHTML = '<div class="note warn">Twelve Data has only '+m15.length+' 15m bars for '+base+' \u2014 not enough history.</div>'; return; }
-    const res = await runBacktestWorker('scalp', {h1: h1, m15: m15});
+    const res = backtestScalpTD(h1, m15);
     out.innerHTML = backtestSummaryHTML2(base+' SCALP', m15, res, "Replays this app's own SCALP gates (1H trend, sweep+reclaim, RSI band, funding-window timing, ATR vol-alive, wick commit, R:R) bar-by-bar on real Twelve Data history. Funding rate and volume-z are excluded \u2014 Twelve Data doesn't provide historical funding or reliable crypto volume, so those two live gates cannot be honestly replayed here.");
   }catch(e){ out.innerHTML = '<div class="note warn">'+e.message+'</div>'; }
   finally{ btn.disabled = false; }
@@ -1212,20 +2812,58 @@ async function runGoldBacktest(){
   finally{ btn.disabled = false; }
 }
 
+async function marketPictureCheck(){
+  const assets = [['BTC','BTCUSD'],['ETH','ETHUSD'],['SOL','SOLUSD']];
+  let longs=0, shorts=0, mixed=0; const detail=[];
+  for (const [label, sym] of assets){
+    try{
+      const rows = await candlesDelta(sym, '4h', 260);
+      const c = rows.map(r=>r.c);
+      const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50));
+      let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+      if (dir==='long') longs++; else if (dir==='short') shorts++; else mixed++;
+      detail.push(label+':'+dir);
+    }catch(e){ mixed++; detail.push(label+':err'); }
+  }
+  try{
+    const g = await getXAUCandles('4h',300);
+    const c = g.map(r=>r.c);
+    const e9=last(ema(c,9)), e21=last(ema(c,21)), e50=last(ema(c,50));
+    let dir = e9>e21&&e21>e50 ? 'long' : (e9<e21&&e21<e50 ? 'short' : 'mixed');
+    if (dir==='long') longs++; else if (dir==='short') shorts++; else mixed++;
+    detail.push('GOLD:'+dir);
+  }catch(e){ mixed++; detail.push('GOLD:err'); }
+  const total = longs+shorts+mixed;
+  let verdict;
+  if (longs>shorts && longs>=Math.ceil(total/2)+1) verdict='LONG-LEANING';
+  else if (shorts>longs && shorts>=Math.ceil(total/2)+1) verdict='SHORT-LEANING';
+  else verdict='MIXED — no clear lean';
+  return {verdict, longs, shorts, mixed, total, detail};
+}
+
+async function runMarketPictureUI(){
+  const el = document.getElementById('mpVerdict');
+  const detailEl = document.getElementById('mpDetail');
+  if (el) el.textContent = 'checking\u2026';
+  try{
+    const r = await marketPictureCheck();
+    if (el) el.textContent = r.verdict;
+    if (detailEl) detailEl.textContent = '(' + r.detail.join(' \u00b7 ') + ' \u2014 4H EMA cascade breadth across BTC/ETH/SOL/GOLD, informational only, not a trade signal)';
+  }catch(e){
+    if (el) el.textContent = 'unavailable';
+  }
+}
 
 async function hardRefreshAll(){
   const btn = document.getElementById('hardRefreshBtn');
   const chip = document.getElementById('hardRefreshStat');
   if (btn) btn.disabled = true;
-  const _swAll=document.getElementById('swingAll'); if(_swAll) _swAll.checked=true;
-    const _scAll=document.getElementById('scalpAll'); if(_scAll) _scAll.checked=true;
-    const tasks = [
+  const tasks = [
     ['MARKET PICTURE', function(){ return runMarketPictureUI(); }],
     ['BIAS', function(){ return runBias(); }],
     ['SWING', function(){ return runScan('swing'); }],
     ['SCALP', function(){ return runScan('scalp'); }],
     ['GOLD', function(){ return runGold(); }],
-    ['SUPER GOLD', function(){ return (typeof runSuperGold === 'function') ? runSuperGold() : null; }],
     ['BEST', function(){ return runBest(); }],
     ['COIL', function(){ return runCoilScan(); }],
     ['APEX', function(){ return runApexScan(); }],
